@@ -78,8 +78,7 @@ abstract class SourceFile {
   int getLine(int position) {
     List<int> starts = lineStarts;
     if (position < 0 || starts.last <= position) {
-      throw 'bad position #$position in file $filename with '
-            'length ${length}.';
+      throw 'bad position #$position in file $filename with ' 'length ${length}.';
     }
     int first = 0;
     int count = starts.length;
@@ -118,9 +117,7 @@ abstract class SourceFile {
    * Use [colorize] to wrap source code text and marker characters in color
    * escape codes.
    */
-  String getLocationMessage(String message, int start, int end,
-                            {bool includeSourceLine: true,
-                             String colorize(String text)}) {
+  String getLocationMessage(String message, int start, int end, {bool includeSourceLine: true, String colorize(String text)}) {
     if (colorize == null) {
       colorize = (text) => text;
     }
@@ -138,22 +135,22 @@ abstract class SourceFile {
       String textLine;
       // +1 for 0-indexing, +1 again to avoid the last line of the file
       if ((line + 2) < lineStarts.length) {
-        textLine = slowSubstring(lineStarts[line], lineStarts[line+1]);
+        textLine = slowSubstring(lineStarts[line], lineStarts[line + 1]);
       } else {
         textLine = '${slowSubstring(lineStarts[line], length)}\n';
       }
 
-      int toColumn = min(column + (end-start), textLine.length);
+      int toColumn = min(column + (end - start), textLine.length);
       buf.write(textLine.substring(0, column));
       buf.write(colorize(textLine.substring(column, toColumn)));
       buf.write(textLine.substring(toColumn));
 
       int i = 0;
-      for (; i < column; i++) {
+      for ( ; i < column; i++) {
         buf.write(' ');
       }
 
-      for (; i < toColumn; i++) {
+      for ( ; i < toColumn; i++) {
         buf.write(colorize('^'));
       }
     }
@@ -212,7 +209,7 @@ class StringSourceFile extends SourceFile {
   StringSourceFile(this.filename, this.text);
 
   int get length => text.length;
-  set length(int v) { }
+  set length(int v) {}
 
   String slowText() => text;
 

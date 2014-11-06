@@ -87,8 +87,7 @@ abstract class ClassWorld {
   bool isUsedAsMixin(ClassElement cls);
 
   /// Returns `true` if any live class that mixes in [cls] implements [type].
-  bool hasAnySubclassOfMixinUseThatImplements(ClassElement cls,
-                                              ClassElement type);
+  bool hasAnySubclassOfMixinUseThatImplements(ClassElement cls, ClassElement type);
 
   /// Returns `true` if any live class that mixes in [mixin] is also a subclass
   /// of [superclass].
@@ -108,16 +107,12 @@ class World implements ClassWorld {
   ClassElement get stringClass => compiler.stringClass;
 
   bool checkInvariants(ClassElement cls, {bool mustBeInstantiated: true}) {
-    return
-      invariant(cls, cls.isDeclaration,
-                message: '$cls must be the declaration.') &&
-      invariant(cls, cls.isResolved,
-                message: '$cls must be resolved.');
+    return invariant(cls, cls.isDeclaration, message: '$cls must be the declaration.') && invariant(cls, cls.isResolved, message: '$cls must be resolved.');
     // TODO(johnniwinther): Enable check for instantiation:
     // (!mustBeInstantiated ||
     //   invariant(cls, isInstantiated(cls),
     //             message: '$cls is not instantiated.'));
- }
+  }
 
   /// Returns `true` if [x] is a subtype of [y], that is, if [x] implements an
   /// instance of [y].
@@ -156,8 +151,7 @@ class World implements ClassWorld {
   Iterable<ClassElement> subclassesOf(ClassElement cls) {
     Set<ClassElement> subclasses = _subclasses[cls.declaration];
     if (subclasses == null) return const <ClassElement>[];
-    assert(invariant(cls, isInstantiated(cls.declaration),
-        message: 'Class $cls has not been instantiated.'));
+    assert(invariant(cls, isInstantiated(cls.declaration), message: 'Class $cls has not been instantiated.'));
     return subclasses;
   }
 
@@ -231,13 +225,9 @@ class World implements ClassWorld {
     } while (iterator.moveNext());
 
     List<ClassElement> commonSupertypes = <ClassElement>[];
-    OUTER: for (Link<DartType> link = typeSet[depth];
-                link.head.element != objectClass;
-                link = link.tail) {
+    OUTER: for (Link<DartType> link = typeSet[depth]; link.head.element != objectClass; link = link.tail) {
       ClassElement cls = link.head.element;
-      for (Link<OrderedTypeSet> link = otherTypeSets;
-          !link.isEmpty;
-          link = link.tail) {
+      for (Link<OrderedTypeSet> link = otherTypeSets; !link.isEmpty; link = link.tail) {
         if (link.head.asInstanceOf(cls) == null) {
           continue OUTER;
         }
@@ -260,8 +250,7 @@ class World implements ClassWorld {
     if (_liveMixinUses == null) {
       _liveMixinUses = new Map<ClassElement, List<MixinApplicationElement>>();
       for (ClassElement mixin in _mixinUses.keys) {
-        Iterable<MixinApplicationElement> uses =
-            _mixinUses[mixin].where(isInstantiated);
+        Iterable<MixinApplicationElement> uses = _mixinUses[mixin].where(isInstantiated);
         if (uses.isNotEmpty) _liveMixinUses[mixin] = uses.toList();
       }
     }
@@ -275,10 +264,8 @@ class World implements ClassWorld {
   }
 
   /// Returns `true` if any live class that mixes in [cls] implements [type].
-  bool hasAnySubclassOfMixinUseThatImplements(ClassElement cls,
-                                              ClassElement type) {
-    return mixinUsesOf(cls).any(
-        (use) => hasAnySubclassThatImplements(use, type));
+  bool hasAnySubclassOfMixinUseThatImplements(ClassElement cls, ClassElement type) {
+    return mixinUsesOf(cls).any((use) => hasAnySubclassThatImplements(use, type));
   }
 
   /// Returns `true` if any live class that mixes in [mixin] is also a subclass
@@ -288,8 +275,7 @@ class World implements ClassWorld {
   }
 
   /// Returns `true` if any subclass of [superclass] implements [type].
-  bool hasAnySubclassThatImplements(ClassElement superclass,
-                                    ClassElement type) {
+  bool hasAnySubclassThatImplements(ClassElement superclass, ClassElement type) {
     Set<ClassElement> subclasses = typesImplementedBySubclassesOf(superclass);
     if (subclasses == null) return false;
     return subclasses.contains(type);
@@ -303,26 +289,21 @@ class World implements ClassWorld {
 
   final Set<TypedefElement> allTypedefs = new Set<TypedefElement>();
 
-  final Map<ClassElement, List<MixinApplicationElement>> _mixinUses =
-      new Map<ClassElement, List<MixinApplicationElement>>();
+  final Map<ClassElement, List<MixinApplicationElement>> _mixinUses = new Map<ClassElement, List<MixinApplicationElement>>();
   Map<ClassElement, List<MixinApplicationElement>> _liveMixinUses;
 
-  final Map<ClassElement, Set<ClassElement>> _typesImplementedBySubclasses =
-      new Map<ClassElement, Set<ClassElement>>();
+  final Map<ClassElement, Set<ClassElement>> _typesImplementedBySubclasses = new Map<ClassElement, Set<ClassElement>>();
 
   // We keep track of subtype and subclass relationships in four
   // distinct sets to make class hierarchy analysis faster.
-  final Map<ClassElement, Set<ClassElement>> _subclasses =
-      new Map<ClassElement, Set<ClassElement>>();
-  final Map<ClassElement, Set<ClassElement>> _subtypes =
-      new Map<ClassElement, Set<ClassElement>>();
+  final Map<ClassElement, Set<ClassElement>> _subclasses = new Map<ClassElement, Set<ClassElement>>();
+  final Map<ClassElement, Set<ClassElement>> _subtypes = new Map<ClassElement, Set<ClassElement>>();
 
   final Set<Element> sideEffectsFreeElements = new Set<Element>();
 
   final Set<Element> elementsThatCannotThrow = new Set<Element>();
 
-  final Set<Element> functionsThatMightBePassedToApply =
-      new Set<FunctionElement>();
+  final Set<Element> functionsThatMightBePassedToApply = new Set<FunctionElement>();
 
   final Set<Element> alreadyPopulated;
 
@@ -358,8 +339,7 @@ class World implements ClassWorld {
       }
 
       for (DartType type in cls.allSupertypes) {
-        Set<Element> subtypesOfSupertype =
-            _subtypes.putIfAbsent(type.element, () => new Set<ClassElement>());
+        Set<Element> subtypesOfSupertype = _subtypes.putIfAbsent(type.element, () => new Set<ClassElement>());
         subtypesOfSupertype.add(cls);
       }
 
@@ -367,13 +347,10 @@ class World implements ClassWorld {
       // implemented by that type on the superclasses.
       ClassElement superclass = cls.superclass;
       while (superclass != null) {
-        Set<Element> subclassesOfSuperclass =
-            _subclasses.putIfAbsent(superclass, () => new Set<ClassElement>());
+        Set<Element> subclassesOfSuperclass = _subclasses.putIfAbsent(superclass, () => new Set<ClassElement>());
         subclassesOfSuperclass.add(cls);
 
-        Set<Element> typesImplementedBySubclassesOfCls =
-            _typesImplementedBySubclasses.putIfAbsent(
-                superclass, () => new Set<ClassElement>());
+        Set<Element> typesImplementedBySubclassesOfCls = _typesImplementedBySubclasses.putIfAbsent(superclass, () => new Set<ClassElement>());
         for (DartType current in cls.allSupertypes) {
           typesImplementedBySubclassesOfCls.add(current.element);
         }
@@ -388,14 +365,11 @@ class World implements ClassWorld {
     compiler.resolverWorld.directlyInstantiatedClasses.forEach(addSubtypes);
   }
 
-  void registerMixinUse(MixinApplicationElement mixinApplication,
-                        ClassElement mixin) {
+  void registerMixinUse(MixinApplicationElement mixinApplication, ClassElement mixin) {
     // TODO(johnniwinther): Add map restricted to live classes.
     // We don't support patch classes as mixin.
     assert(mixin.isDeclaration);
-    List<MixinApplicationElement> users =
-        _mixinUses.putIfAbsent(mixin, () =>
-                               new List<MixinApplicationElement>());
+    List<MixinApplicationElement> users = _mixinUses.putIfAbsent(mixin, () => new List<MixinApplicationElement>());
     users.add(mixinApplication);
   }
 
@@ -415,9 +389,7 @@ class World implements ClassWorld {
   }
 
   Element locateSingleElement(Selector selector) {
-    ti.TypeMask mask = selector.mask == null
-        ? compiler.typesTask.dynamicType
-        : selector.mask;
+    ti.TypeMask mask = selector.mask == null ? compiler.typesTask.dynamicType : selector.mask;
     return mask.locateSingleElement(selector, compiler);
   }
 
@@ -439,10 +411,7 @@ class World implements ClassWorld {
       return false;
     }
 
-    return element.isFinal
-        || element.isConst
-        || (element.isInstanceMember
-            && !compiler.resolverWorld.hasInvokedSetter(element, this));
+    return element.isFinal || element.isConst || (element.isInstanceMember && !compiler.resolverWorld.hasInvokedSetter(element, this));
   }
 
   SideEffects getSideEffectsOfElement(Element element) {
@@ -501,8 +470,7 @@ class World implements ClassWorld {
     return elementsThatCannotThrow.contains(element);
   }
 
-  void registerImplicitSuperCall(Registry registry,
-                                 FunctionElement superConstructor) {
+  void registerImplicitSuperCall(Registry registry, FunctionElement superConstructor) {
     registry.registerDependency(superConstructor);
   }
 

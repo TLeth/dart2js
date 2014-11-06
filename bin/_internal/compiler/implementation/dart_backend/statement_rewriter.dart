@@ -129,9 +129,7 @@ class StatementRewriter extends Visitor<Statement, Expression> {
     //     of side effects, AND
     // 2.  It was the most recent expression evaluated so that we do not
     //     reorder expressions with side effects.
-    if (!environment.isEmpty &&
-        environment.last.variable == node &&
-        environment.last.hasExactlyOneUse) {
+    if (!environment.isEmpty && environment.last.variable == node && environment.last.hasExactlyOneUse) {
       return visitExpression(environment.removeLast().definition);
     }
     // If the definition could not be propagated, leave the variable use.
@@ -304,10 +302,7 @@ class StatementRewriter extends Visitor<Statement, Expression> {
 
     tryCollapseIf(node);
 
-    Statement reduced = combineStatementsWithSubexpressions(
-        node.thenStatement,
-        node.elseStatement,
-        (t,f) => new Conditional(node.condition, t, f)..processed = true);
+    Statement reduced = combineStatementsWithSubexpressions(node.thenStatement, node.elseStatement, (t, f) => new Conditional(node.condition, t, f)..processed = true);
     if (reduced != null) {
       if (reduced.next is Break) {
         // In case the break can now be inlined.
@@ -401,10 +396,7 @@ class StatementRewriter extends Visitor<Statement, Expression> {
   ///
   /// If non-null is returned, the caller MUST discard [s] and [t] and use
   /// the returned statement instead.
-  static Statement combineStatementsWithSubexpressions(
-      Statement s,
-      Statement t,
-      Expression combine(Expression s, Expression t)) {
+  static Statement combineStatementsWithSubexpressions(Statement s, Statement t, Expression combine(Expression s, Expression t)) {
     if (s is Return && t is Return) {
       return new Return(combine(s.value, t.value));
     }
@@ -412,16 +404,13 @@ class StatementRewriter extends Visitor<Statement, Expression> {
       Statement next = combineStatements(s.next, t.next);
       if (next != null) {
         --t.variable.writeCount; // Two assignments become one.
-        return new Assign(s.variable,
-                          combine(s.definition, t.definition),
-                          next);
+        return new Assign(s.variable, combine(s.definition, t.definition), next);
       }
     }
     if (s is ExpressionStatement && t is ExpressionStatement) {
       Statement next = combineStatements(s.next, t.next);
       if (next != null) {
-        return new ExpressionStatement(combine(s.expression, t.expression),
-                                       next);
+        return new ExpressionStatement(combine(s.expression, t.expression), next);
       }
     }
     return null;
@@ -524,9 +513,7 @@ class StatementRewriter extends Visitor<Statement, Expression> {
       if (innerElse is Break && innerElse.target == outerElse.target) {
         // We always put S in the then branch of the result, and adjust the
         // condition expression if S was actually found in the else branch(es).
-        outerIf.condition = new LogicalOperator.and(
-            makeCondition(outerIf.condition, branch1),
-            makeCondition(innerIf.condition, branch2));
+        outerIf.condition = new LogicalOperator.and(makeCondition(outerIf.condition, branch1), makeCondition(innerIf.condition, branch2));
         outerIf.thenStatement = innerThen;
         --innerElse.target.useCount;
 

@@ -228,9 +228,7 @@ class ClassNode extends Node {
   final Token extendsKeyword;
   final Token endToken;
 
-  ClassNode(this.modifiers, this.name, this.typeParameters, this.superclass,
-            this.interfaces, this.beginToken,
-            this.extendsKeyword, this.body, this.endToken);
+  ClassNode(this.modifiers, this.name, this.typeParameters, this.superclass, this.interfaces, this.beginToken, this.extendsKeyword, this.body, this.endToken);
 
   ClassNode asClassNode() => this;
 
@@ -281,9 +279,7 @@ class NamedMixinApplication extends Node implements MixinApplication {
   final Token classKeyword;
   final Token endToken;
 
-  NamedMixinApplication(this.name, this.typeParameters,
-                        this.modifiers, this.mixinApplication, this.interfaces,
-                        this.classKeyword, this.endToken);
+  NamedMixinApplication(this.name, this.typeParameters, this.modifiers, this.mixinApplication, this.interfaces, this.classKeyword, this.endToken);
 
   TypeAnnotation get superclass => mixinApplication.superclass;
   NodeList get mixins => mixinApplication.mixins;
@@ -350,13 +346,9 @@ class Send extends Expression with StoredTreeElementMixin {
 
   Send([this.receiver, this.selector, this.argumentsNode]);
   Send.postfix(this.receiver, this.selector, [Node argument = null])
-      : argumentsNode = (argument == null)
-        ? new Postfix()
-        : new Postfix.singleton(argument);
+      : argumentsNode = (argument == null) ? new Postfix() : new Postfix.singleton(argument);
   Send.prefix(this.receiver, this.selector, [Node argument = null])
-      : argumentsNode = (argument == null)
-        ? new Prefix()
-        : new Prefix.singleton(argument);
+      : argumentsNode = (argument == null) ? new Prefix() : new Prefix.singleton(argument);
 
   Send asSend() => this;
 
@@ -381,21 +373,16 @@ class Send extends Expression with StoredTreeElementMixin {
   bool get isPrefix => argumentsNode is Prefix;
   bool get isPostfix => argumentsNode is Postfix;
   bool get isCall => !isOperator && !isPropertyAccess;
-  bool get isIndex =>
-      isOperator && identical(selector.asOperator().source, '[]');
-  bool get isLogicalAnd =>
-      isOperator && identical(selector.asOperator().source, '&&');
-  bool get isLogicalOr =>
-      isOperator && identical(selector.asOperator().source, '||');
+  bool get isIndex => isOperator && identical(selector.asOperator().source, '[]');
+  bool get isLogicalAnd => isOperator && identical(selector.asOperator().source, '&&');
+  bool get isLogicalOr => isOperator && identical(selector.asOperator().source, '||');
 
   bool get isTypeCast {
-    return isOperator
-        && identical(selector.asOperator().source, 'as');
+    return isOperator && identical(selector.asOperator().source, 'as');
   }
 
   bool get isTypeTest {
-    return isOperator
-        && identical(selector.asOperator().source, 'is');
+    return isOperator && identical(selector.asOperator().source, 'is');
   }
 
   bool get isIsNotCheck {
@@ -404,11 +391,8 @@ class Send extends Expression with StoredTreeElementMixin {
 
   TypeAnnotation get typeAnnotationFromIsCheckOrCast {
     assert(isOperator);
-    assert(identical(selector.asOperator().source, 'is') ||
-        identical(selector.asOperator().source, 'as'));
-    return isIsNotCheck
-        ? arguments.head.asSend().receiver
-        : arguments.head;
+    assert(identical(selector.asOperator().source, 'is') || identical(selector.asOperator().source, 'as'));
+    return isIsNotCheck ? arguments.head.asSend().receiver : arguments.head;
   }
 
   Token getBeginToken() {
@@ -449,16 +433,10 @@ class Prefix extends NodeList {
 class SendSet extends Send {
   final Operator assignmentOperator;
   SendSet(receiver, selector, this.assignmentOperator, argumentsNode)
-    : super(receiver, selector, argumentsNode);
-  SendSet.postfix(receiver,
-                  selector,
-                  this.assignmentOperator,
-                  [Node argument = null])
+      : super(receiver, selector, argumentsNode);
+  SendSet.postfix(receiver, selector, this.assignmentOperator, [Node argument = null])
       : super.postfix(receiver, selector, argument);
-  SendSet.prefix(receiver,
-                 selector,
-                 this.assignmentOperator,
-                 [Node argument = null])
+  SendSet.prefix(receiver, selector, this.assignmentOperator, [Node argument = null])
       : super.prefix(receiver, selector, argument);
 
   SendSet asSendSet() => this;
@@ -472,8 +450,7 @@ class SendSet extends Send {
 
   Send copyWithReceiver(Node newReceiver) {
     assert(receiver == null);
-    return new SendSet(newReceiver, selector, assignmentOperator,
-                       argumentsNode);
+    return new SendSet(newReceiver, selector, assignmentOperator, argumentsNode);
   }
 
   Token getBeginToken() {
@@ -548,16 +525,16 @@ class NodeList extends Node {
 
   Token getBeginToken() {
     if (beginToken != null) return beginToken;
-     if (nodes != null) {
-       for (Link<Node> link = nodes; !link.isEmpty; link = link.tail) {
-         if (link.head.getBeginToken() != null) {
-           return link.head.getBeginToken();
-         }
-         if (link.head.getEndToken() != null) {
-           return link.head.getEndToken();
-         }
-       }
-     }
+    if (nodes != null) {
+      for (Link<Node> link = nodes; !link.isEmpty; link = link.tail) {
+        if (link.head.getBeginToken() != null) {
+          return link.head.getBeginToken();
+        }
+        if (link.head.getEndToken() != null) {
+          return link.head.getEndToken();
+        }
+      }
+    }
     return endToken;
   }
 
@@ -603,8 +580,7 @@ class If extends Statement {
   final Token ifToken;
   final Token elseToken;
 
-  If(this.condition, this.thenPart, this.elsePart,
-     this.ifToken, this.elseToken);
+  If(this.condition, this.thenPart, this.elsePart, this.ifToken, this.elseToken);
 
   If asIf() => this;
 
@@ -634,8 +610,7 @@ class Conditional extends Expression {
   final Token questionToken;
   final Token colonToken;
 
-  Conditional(this.condition, this.thenExpression,
-              this.elseExpression, this.questionToken, this.colonToken);
+  Conditional(this.condition, this.thenExpression, this.elseExpression, this.questionToken, this.colonToken);
 
   Conditional asConditional() => this;
 
@@ -661,8 +636,7 @@ class For extends Loop {
 
   final Token forToken;
 
-  For(this.initializer, this.conditionStatement, this.update, body,
-      this.forToken) : super(body);
+  For(this.initializer, this.conditionStatement, this.update, body, this.forToken) : super(body);
 
   For asFor() => this;
 
@@ -722,8 +696,7 @@ class FunctionExpression extends Expression with StoredTreeElementMixin {
 
   final Token getOrSet;
 
-  FunctionExpression(this.name, this.parameters, this.body, this.returnType,
-                     this.modifiers, this.initializers, this.getOrSet) {
+  FunctionExpression(this.name, this.parameters, this.body, this.returnType, this.modifiers, this.initializers, this.getOrSet) {
     assert(modifiers != null);
   }
 
@@ -803,7 +776,7 @@ class LiteralInt extends Literal<int> {
 
 class LiteralDouble extends Literal<double> {
   LiteralDouble(Token token, DecodeErrorHandler handler)
-    : super(token, handler);
+      : super(token, handler);
 
   LiteralDouble asLiteralDouble() => this;
 
@@ -839,41 +812,16 @@ class LiteralBool extends Literal<bool> {
 class StringQuoting {
 
   /// Cache of common quotings.
-  static const List<StringQuoting> _mapping = const <StringQuoting>[
-    const StringQuoting($SQ, raw: false, leftQuoteLength: 1),
-    const StringQuoting($SQ, raw: true, leftQuoteLength: 1),
-    const StringQuoting($DQ, raw: false, leftQuoteLength: 1),
-    const StringQuoting($DQ, raw: true, leftQuoteLength: 1),
-    // No string quotes with 2 characters.
-    null,
-    null,
-    null,
-    null,
-    // Multiline quotings.
-    const StringQuoting($SQ, raw: false, leftQuoteLength: 3),
-    const StringQuoting($SQ, raw: true, leftQuoteLength: 3),
-    const StringQuoting($DQ, raw: false, leftQuoteLength: 3),
-    const StringQuoting($DQ, raw: true, leftQuoteLength: 3),
-    // Leading single whitespace or espaped newline.
-    const StringQuoting($SQ, raw: false, leftQuoteLength: 4),
-    const StringQuoting($SQ, raw: true, leftQuoteLength: 4),
-    const StringQuoting($DQ, raw: false, leftQuoteLength: 4),
-    const StringQuoting($DQ, raw: true, leftQuoteLength: 4),
-    // Other combinations of leading whitespace and/or escaped newline.
-    const StringQuoting($SQ, raw: false, leftQuoteLength: 5),
-    const StringQuoting($SQ, raw: true, leftQuoteLength: 5),
-    const StringQuoting($DQ, raw: false, leftQuoteLength: 5),
-    const StringQuoting($DQ, raw: true, leftQuoteLength: 5),
-    const StringQuoting($SQ, raw: false, leftQuoteLength: 6),
-    const StringQuoting($SQ, raw: true, leftQuoteLength: 6),
-    const StringQuoting($DQ, raw: false, leftQuoteLength: 6),
-    const StringQuoting($DQ, raw: true, leftQuoteLength: 6)
-  ];
+  static const List<StringQuoting> _mapping = const <StringQuoting>[const StringQuoting($SQ, raw: false, leftQuoteLength: 1), const StringQuoting($SQ, raw: true, leftQuoteLength: 1), const StringQuoting($DQ, raw: false, leftQuoteLength: 1), const StringQuoting($DQ, raw: true, leftQuoteLength: 1), // No string quotes with 2 characters.
+    null, null, null, null, // Multiline quotings.
+    const StringQuoting($SQ, raw: false, leftQuoteLength: 3), const StringQuoting($SQ, raw: true, leftQuoteLength: 3), const StringQuoting($DQ, raw: false, leftQuoteLength: 3), const StringQuoting($DQ, raw: true, leftQuoteLength: 3), // Leading single whitespace or espaped newline.
+    const StringQuoting($SQ, raw: false, leftQuoteLength: 4), const StringQuoting($SQ, raw: true, leftQuoteLength: 4), const StringQuoting($DQ, raw: false, leftQuoteLength: 4), const StringQuoting($DQ, raw: true, leftQuoteLength: 4), // Other combinations of leading whitespace and/or escaped newline.
+    const StringQuoting($SQ, raw: false, leftQuoteLength: 5), const StringQuoting($SQ, raw: true, leftQuoteLength: 5), const StringQuoting($DQ, raw: false, leftQuoteLength: 5), const StringQuoting($DQ, raw: true, leftQuoteLength: 5), const StringQuoting($SQ, raw: false, leftQuoteLength: 6), const StringQuoting($SQ, raw: true, leftQuoteLength: 6), const StringQuoting($DQ, raw: false, leftQuoteLength: 6), const StringQuoting($DQ, raw: true, leftQuoteLength: 6)];
 
   final bool raw;
   final int leftQuoteCharCount;
   final int quote;
-  const StringQuoting(this.quote, { this.raw, int leftQuoteLength })
+  const StringQuoting(this.quote, {this.raw, int leftQuoteLength})
       : this.leftQuoteCharCount = leftQuoteLength;
   String get quoteChar => identical(quote, $DQ) ? '"' : "'";
 
@@ -1001,9 +949,7 @@ class Identifier extends Expression with StoredTreeElementMixin {
 }
 
 class Operator extends Identifier {
-  static const COMPLEX_OPERATORS =
-      const ["--", "++", '+=', "-=", "*=", "/=", "%=", "&=", "|=", "~/=", "^=",
-             ">>=", "<<="];
+  static const COMPLEX_OPERATORS = const ["--", "++", '+=', "-=", "*=", "/=", "%=", "&=", "|=", "~/=", "^=", ">>=", "<<="];
 
   static const INCREMENT_OPERATORS = const <String>["++", "--"];
 
@@ -1044,8 +990,7 @@ class RedirectingFactoryBody extends Statement with StoredTreeElementMixin {
   final Token beginToken;
   final Token endToken;
 
-  RedirectingFactoryBody(this.beginToken, this.endToken,
-                         this.constructorReference);
+  RedirectingFactoryBody(this.beginToken, this.endToken, this.constructorReference);
 
   RedirectingFactoryBody asRedirectingFactoryBody() => this;
 
@@ -1109,7 +1054,7 @@ class Rethrow extends Statement {
   Rethrow asRethrow() => this;
 
   accept(Visitor visitor) => visitor.visitRethrow(this);
-  visitChildren(Visitor visitor) { }
+  visitChildren(Visitor visitor) {}
 
   Token getBeginToken() => throwToken;
   Token getEndToken() => endToken;
@@ -1164,18 +1109,13 @@ class VariableDefinitions extends Statement {
   final Modifiers modifiers;
   final NodeList definitions;
 
-  VariableDefinitions(this.type,
-                      this.modifiers,
-                      this.definitions)
+  VariableDefinitions(this.type, this.modifiers, this.definitions)
       : this.metadata = null {
     assert(modifiers != null);
   }
 
   // TODO(johnniwinther): Make this its own node type.
-  VariableDefinitions.forParameter(this.metadata,
-                                   this.type,
-                                   this.modifiers,
-                                   this.definitions) {
+  VariableDefinitions.forParameter(this.metadata, this.type, this.modifiers, this.definitions) {
     assert(modifiers != null);
   }
 
@@ -1216,9 +1156,8 @@ class DoWhile extends Loop {
 
   final Expression condition;
 
-  DoWhile(Statement body, Expression this.condition,
-          Token this.doKeyword, Token this.whileKeyword, Token this.endToken)
-    : super(body);
+  DoWhile(Statement body, Expression this.condition, Token this.doKeyword, Token this.whileKeyword, Token this.endToken)
+      : super(body);
 
   DoWhile asDoWhile() => this;
 
@@ -1238,8 +1177,7 @@ class While extends Loop {
   final Token whileKeyword;
   final Expression condition;
 
-  While(Expression this.condition, Statement body,
-        Token this.whileKeyword) : super(body);
+  While(Expression this.condition, Statement body, Token this.whileKeyword) : super(body);
 
   While asWhile() => this;
 
@@ -1259,8 +1197,7 @@ class ParenthesizedExpression extends Expression {
   final Expression expression;
   final BeginGroupToken beginToken;
 
-  ParenthesizedExpression(Expression this.expression,
-                          BeginGroupToken this.beginToken);
+  ParenthesizedExpression(Expression this.expression, BeginGroupToken this.beginToken);
 
   ParenthesizedExpression asParenthesizedExpression() => this;
 
@@ -1307,25 +1244,18 @@ class Modifiers extends Node {
 
   static int computeFlags(Link<Node> nodes) {
     int flags = 0;
-    for (; !nodes.isEmpty; nodes = nodes.tail) {
+    for ( ; !nodes.isEmpty; nodes = nodes.tail) {
       String value = nodes.head.asIdentifier().source;
-      if (identical(value, 'static')) flags |= FLAG_STATIC;
-      else if (identical(value, 'abstract')) flags |= FLAG_ABSTRACT;
-      else if (identical(value, 'final')) flags |= FLAG_FINAL;
-      else if (identical(value, 'var')) flags |= FLAG_VAR;
-      else if (identical(value, 'const')) flags |= FLAG_CONST;
-      else if (identical(value, 'factory')) flags |= FLAG_FACTORY;
-      else if (identical(value, 'external')) flags |= FLAG_EXTERNAL;
-      else throw 'internal error: ${nodes.head}';
+      if (identical(value, 'static')) flags |= FLAG_STATIC; else if (identical(value, 'abstract')) flags |= FLAG_ABSTRACT; else if (identical(value, 'final')) flags |= FLAG_FINAL; else if (identical(value, 'var')) flags |= FLAG_VAR; else if (identical(value, 'const')) flags |= FLAG_CONST; else if (identical(value, 'factory')) flags |= FLAG_FACTORY; else if (identical(value, 'external')) flags |= FLAG_EXTERNAL; else throw 'internal error: ${nodes.head}';
     }
     return flags;
   }
 
   Node findModifier(String modifier) {
     Link<Node> nodeList = nodes.nodes;
-    for (; !nodeList.isEmpty; nodeList = nodeList.tail) {
+    for ( ; !nodeList.isEmpty; nodeList = nodeList.tail) {
       String value = nodeList.head.asIdentifier().source;
-      if(identical(value, modifier)) {
+      if (identical(value, modifier)) {
         return nodeList.head;
       }
     }
@@ -1355,13 +1285,7 @@ class Modifiers extends Node {
   bool get isFinalOrConst => isFinal || isConst;
 
   String toString() {
-    return modifiersToString(isStatic: isStatic,
-                             isAbstract: isAbstract,
-                             isFinal: isFinal,
-                             isVar: isVar,
-                             isConst: isConst,
-                             isFactory: isFactory,
-                             isExternal: isExternal);
+    return modifiersToString(isStatic: isStatic, isAbstract: isAbstract, isFinal: isFinal, isVar: isVar, isConst: isConst, isFactory: isFactory, isExternal: isExternal);
   }
 }
 
@@ -1434,8 +1358,7 @@ class StringJuxtaposition extends StringNode {
 
   bool get isInterpolation {
     if (isInterpolationCache == null) {
-      isInterpolationCache = (first.accept(const IsInterpolationVisitor()) ||
-                          second.accept(const IsInterpolationVisitor()));
+      isInterpolationCache = (first.accept(const IsInterpolationVisitor()) || second.accept(const IsInterpolationVisitor()));
     }
     return isInterpolationCache;
   }
@@ -1447,8 +1370,7 @@ class StringJuxtaposition extends StringNode {
    */
   DartString get dartString {
     if (isInterpolation) {
-      throw new SpannableAssertionFailure(
-          this, "Getting dartString on interpolation;");
+      throw new SpannableAssertionFailure(this, "Getting dartString on interpolation;");
     }
     if (dartStringCache == null) {
       DartString firstString = first.accept(const GetDartStringVisitor());
@@ -1566,8 +1488,7 @@ class SwitchStatement extends Statement {
 
   final Token switchKeyword;
 
-  SwitchStatement(this.parenthesizedExpression, this.cases,
-                  this.switchKeyword);
+  SwitchStatement(this.parenthesizedExpression, this.cases, this.switchKeyword);
 
   SwitchStatement asSwitchStatement() => this;
 
@@ -1616,8 +1537,7 @@ class SwitchCase extends Node {
 
   final Token startToken;
 
-  SwitchCase(this.labelsAndCases, this.defaultKeyword,
-             this.statements, this.startToken);
+  SwitchCase(this.labelsAndCases, this.defaultKeyword, this.statements, this.startToken);
 
   SwitchCase asSwitchCase() => this;
 
@@ -1672,7 +1592,7 @@ abstract class GotoStatement extends Statement {
 
 class BreakStatement extends GotoStatement {
   BreakStatement(Identifier target, Token keywordToken, Token semicolonToken)
-    : super(target, keywordToken, semicolonToken);
+      : super(target, keywordToken, semicolonToken);
 
   BreakStatement asBreakStatement() => this;
 
@@ -1681,7 +1601,7 @@ class BreakStatement extends GotoStatement {
 
 class ContinueStatement extends GotoStatement {
   ContinueStatement(Identifier target, Token keywordToken, Token semicolonToken)
-    : super(target, keywordToken, semicolonToken);
+      : super(target, keywordToken, semicolonToken);
 
   ContinueStatement asContinueStatement() => this;
 
@@ -1695,8 +1615,7 @@ class ForIn extends Loop with StoredTreeElementMixin {
   final Token forToken;
   final Token inToken;
 
-  ForIn(this.declaredIdentifier, this.expression,
-        Statement body, this.forToken, this.inToken) : super(body);
+  ForIn(this.declaredIdentifier, this.expression, Statement body, this.forToken, this.inToken) : super(body);
 
   Expression get condition => null;
 
@@ -1774,10 +1693,8 @@ class LibraryName extends LibraryTag {
 
   final Token libraryKeyword;
 
-  LibraryName(this.libraryKeyword,
-              this.name,
-              Link<MetadataAnnotation> metadata)
-    : super(metadata);
+  LibraryName(this.libraryKeyword, this.name, Link<MetadataAnnotation> metadata)
+      : super(metadata);
 
   bool get isLibraryName => true;
 
@@ -1801,10 +1718,8 @@ abstract class LibraryDependency extends LibraryTag {
   final StringNode uri;
   final NodeList combinators;
 
-  LibraryDependency(this.uri,
-                    this.combinators,
-                    Link<MetadataAnnotation> metadata)
-    : super(metadata);
+  LibraryDependency(this.uri, this.combinators, Link<MetadataAnnotation> metadata)
+      : super(metadata);
 
   LibraryDependency asLibraryDependency() => this;
 }
@@ -1821,10 +1736,7 @@ class Import extends LibraryDependency {
   final Token importKeyword;
   final bool isDeferred;
 
-  Import(this.importKeyword, StringNode uri,
-         this.prefix, NodeList combinators,
-         Link<MetadataAnnotation> metadata,
-         {this.isDeferred})
+  Import(this.importKeyword, StringNode uri, this.prefix, NodeList combinators, Link<MetadataAnnotation> metadata, {this.isDeferred})
       : super(uri, combinators, metadata);
 
   bool get isImport => true;
@@ -1858,10 +1770,7 @@ class Import extends LibraryDependency {
 class Export extends LibraryDependency {
   final Token exportKeyword;
 
-  Export(this.exportKeyword,
-         StringNode uri,
-         NodeList combinators,
-         Link<MetadataAnnotation> metadata)
+  Export(this.exportKeyword, StringNode uri, NodeList combinators, Link<MetadataAnnotation> metadata)
       : super(uri, combinators, metadata);
 
   bool get isExport => true;
@@ -1889,7 +1798,7 @@ class Part extends LibraryTag {
   final Token partKeyword;
 
   Part(this.partKeyword, this.uri, Link<MetadataAnnotation> metadata)
-    : super(metadata);
+      : super(metadata);
 
   bool get isPart => true;
 
@@ -1959,8 +1868,7 @@ class Typedef extends Node {
   final Token typedefKeyword;
   final Token endToken;
 
-  Typedef(this.returnType, this.name, this.typeParameters, this.formals,
-          this.typedefKeyword, this.endToken);
+  Typedef(this.returnType, this.name, this.typeParameters, this.formals, this.typedefKeyword, this.endToken);
 
   Typedef asTypedef() => this;
 
@@ -1986,8 +1894,7 @@ class TryStatement extends Statement {
   final Token tryKeyword;
   final Token finallyKeyword;
 
-  TryStatement(this.tryBlock, this.catchBlocks, this.finallyBlock,
-               this.tryKeyword, this.finallyKeyword);
+  TryStatement(this.tryBlock, this.catchBlocks, this.finallyBlock, this.tryKeyword, this.finallyKeyword);
 
   TryStatement asTryStatement() => this;
 
@@ -2049,8 +1956,7 @@ class CatchBlock extends Node {
   final Token onKeyword;
   final Token catchKeyword;
 
-  CatchBlock(this.type, this.formals, this.block,
-             this.onKeyword, this.catchKeyword);
+  CatchBlock(this.type, this.formals, this.block, this.onKeyword, this.catchKeyword);
 
   CatchBlock asCatchBlock() => this;
 
@@ -2102,25 +2008,18 @@ class Metadata extends Node {
 
 class Initializers {
   static bool isSuperConstructorCall(Send node) {
-    return (node.receiver == null && node.selector.isSuper()) ||
-           (node.receiver != null &&
-            node.receiver.isSuper() &&
-            node.selector.asIdentifier() != null);
+    return (node.receiver == null && node.selector.isSuper()) || (node.receiver != null && node.receiver.isSuper() && node.selector.asIdentifier() != null);
   }
 
   static bool isConstructorRedirect(Send node) {
-    return (node.receiver == null && node.selector.isThis()) ||
-           (node.receiver != null &&
-            node.receiver.isThis() &&
-            node.selector.asIdentifier() != null);
+    return (node.receiver == null && node.selector.isThis()) || (node.receiver != null && node.receiver.isThis() && node.selector.asIdentifier() != null);
   }
 }
 
 class GetDartStringVisitor extends Visitor<DartString> {
   const GetDartStringVisitor();
   DartString visitNode(Node node) => null;
-  DartString visitStringJuxtaposition(StringJuxtaposition node)
-      => node.dartString;
+  DartString visitStringJuxtaposition(StringJuxtaposition node) => node.dartString;
   DartString visitLiteralString(LiteralString node) => node.dartString;
 }
 
@@ -2128,16 +2027,13 @@ class IsInterpolationVisitor extends Visitor<bool> {
   const IsInterpolationVisitor();
   bool visitNode(Node node) => false;
   bool visitStringInterpolation(StringInterpolation node) => true;
-  bool visitStringJuxtaposition(StringJuxtaposition node)
-      => node.isInterpolation;
+  bool visitStringJuxtaposition(StringJuxtaposition node) => node.isInterpolation;
 }
 
 /// Erroneous node used to recover from parser errors.  Implements various
 /// interfaces and provides bare minimum of implementation to avoid unnecessary
 /// messages.
-class ErrorNode
-    extends Node
-    implements FunctionExpression, VariableDefinitions, Typedef {
+class ErrorNode extends Node implements FunctionExpression, VariableDefinitions, Typedef {
   final Token token;
   final String reason;
   final Identifier name;
@@ -2147,8 +2043,7 @@ class ErrorNode
 
   factory ErrorNode(Token token, String reason) {
     Identifier name = new Identifier(token);
-    NodeList definitions = new NodeList(
-        null, const Link<Node>().prepend(name), null, null);
+    NodeList definitions = new NodeList(null, const Link<Node>().prepend(name), null, null);
     return new ErrorNode.internal(token, reason, name, definitions);
   }
 

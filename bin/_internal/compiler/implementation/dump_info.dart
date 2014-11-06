@@ -4,20 +4,11 @@
 
 library dump_info;
 
-import 'dart:convert' show
-    HtmlEscape,
-    JsonEncoder,
-    StringConversionSink,
-    ChunkedConversionSink;
+import 'dart:convert' show HtmlEscape, JsonEncoder, StringConversionSink, ChunkedConversionSink;
 
 import 'elements/elements.dart';
 import 'elements/visitor.dart';
-import 'dart2jslib.dart' show
-    Backend,
-    CodeBuffer,
-    Compiler,
-    CompilerTask,
-    MessageKind;
+import 'dart2jslib.dart' show Backend, CodeBuffer, Compiler, CompilerTask, MessageKind;
 import 'types/types.dart' show TypeMask;
 import 'deferred_load.dart' show OutputUnit;
 import 'js_backend/js_backend.dart' show JavaScriptBackend;
@@ -27,7 +18,7 @@ import 'util/util.dart' show NO_LOCATION_SPANNABLE;
 
 /// Maps objects to an id.  Supports lookups in
 /// both directions.
-class IdMapper<T>{
+class IdMapper<T> {
   Map<int, T> _idToElement = {};
   Map<T, int> _elementToId = {};
   int _idCounter = 0;
@@ -95,8 +86,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
     Backend backend = compiler.backend;
     if (backend is JavaScriptBackend) {
       // Add up the sizes of all output-buffers.
-      programSize = backend.emitter.oldEmitter.outputBuffers.values.fold(0,
-          (a, b) => a + b.length);
+      programSize = backend.emitter.oldEmitter.outputBuffers.values.fold(0, (a, b) => a + b.length);
     } else {
       programSize = compiler.assembledCode.length;
     }
@@ -111,8 +101,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
   // If keeping the element is in question (like if a function has a size
   // of zero), only keep it if it holds dependencies to elsewhere.
   bool shouldKeep(Element element) {
-    return compiler.dumpInfoTask.selectorsFromElement.containsKey(element)
-        || compiler.dumpInfoTask.inlineCount.containsKey(element);
+    return compiler.dumpInfoTask.selectorsFromElement.containsKey(element) || compiler.dumpInfoTask.inlineCount.containsKey(element);
   }
 
   Map<String, dynamic> toJson() {
@@ -152,8 +141,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
 
     int size = compiler.dumpInfoTask.sizeOf(element);
 
-    LibraryElement contentsOfLibrary = element.isPatched
-      ? element.patch : element;
+    LibraryElement contentsOfLibrary = element.isPatched ? element.patch : element;
     contentsOfLibrary.forEachLocalMember((Element member) {
       Map<String, dynamic> childJson = this.process(member);
       if (childJson == null) return;
@@ -175,14 +163,12 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
 
   Map<String, dynamic> visitTypedefElement(TypedefElement element) {
     String id = mapper._typedef.add(element);
-    return element.alias == null
-      ? null
-      : {
-        'id': id,
-        'type': element.alias.toString(),
-        'kind': 'typedef',
-        'name': element.name
-      };
+    return element.alias == null ? null : {
+      'id': id,
+      'type': element.alias.toString(),
+      'kind': 'typedef',
+      'name': element.name
+    };
   }
 
   Map<String, dynamic> visitFieldElement(FieldElement element) {
@@ -190,8 +176,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
     List<String> children = [];
     StringBuffer emittedCode = compiler.dumpInfoTask.codeOf(element);
 
-    TypeMask inferredType =
-        compiler.typesTask.getGuaranteedTypeOfElement(element);
+    TypeMask inferredType = compiler.typesTask.getGuaranteedTypeOfElement(element);
     // If a field has an empty inferred type it is never used.
     if (inferredType == null || inferredType.isEmpty || element.isConst) {
       return null;
@@ -215,8 +200,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
       }
     }
 
-    OutputUnit outputUnit =
-        compiler.deferredLoadTask.outputUnitForElement(element);
+    OutputUnit outputUnit = compiler.deferredLoadTask.outputUnitForElement(element);
 
     return {
       'id': id,
@@ -238,7 +222,9 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
     int size = compiler.dumpInfoTask.sizeOf(element);
     JavaScriptBackend backend = compiler.backend;
 
-    Map<String, dynamic> modifiers = { 'abstract': element.isAbstract };
+    Map<String, dynamic> modifiers = {
+      'abstract': element.isAbstract
+    };
 
     element.forEachLocalMember((Element member) {
       Map<String, dynamic> childJson = this.process(member);
@@ -271,13 +257,11 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
     });
 
     // Omit element if it is not needed.
-    if (!backend.emitter.neededClasses.contains(element) &&
-        children.length == 0) {
+    if (!backend.emitter.neededClasses.contains(element) && children.length == 0) {
       return null;
     }
 
-    OutputUnit outputUnit =
-        compiler.deferredLoadTask.outputUnitForElement(element);
+    OutputUnit outputUnit = compiler.deferredLoadTask.outputUnitForElement(element);
 
     return {
       'name': element.name,
@@ -312,10 +296,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
     };
 
     var enclosingElement = element.enclosingElement;
-    if (enclosingElement.isField ||
-               enclosingElement.isFunction ||
-               element.isClosure ||
-               enclosingElement.isConstructor) {
+    if (enclosingElement.isField || enclosingElement.isFunction || element.isClosure || enclosingElement.isConstructor) {
       kind = "closure";
       name = "<unnamed>";
     } else if (modifiers['static']) {
@@ -325,9 +306,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
     }
 
     if (element.isConstructor) {
-      name == ""
-        ? "${element.enclosingElement.name}"
-        : "${element.enclosingElement.name}.${element.name}";
+      name == "" ? "${element.enclosingElement.name}" : "${element.enclosingElement.name}.${element.name}";
       kind = "constructor";
     }
 
@@ -337,13 +316,11 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
       signature.forEachParameter((parameter) {
         parameters.add({
           'name': parameter.name,
-          'type': compiler.typesTask
-            .getGuaranteedTypeOfElement(parameter).toString(),
+          'type': compiler.typesTask.getGuaranteedTypeOfElement(parameter).toString(),
           'declaredType': parameter.node.type.toString()
         });
       });
-      inferredReturnType = compiler.typesTask
-        .getGuaranteedReturnTypeOfElement(element).toString();
+      inferredReturnType = compiler.typesTask.getGuaranteedReturnTypeOfElement(element).toString();
       sideEffects = compiler.world.getSideEffectsOfElement(element).toString();
       code = emittedCode.toString();
     }
@@ -369,8 +346,7 @@ class ElementToJsonVisitor extends ElementVisitor<Map<String, dynamic>> {
       inlinedCount = 0;
     }
 
-    OutputUnit outputUnit =
-        compiler.deferredLoadTask.outputUnitForElement(element);
+    OutputUnit outputUnit = compiler.deferredLoadTask.outputUnitForElement(element);
 
     return {
       'kind': kind,
@@ -410,8 +386,7 @@ class DumpInfoTask extends CompilerTask {
   // is called.
   final Set<jsAst.Node> _tracking = new Set<jsAst.Node>();
   // A mapping from Dart Elements to Javascript AST Nodes.
-  final Map<Element, List<jsAst.Node>> _elementToNodes =
-    <Element, List<jsAst.Node>>{};
+  final Map<Element, List<jsAst.Node>> _elementToNodes = <Element, List<jsAst.Node>>{};
   // A mapping from Javascript AST Nodes to the size of their
   // pretty-printed contents.
   final Map<jsAst.Node, int> _nodeToSize = <jsAst.Node, int>{};
@@ -437,9 +412,7 @@ class DumpInfoTask extends CompilerTask {
    */
   void elementUsesSelector(Element element, Selector selector) {
     if (compiler.dumpInfo) {
-      selectorsFromElement
-          .putIfAbsent(element, () => new Set<Selector>())
-          .add(selector);
+      selectorsFromElement.putIfAbsent(element, () => new Set<Selector>()).add(selector);
     }
   }
 
@@ -452,12 +425,11 @@ class DumpInfoTask extends CompilerTask {
     if (!selectorsFromElement.containsKey(element)) {
       return const <Selection>[];
     } else {
-      return selectorsFromElement[element].expand(
-        (selector) {
-          return compiler.world.allFunctions.filter(selector).map((element) {
-            return new Selection(element, selector);
-          });
+      return selectorsFromElement[element].expand((selector) {
+        return compiler.world.allFunctions.filter(selector).map((element) {
+          return new Selection(element, selector);
         });
+      });
     }
   }
 
@@ -498,9 +470,7 @@ class DumpInfoTask extends CompilerTask {
   // dart Element `element`.
   void registerElementAst(Element element, jsAst.Node code) {
     if (compiler.dumpInfo) {
-      _elementToNodes
-        .putIfAbsent(element, () => new List<jsAst.Node>())
-        .add(code);
+      _elementToNodes.putIfAbsent(element, () => new List<jsAst.Node>()).add(code);
       _tracking.add(code);
     }
   }
@@ -528,9 +498,7 @@ class DumpInfoTask extends CompilerTask {
       return _fieldNameToSize[element];
     }
     if (_elementToNodes.containsKey(element)) {
-      return _elementToNodes[element]
-        .map(sizeOfNode)
-        .fold(0, (a, b) => a + b);
+      return _elementToNodes[element].map(sizeOfNode).fold(0, (a, b) => a + b);
     } else {
       return 0;
     }
@@ -568,8 +536,8 @@ class DumpInfoTask extends CompilerTask {
       StringBuffer jsonBuffer = new StringBuffer();
       dumpInfoJson(jsonBuffer);
       compiler.outputProvider('', 'info.json')
-        ..add(jsonBuffer.toString())
-        ..close();
+          ..add(jsonBuffer.toString())
+          ..close();
     });
   }
 
@@ -578,8 +546,7 @@ class DumpInfoTask extends CompilerTask {
     JsonEncoder encoder = const JsonEncoder();
     DateTime startToJsonTime = new DateTime.now();
 
-    Map<String, List<Map<String, String>>> holding =
-        <String, List<Map<String, String>>>{};
+    Map<String, List<Map<String, String>>> holding = <String, List<Map<String, String>>>{};
     for (Element fn in infoCollector.mapper.functions) {
       Iterable<Selection> pulling = getRetaining(fn);
       // Don't bother recording an empty list of dependencies.
@@ -588,16 +555,13 @@ class DumpInfoTask extends CompilerTask {
         // Some dart2js builtin functions are not
         // recorded.  Don't register these.
         if (fnId != null) {
-          holding[fnId] = pulling
-            .map((selection) {
-              return <String, String>{
-                "id": infoCollector.idOf(selection.selectedElement),
-                "mask": selection.selector.mask.toString()
-              };
-            })
-            // Filter non-null ids for the same reason as above.
-            .where((a) => a['id'] != null)
-            .toList();
+          holding[fnId] = pulling.map((selection) {
+            return <String, String>{
+              "id": infoCollector.idOf(selection.selectedElement),
+              "mask": selection.selector.mask.toString()
+            };
+          })// Filter non-null ids for the same reason as above.
+          .where((a) => a['id'] != null).toList();
         }
       }
     }
@@ -609,25 +573,22 @@ class DumpInfoTask extends CompilerTask {
         for (Element held in inlineMap[element]) {
           String valueId = infoCollector.idOf(held);
           if (valueId != null) {
-            holding.putIfAbsent(keyId, () => new List<Map<String, String>>())
-              .add(<String, String>{
-                "id": valueId,
-                "mask": "inlined"
-              });
+            holding.putIfAbsent(keyId, () => new List<Map<String, String>>()).add(<String, String>{
+              "id": valueId,
+              "mask": "inlined"
+            });
           }
         }
       }
     }
 
-    List<Map<String, dynamic>> outputUnits =
-        new List<Map<String, dynamic>>();
+    List<Map<String, dynamic>> outputUnits = new List<Map<String, dynamic>>();
 
     JavaScriptBackend backend = compiler.backend;
 
-    for (OutputUnit outputUnit in
-        infoCollector.mapper._outputUnit._elementToId.keys) {
+    for (OutputUnit outputUnit in infoCollector.mapper._outputUnit._elementToId.keys) {
       String id = infoCollector.mapper._outputUnit.add(outputUnit);
-      outputUnits.add(<String, dynamic> {
+      outputUnits.add(<String, dynamic>{
         'id': id,
         'name': outputUnit.name,
         'size': backend.emitter.oldEmitter.outputBuffers[outputUnit].length,
@@ -643,7 +604,7 @@ class DumpInfoTask extends CompilerTask {
 
     Duration toJsonDuration = new DateTime.now().difference(startToJsonTime);
 
-    Map<String, dynamic> generalProgramInfo = <String, dynamic> {
+    Map<String, dynamic> generalProgramInfo = <String, dynamic>{
       'size': infoCollector.programSize,
       'dart2jsVersion': infoCollector.dart2jsVersion,
       'compilationMoment': new DateTime.now().toString(),
@@ -655,13 +616,8 @@ class DumpInfoTask extends CompilerTask {
 
     outJson['program'] = generalProgramInfo;
 
-    ChunkedConversionSink<Object> sink =
-      encoder.startChunkedConversion(
-          new StringConversionSink.fromStringSink(buffer));
+    ChunkedConversionSink<Object> sink = encoder.startChunkedConversion(new StringConversionSink.fromStringSink(buffer));
     sink.add(outJson);
-    compiler.reportInfo(NO_LOCATION_SPANNABLE,
-        const MessageKind(
-            "View the dumped .info.json file at "
-            "https://dart-lang.github.io/dump-info-visualizer"));
+    compiler.reportInfo(NO_LOCATION_SPANNABLE, const MessageKind("View the dumped .info.json file at " "https://dart-lang.github.io/dump-info-visualizer"));
   }
 }

@@ -15,8 +15,7 @@ const DEFAULT_ARGUMENTS_INDEX = 5;
 const bool VALIDATE_DATA = false;
 
 // TODO(ahe): This code should be integrated in CodeEmitterTask.finishClasses.
-jsAst.Expression getReflectionDataParser(String classesCollector,
-                                        JavaScriptBackend backend) {
+jsAst.Expression getReflectionDataParser(String classesCollector, JavaScriptBackend backend) {
   Namer namer = backend.namer;
   Compiler compiler = backend.compiler;
   CodeEmitterTask emitter = backend.emitter;
@@ -30,27 +29,17 @@ jsAst.Expression getReflectionDataParser(String classesCollector,
   String metadataIndexField = r'$metadataIndex';
 
   String defaultValuesField = namer.defaultValuesField;
-  String methodsWithOptionalArgumentsField =
-      namer.methodsWithOptionalArgumentsField;
+  String methodsWithOptionalArgumentsField = namer.methodsWithOptionalArgumentsField;
 
-  String unmangledNameIndex = backend.mustRetainMetadata
-      ? ' 3 * optionalParameterCount + 2 * requiredParameterCount + 3'
-      : ' 2 * optionalParameterCount + requiredParameterCount + 3';
+  String unmangledNameIndex = backend.mustRetainMetadata ? ' 3 * optionalParameterCount + 2 * requiredParameterCount + 3' : ' 2 * optionalParameterCount + requiredParameterCount + 3';
 
-  jsAst.Expression typeInformationAccess =
-      emitter.generateEmbeddedGlobalAccess(embeddedNames.TYPE_INFORMATION);
-  jsAst.Expression globalFunctionsAccess =
-      emitter.generateEmbeddedGlobalAccess(embeddedNames.GLOBAL_FUNCTIONS);
-  jsAst.Expression staticsAccess =
-      emitter.generateEmbeddedGlobalAccess(embeddedNames.STATICS);
-  jsAst.Expression interceptedNamesAccess =
-      emitter.generateEmbeddedGlobalAccess(embeddedNames.INTERCEPTED_NAMES);
-  jsAst.Expression mangledGlobalNamesAccess =
-      emitter.generateEmbeddedGlobalAccess(embeddedNames.MANGLED_GLOBAL_NAMES);
-  jsAst.Expression mangledNamesAccess =
-      emitter.generateEmbeddedGlobalAccess(embeddedNames.MANGLED_NAMES);
-  jsAst.Expression librariesAccess =
-      emitter.generateEmbeddedGlobalAccess(embeddedNames.LIBRARIES);
+  jsAst.Expression typeInformationAccess = emitter.generateEmbeddedGlobalAccess(embeddedNames.TYPE_INFORMATION);
+  jsAst.Expression globalFunctionsAccess = emitter.generateEmbeddedGlobalAccess(embeddedNames.GLOBAL_FUNCTIONS);
+  jsAst.Expression staticsAccess = emitter.generateEmbeddedGlobalAccess(embeddedNames.STATICS);
+  jsAst.Expression interceptedNamesAccess = emitter.generateEmbeddedGlobalAccess(embeddedNames.INTERCEPTED_NAMES);
+  jsAst.Expression mangledGlobalNamesAccess = emitter.generateEmbeddedGlobalAccess(embeddedNames.MANGLED_GLOBAL_NAMES);
+  jsAst.Expression mangledNamesAccess = emitter.generateEmbeddedGlobalAccess(embeddedNames.MANGLED_NAMES);
+  jsAst.Expression librariesAccess = emitter.generateEmbeddedGlobalAccess(embeddedNames.LIBRARIES);
 
   jsAst.Statement header = js.statement('''
 // [map] returns an object literal that V8 shouldn not try to optimize with a
@@ -214,8 +203,7 @@ jsAst.Expression getReflectionDataParser(String classesCollector,
       if (optionalParameterCount) descriptor[unmangledName + "*"] = funcs[0];
     }
   }
-''', [globalFunctionsAccess, interceptedNamesAccess,
-      mangledGlobalNamesAccess, mangledNamesAccess]);
+''', [globalFunctionsAccess, interceptedNamesAccess, mangledGlobalNamesAccess, mangledNamesAccess]);
 
   List<jsAst.Statement> tearOffCode = buildTearOffCode(backend);
 
@@ -263,16 +251,7 @@ jsAst.Expression getReflectionDataParser(String classesCollector,
     libraries.push([name, uri, classes, functions, metadata, fields, isRoot,
                     globalObject]);
   }
-}''', [librariesAccess, librariesAccess,
-       mangledNamesAccess, mangledNamesAccess,
-       mangledGlobalNamesAccess, mangledGlobalNamesAccess,
-       staticsAccess, staticsAccess,
-       typeInformationAccess, typeInformationAccess,
-       globalFunctionsAccess, globalFunctionsAccess,
-       interceptedNamesAccess, interceptedNamesAccess,
-       librariesAccess,
-       mangledNamesAccess,
-       mangledGlobalNamesAccess]);
+}''', [librariesAccess, librariesAccess, mangledNamesAccess, mangledNamesAccess, mangledGlobalNamesAccess, mangledGlobalNamesAccess, staticsAccess, staticsAccess, typeInformationAccess, typeInformationAccess, globalFunctionsAccess, globalFunctionsAccess, interceptedNamesAccess, interceptedNamesAccess, librariesAccess, mangledNamesAccess, mangledGlobalNamesAccess]);
 
   return js('''
 (function (reflectionData) {
@@ -299,14 +278,11 @@ List<jsAst.Statement> buildTearOffCode(JavaScriptBackend backend) {
     // We need both the AST that references [closureFromTearOff] and a string
     // for the NoCsp version that constructs a function.
     tearOffAccessExpression = namer.elementAccess(closureFromTearOff);
-    tearOffAccessText =
-        jsAst.prettyPrint(tearOffAccessExpression, compiler).getText();
-    tearOffGlobalObjectName = tearOffGlobalObject =
-        namer.globalObjectFor(closureFromTearOff);
+    tearOffAccessText = jsAst.prettyPrint(tearOffAccessExpression, compiler).getText();
+    tearOffGlobalObjectName = tearOffGlobalObject = namer.globalObjectFor(closureFromTearOff);
   } else {
     // Default values for mocked-up test libraries.
-    tearOffAccessText =
-        r'''function() { throw 'Helper \'closureFromTearOff\' missing.' }''';
+    tearOffAccessText = r'''function() { throw 'Helper \'closureFromTearOff\' missing.' }''';
     tearOffAccessExpression = js(tearOffAccessText);
     tearOffGlobalObjectName = 'MissingHelperFunction';
     tearOffGlobalObject = '($tearOffAccessText())';
@@ -368,30 +344,19 @@ List<jsAst.Statement> buildTearOffCode(JavaScriptBackend backend) {
 
 
 String readString(String array, String index) {
-  return readChecked(
-      array, index, 'result != null && typeof result != "string"', 'string');
+  return readChecked(array, index, 'result != null && typeof result != "string"', 'string');
 }
 
 String readInt(String array, String index) {
-  return readChecked(
-      array, index,
-      'result != null && (typeof result != "number" || (result|0) !== result)',
-      'int');
+  return readChecked(array, index, 'result != null && (typeof result != "number" || (result|0) !== result)', 'int');
 }
 
 String readFunction(String array, String index) {
-  return readChecked(
-      array, index, 'result != null && typeof result != "function"',
-      'function');
+  return readChecked(array, index, 'result != null && typeof result != "function"', 'function');
 }
 
 String readFunctionType(String array, String index) {
-  return readChecked(
-      array, index,
-      'result != null && '
-      '(typeof result != "number" || (result|0) !== result) && '
-      'typeof result != "function"',
-      'function or int');
+  return readChecked(array, index, 'result != null && ' '(typeof result != "number" || (result|0) !== result) && ' 'typeof result != "function"', 'function or int');
 }
 
 String readChecked(String array, String index, String check, String type) {

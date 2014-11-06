@@ -22,15 +22,13 @@ class TypeVariableHandler {
    *  Maps a class element to a list with indices that point to type variables
    *  constants for each of the class' type variables.
    */
-  Map<ClassElement, List<int>> typeVariables =
-      new Map<ClassElement, List<int>>();
+  Map<ClassElement, List<int>> typeVariables = new Map<ClassElement, List<int>>();
 
   /**
    *  Maps a TypeVariableType to the index pointing to the constant representing
    *  the corresponding type variable at runtime.
    */
-  Map<TypeVariableElement, int> typeVariableConstants =
-      new Map<TypeVariableElement, int>();
+  Map<TypeVariableElement, int> typeVariableConstants = new Map<TypeVariableElement, int>();
 
   TypeVariableHandler(this.backend);
 
@@ -56,8 +54,7 @@ class TypeVariableHandler {
       return result;
     }
 
-    if (!backend.referencedFromMirrorSystem(cls) &&
-        !hasMemberNeededForReflection(cls)) {
+    if (!backend.referencedFromMirrorSystem(cls) && !hasMemberNeededForReflection(cls)) {
       return;
     }
 
@@ -68,58 +65,36 @@ class TypeVariableHandler {
       TypeVariableElement typeVariableElement = currentTypeVariable.element;
 
       AstConstant wrapConstant(ConstantExpression constant) {
-        return new AstConstant(typeVariableElement,
-                                     typeVariableElement.node,
-                                     constant);
+        return new AstConstant(typeVariableElement, typeVariableElement.node, constant);
       }
 
-      ConstantExpression name = new PrimitiveConstantExpression(
-          backend.constantSystem.createString(
-              new DartString.literal(currentTypeVariable.name)));
-      ConstantExpression bound = new PrimitiveConstantExpression(
-          backend.constantSystem.createInt(
-              emitter.reifyType(typeVariableElement.bound)));
+      ConstantExpression name = new PrimitiveConstantExpression(backend.constantSystem.createString(new DartString.literal(currentTypeVariable.name)));
+      ConstantExpression bound = new PrimitiveConstantExpression(backend.constantSystem.createInt(emitter.reifyType(typeVariableElement.bound)));
       ConstantExpression type = backend.constants.createTypeConstant(cls);
-      List<AstConstant> arguments =
-          [wrapConstant(type), wrapConstant(name), wrapConstant(bound)];
+      List<AstConstant> arguments = [wrapConstant(type), wrapConstant(name), wrapConstant(bound)];
 
       // TODO(johnniwinther): Support a less front-end specific creation of
       // constructed constants.
-      AstConstant constant =
-          CompileTimeConstantEvaluator.makeConstructedConstant(
-              compiler,
-              backend.constants,
-              typeVariableElement,
-              typeVariableElement.node,
-              typeVariableType,
-              typeVariableConstructor,
-              new Selector.callConstructor('', null, 3),
-              arguments,
-              arguments);
+      AstConstant constant = CompileTimeConstantEvaluator.makeConstructedConstant(compiler, backend.constants, typeVariableElement, typeVariableElement.node, typeVariableType, typeVariableConstructor, new Selector.callConstructor('', null, 3), arguments, arguments);
       ConstantValue value = constant.value;
       backend.registerCompileTimeConstant(value, compiler.globalDependencies);
       backend.constants.addCompileTimeConstantForEmission(value);
-      constants.add(
-          reifyTypeVariableConstant(value, currentTypeVariable.element));
+      constants.add(reifyTypeVariableConstant(value, currentTypeVariable.element));
     }
     typeVariables[cls] = constants;
   }
 
   void onTreeShakingDisabled(Enqueuer enqueuer) {
     if (enqueuer.isResolutionQueue) {
-      backend.enqueueClass(
-            enqueuer, typeVariableClass, compiler.globalDependencies);
+      backend.enqueueClass(enqueuer, typeVariableClass, compiler.globalDependencies);
       typeVariableClass.ensureResolved(compiler);
       Link constructors = typeVariableClass.constructors;
       if (constructors.isEmpty && constructors.tail.isEmpty) {
-        compiler.internalError(typeVariableClass,
-            "Class '$typeVariableClass' should only have one constructor");
+        compiler.internalError(typeVariableClass, "Class '$typeVariableClass' should only have one constructor");
       }
       typeVariableConstructor = typeVariableClass.constructors.head;
-      backend.enqueueInResolution(typeVariableConstructor,
-          compiler.globalDependencies);
-      enqueuer.registerInstantiatedType(typeVariableClass.rawType,
-          compiler.globalDependencies);
+      backend.enqueueInResolution(typeVariableConstructor, compiler.globalDependencies);
+      enqueuer.registerInstantiatedType(typeVariableClass.rawType, compiler.globalDependencies);
       enqueuer.registerStaticUse(backend.getCreateRuntimeType());
     } else if (typeVariableClasses != null) {
       List<ClassElement> worklist = typeVariableClasses;
@@ -137,8 +112,7 @@ class TypeVariableHandler {
    * there, otherwise a new entry for [c] is created.
    */
   int reifyTypeVariableConstant(ConstantValue c, TypeVariableElement variable) {
-    String name = jsAst.prettyPrint(task.constantReference(c),
-                                    compiler).getText();
+    String name = jsAst.prettyPrint(task.constantReference(c), compiler).getText();
     int index;
     if (typeVariableConstants.containsKey(variable)) {
       index = typeVariableConstants[variable];

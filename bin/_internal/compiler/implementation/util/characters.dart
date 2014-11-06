@@ -6,7 +6,7 @@ library characters;
 
 const int $EOF = 0;
 const int $STX = 2;
-const int $BS  = 8;
+const int $BS = 8;
 const int $TAB = 9;
 const int $LF = 10;
 const int $VTAB = 11;
@@ -130,8 +130,7 @@ int hexDigitValue(int hexDigit) {
 }
 
 bool isUnicodeScalarValue(int value) {
-  return value < $FIRST_SURROGATE ||
-      (value > $LAST_SURROGATE && value <= $LAST_CODE_POINT);
+  return value < $FIRST_SURROGATE || (value > $LAST_SURROGATE && value <= $LAST_CODE_POINT);
 }
 
 bool isUtf16LeadSurrogate(int value) {

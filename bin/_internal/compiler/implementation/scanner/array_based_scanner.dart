@@ -124,8 +124,7 @@ abstract class ArrayBasedScanner extends AbstractScanner {
     }
     BeginGroupToken begin = groupingStack.head;
     if (!identical(begin.kind, openKind)) {
-      assert(begin.kind == STRING_INTERPOLATION_TOKEN &&
-             openKind == OPEN_CURLY_BRACKET_TOKEN);
+      assert(begin.kind == STRING_INTERPOLATION_TOKEN && openKind == OPEN_CURLY_BRACKET_TOKEN);
       // We're ending an interpolated expression.
       begin.endGroup = close;
       groupingStack = groupingStack.tail;
@@ -149,8 +148,7 @@ abstract class ArrayBasedScanner extends AbstractScanner {
       if (groupingStack.isEmpty) return;
       BeginGroupToken begin = groupingStack.head;
       if (openKind == begin.kind) return;
-      if (openKind == OPEN_CURLY_BRACKET_TOKEN &&
-          begin.kind == STRING_INTERPOLATION_TOKEN) return;
+      if (openKind == OPEN_CURLY_BRACKET_TOKEN && begin.kind == STRING_INTERPOLATION_TOKEN) return;
       unmatchedBeginGroup(begin);
       groupingStack = groupingStack.tail;
     }
@@ -212,8 +210,7 @@ abstract class ArrayBasedScanner extends AbstractScanner {
    * list, like the '=' in the above example.
    */
   void discardOpenLt() {
-    while (!groupingStack.isEmpty
-        && identical(groupingStack.head.kind, LT_TOKEN)) {
+    while (!groupingStack.isEmpty && identical(groupingStack.head.kind, LT_TOKEN)) {
       groupingStack = groupingStack.tail;
     }
   }

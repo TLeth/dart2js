@@ -6,8 +6,7 @@ part of type_graph_inferrer;
 
 class ClosureTracerVisitor extends TracerVisitor<ApplyableTypeInformation> {
   final Iterable<FunctionElement> tracedElements;
-  final List<CallSiteTypeInformation> callsToAnalyze =
-      new List<CallSiteTypeInformation>();
+  final List<CallSiteTypeInformation> callsToAnalyze = new List<CallSiteTypeInformation>();
 
   ClosureTracerVisitor(this.tracedElements, tracedType, inferrer)
       : super(tracedType, inferrer);
@@ -16,10 +15,9 @@ class ClosureTracerVisitor extends TracerVisitor<ApplyableTypeInformation> {
     analyze();
     if (!continueAnalyzing) return;
     callsToAnalyze.forEach(analyzeCall);
-    for(FunctionElement e in tracedElements) {
+    for (FunctionElement e in tracedElements) {
       e.functionSignature.forEachParameter((Element parameter) {
-        ElementTypeInformation info =
-            inferrer.types.getInferredTypeOf(parameter);
+        ElementTypeInformation info = inferrer.types.getInferredTypeOf(parameter);
         info.disableInferenceForClosures = false;
       });
     }
@@ -40,8 +38,7 @@ class ClosureTracerVisitor extends TracerVisitor<ApplyableTypeInformation> {
     Selector selector = info.selector;
     tracedElements.forEach((FunctionElement functionElement) {
       if (!selector.signatureApplies(functionElement)) return;
-      inferrer.updateParameterAssignments(info, functionElement, info.arguments,
-          selector, remove: false, addToQueue: false);
+      inferrer.updateParameterAssignments(info, functionElement, info.arguments, selector, remove: false, addToQueue: false);
     });
   }
 
@@ -63,17 +60,12 @@ class ClosureTracerVisitor extends TracerVisitor<ApplyableTypeInformation> {
         bailout('Used in JS ${info.call}');
       }
     }
-    if (called.isGetter
-        && info.selector != null
-        && info.selector.isCall
-        && inferrer.types.getInferredTypeOf(called) == currentUser) {
+    if (called.isGetter && info.selector != null && info.selector.isCall && inferrer.types.getInferredTypeOf(called) == currentUser) {
       // This node can be a closure call as well. For example, `foo()`
       // where `foo` is a getter.
       registerCallForLaterAnalysis(info);
     }
-    if (checkIfFunctionApply(called) &&
-        info.arguments != null &&
-        info.arguments.contains(currentUser)) {
+    if (checkIfFunctionApply(called) && info.arguments != null && info.arguments.contains(currentUser)) {
       tagAsFunctionApplyTarget("static call");
     }
   }
@@ -99,8 +91,7 @@ class ClosureTracerVisitor extends TracerVisitor<ApplyableTypeInformation> {
       } else if (info.targets.any((element) => checkIfCurrentUser(element))) {
         registerCallForLaterAnalysis(info);
       }
-    } else if (info.selector.isGetter &&
-        info.selector.name == Compiler.CALL_OPERATOR_NAME) {
+    } else if (info.selector.isGetter && info.selector.name == Compiler.CALL_OPERATOR_NAME) {
       // We are potentially tearing off ourself here
       addNewEscapeInformation(info);
     }
@@ -113,9 +104,7 @@ class StaticTearOffClosureTracerVisitor extends ClosureTracerVisitor {
 
   visitStaticCallSiteTypeInformation(StaticCallSiteTypeInformation info) {
     super.visitStaticCallSiteTypeInformation(info);
-    if (info.calledElement == tracedElements.first
-        && info.selector != null
-        && info.selector.isGetter) {
+    if (info.calledElement == tracedElements.first && info.selector != null && info.selector.isGetter) {
       addNewEscapeInformation(info);
     }
   }

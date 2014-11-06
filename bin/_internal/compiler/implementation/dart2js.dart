@@ -4,11 +4,8 @@
 
 library dart2js.cmdline;
 
-import 'dart:async'
-    show Future, EventSink;
-import 'dart:io'
-    show exit, File, FileMode, Platform, RandomAccessFile, FileSystemException,
-         stdin, stderr;
+import 'dart:async' show Future, EventSink;
+import 'dart:io' show exit, File, FileMode, Platform, RandomAccessFile, FileSystemException, stdin, stderr;
 
 import '../compiler.dart' as api;
 import 'source_file.dart';
@@ -155,8 +152,7 @@ Future compile(List<String> argv) {
 
   setOutputType(String argument) {
     optionsImplyCompilation.add(argument);
-    if (argument == '--output-type=dart' ||
-        argument == '--output-type=dart-multi') {
+    if (argument == '--output-type=dart' || argument == '--output-type=dart-multi') {
       outputLanguage = OUTPUT_LANGUAGE_DART;
       if (!explicitOut) {
         out = currentDirectory.resolve('out.dart');
@@ -217,12 +213,10 @@ Future compile(List<String> argv) {
 
   setCategories(String argument) {
     List<String> categories = extractParameter(argument).split(',');
-    Set<String> allowedCategories =
-        LIBRARIES.values.map((x) => x.category).toSet();
+    Set<String> allowedCategories = LIBRARIES.values.map((x) => x.category).toSet();
     allowedCategories.remove('Shared');
     allowedCategories.remove('Internal');
-    List<String> allowedCategoriesList =
-        new List<String>.from(allowedCategories);
+    List<String> allowedCategoriesList = new List<String>.from(allowedCategories);
     allowedCategoriesList.sort();
     if (categories.contains('all')) {
       categories = allowedCategoriesList;
@@ -230,8 +224,7 @@ Future compile(List<String> argv) {
       String allowedCategoriesString = allowedCategoriesList.join(', ');
       for (String category in categories) {
         if (!allowedCategories.contains(category)) {
-          fail('Unsupported library category "$category", '
-               'supported categories are: $allowedCategoriesString');
+          fail('Unsupported library category "$category", ' 'supported categories are: $allowedCategoriesString');
         }
       }
     }
@@ -270,61 +263,15 @@ Future compile(List<String> argv) {
   }
 
   List<String> arguments = <String>[];
-  List<OptionHandler> handlers = <OptionHandler>[
-    new OptionHandler('-[chvm?]+', handleShortOptions),
-    new OptionHandler('--throw-on-error(?:=[0-9]+)?', handleThrowOnError),
-    new OptionHandler('--suppress-warnings', (_) {
+  List<OptionHandler> handlers = <OptionHandler>[new OptionHandler('-[chvm?]+', handleShortOptions), new OptionHandler('--throw-on-error(?:=[0-9]+)?', handleThrowOnError), new OptionHandler('--suppress-warnings', (_) {
       diagnosticHandler.showWarnings = false;
       passThrough('--suppress-warnings');
-    }),
-    new OptionHandler('--suppress-hints',
-                      (_) => diagnosticHandler.showHints = false),
-    new OptionHandler(
-        '--output-type=dart|--output-type=dart-multi|--output-type=js',
-        setOutputType),
-    new OptionHandler('--verbose', setVerbose),
-    new OptionHandler('--version', (_) => wantVersion = true),
-    new OptionHandler('--library-root=.+', setLibraryRoot),
-    new OptionHandler('--out=.+|-o.*', setOutput, multipleArguments: true),
-    new OptionHandler('--allow-mock-compilation', passThrough),
-    new OptionHandler('--minify|-m', implyCompilation),
-    new OptionHandler('--force-strip=.*', setStrip),
-    new OptionHandler('--disable-diagnostic-colors',
-                      (_) => diagnosticHandler.enableColors = false),
-    new OptionHandler('--enable-diagnostic-colors',
-                      (_) => diagnosticHandler.enableColors = true),
-    new OptionHandler('--enable[_-]checked[_-]mode|--checked',
-                      (_) => setCheckedMode('--enable-checked-mode')),
-    new OptionHandler('--enable-concrete-type-inference',
-                      (_) => implyCompilation(
-                          '--enable-concrete-type-inference')),
-    new OptionHandler('--trust-type-annotations',
-                      (_) => setTrustTypeAnnotations(
-                          '--trust-type-annotations')),
-    new OptionHandler(r'--help|/\?|/h', (_) => wantHelp = true),
-    new OptionHandler('--package-root=.+|-p.+', setPackageRoot),
-    new OptionHandler('--analyze-all', setAnalyzeAll),
-    new OptionHandler('--analyze-only', setAnalyzeOnly),
-    new OptionHandler('--analyze-signatures-only', setAnalyzeOnly),
-    new OptionHandler('--disable-native-live-type-analysis', passThrough),
-    new OptionHandler('--categories=.*', setCategories),
-    new OptionHandler('--disable-type-inference', implyCompilation),
-    new OptionHandler('--terse', passThrough),
-    new OptionHandler('--dump-info', implyCompilation),
-    new OptionHandler('--disallow-unsafe-eval',
-                      (_) => hasDisallowUnsafeEval = true),
-    new OptionHandler('--show-package-warnings', passThrough),
-    new OptionHandler('--csp', passThrough),
-    new OptionHandler('-D.+=.*', addInEnvironment),
-
-    // The following two options must come last.
+    }), new OptionHandler('--suppress-hints', (_) => diagnosticHandler.showHints = false), new OptionHandler('--output-type=dart|--output-type=dart-multi|--output-type=js', setOutputType), new OptionHandler('--verbose', setVerbose), new OptionHandler('--version', (_) => wantVersion = true), new OptionHandler('--library-root=.+', setLibraryRoot), new OptionHandler('--out=.+|-o.*', setOutput, multipleArguments: true), new OptionHandler('--allow-mock-compilation', passThrough), new OptionHandler('--minify|-m', implyCompilation), new OptionHandler('--force-strip=.*', setStrip), new OptionHandler('--disable-diagnostic-colors', (_) => diagnosticHandler.enableColors = false), new OptionHandler('--enable-diagnostic-colors', (_) => diagnosticHandler.enableColors = true), new OptionHandler('--enable[_-]checked[_-]mode|--checked', (_) => setCheckedMode('--enable-checked-mode')), new OptionHandler('--enable-concrete-type-inference', (_) => implyCompilation('--enable-concrete-type-inference')), new OptionHandler('--trust-type-annotations', (_) => setTrustTypeAnnotations('--trust-type-annotations')), new OptionHandler(r'--help|/\?|/h', (_) => wantHelp = true), new OptionHandler('--package-root=.+|-p.+', setPackageRoot), new OptionHandler('--analyze-all', setAnalyzeAll), new OptionHandler('--analyze-only', setAnalyzeOnly), new OptionHandler('--analyze-signatures-only', setAnalyzeOnly), new OptionHandler('--disable-native-live-type-analysis', passThrough), new OptionHandler('--categories=.*', setCategories), new OptionHandler('--disable-type-inference', implyCompilation), new OptionHandler('--terse', passThrough), new OptionHandler('--dump-info', implyCompilation), new OptionHandler('--disallow-unsafe-eval', (_) => hasDisallowUnsafeEval = true), new OptionHandler('--show-package-warnings', passThrough), new OptionHandler('--csp', passThrough), new OptionHandler('-D.+=.*', addInEnvironment), // The following two options must come last.
     new OptionHandler('-.*', (String argument) {
       helpAndFail("Unknown option '$argument'.");
-    }),
-    new OptionHandler('.*', (String argument) {
+    }), new OptionHandler('.*', (String argument) {
       arguments.add(nativeToUriPath(argument));
-    })
-  ];
+    })];
 
   parseCommandLine(handlers, argv);
   if (wantHelp || wantVersion) {
@@ -332,18 +279,12 @@ Future compile(List<String> argv) {
   }
 
   if (hasDisallowUnsafeEval) {
-    String precompiledName =
-        relativize(currentDirectory,
-                   RandomAccessFileOutputProvider.computePrecompiledUri(out),
-                   Platform.isWindows);
-    helpAndFail("Option '--disallow-unsafe-eval' has been removed."
-                " Instead, the compiler generates a file named"
-                " '$precompiledName'.");
+    String precompiledName = relativize(currentDirectory, RandomAccessFileOutputProvider.computePrecompiledUri(out), Platform.isWindows);
+    helpAndFail("Option '--disallow-unsafe-eval' has been removed." " Instead, the compiler generates a file named" " '$precompiledName'.");
   }
 
   if (outputLanguage != OUTPUT_LANGUAGE_DART && stripArgumentSet) {
-    helpAndFail("Option '--force-strip' may only be used with "
-                "'--output-type=dart'.");
+    helpAndFail("Option '--force-strip' may only be used with " "'--output-type=dart'.");
   }
   if (arguments.isEmpty) {
     helpAndFail('No Dart file specified.');
@@ -354,8 +295,7 @@ Future compile(List<String> argv) {
   }
 
   if (checkedMode && trustTypeAnnotations) {
-    helpAndFail("Option '--trust-type-annotations' may not be used in "
-                "checked mode.");
+    helpAndFail("Option '--trust-type-annotations' may not be used in " "checked mode.");
   }
 
   Uri uri = currentDirectory.resolve(arguments[0]);
@@ -365,14 +305,9 @@ Future compile(List<String> argv) {
 
   if ((analyzeOnly || analyzeAll) && !optionsImplyCompilation.isEmpty) {
     if (!analyzeOnly) {
-      diagnosticHandler.info(
-          "Option '--analyze-all' implies '--analyze-only'.",
-          api.Diagnostic.INFO);
+      diagnosticHandler.info("Option '--analyze-all' implies '--analyze-only'.", api.Diagnostic.INFO);
     }
-    diagnosticHandler.info(
-        "Options $optionsImplyCompilation indicate that output is expected, "
-        "but compilation is turned off by the option '--analyze-only'.",
-        api.Diagnostic.INFO);
+    diagnosticHandler.info("Options $optionsImplyCompilation indicate that output is expected, " "but compilation is turned off by the option '--analyze-only'.", api.Diagnostic.INFO);
   }
   if (analyzeAll) analyzeOnly = true;
 
@@ -381,22 +316,15 @@ Future compile(List<String> argv) {
   options.add('--out=$out');
   options.add('--source-map=$sourceMapOut');
 
-  RandomAccessFileOutputProvider outputProvider =
-      new RandomAccessFileOutputProvider(
-          out, sourceMapOut, onInfo: diagnosticHandler.info, onFailure: fail);
+  RandomAccessFileOutputProvider outputProvider = new RandomAccessFileOutputProvider(out, sourceMapOut, onInfo: diagnosticHandler.info, onFailure: fail);
 
   compilationDone(String code) {
     if (analyzeOnly) return;
     if (code == null) {
       fail('Compilation failed.');
     }
-    writeString(Uri.parse('$out.deps'),
-                getDepsOutput(inputProvider.sourceFiles));
-    diagnosticHandler.info(
-         'Compiled ${inputProvider.dartCharactersRead} characters Dart '
-         '-> ${outputProvider.totalCharactersWritten} characters '
-         '$outputLanguage in '
-         '${relativize(currentDirectory, out, Platform.isWindows)}');
+    writeString(Uri.parse('$out.deps'), getDepsOutput(inputProvider.sourceFiles));
+    diagnosticHandler.info('Compiled ${inputProvider.dartCharactersRead} characters Dart ' '-> ${outputProvider.totalCharactersWritten} characters ' '$outputLanguage in ' '${relativize(currentDirectory, out, Platform.isWindows)}');
     if (diagnosticHandler.verbose) {
       String input = uriPathToNative(arguments[0]);
       print('Dart file ($input) compiled to $outputLanguage.');
@@ -411,10 +339,7 @@ Future compile(List<String> argv) {
     }
   }
 
-  return compileFunc(uri, libraryRoot, packageRoot,
-                     inputProvider, diagnosticHandler,
-                     options, outputProvider, environment)
-            .then(compilationDone);
+  return compileFunc(uri, libraryRoot, packageRoot, inputProvider, diagnosticHandler, options, outputProvider, environment).then(compilationDone);
 }
 
 class AbortLeg {
@@ -434,8 +359,7 @@ void writeString(Uri uri, String text) {
 
 void fail(String message) {
   if (diagnosticHandler != null) {
-    diagnosticHandler.diagnosticHandler(
-        null, -1, -1, message, api.Diagnostic.ERROR);
+    diagnosticHandler.diagnosticHandler(null, -1, -1, message, api.Diagnostic.ERROR);
   } else {
     print('Error: $message');
   }
@@ -444,8 +368,7 @@ void fail(String message) {
 
 Future compilerMain(List<String> arguments) {
   var root = uriPathToNative("/$LIBRARY_ROOT");
-  arguments = <String>['--library-root=${Platform.script.toFilePath()}$root']
-      ..addAll(arguments);
+  arguments = <String>['--library-root=${Platform.script.toFilePath()}$root']..addAll(arguments);
   return compile(arguments);
 }
 
@@ -567,9 +490,7 @@ be removed in a future version:
 
 void helpAndExit(bool wantHelp, bool wantVersion, bool verbose) {
   if (wantVersion) {
-    var version = (BUILD_ID == null)
-        ? '<non-SDK build>'
-        : BUILD_ID;
+    var version = (BUILD_ID == null) ? '<non-SDK build>' : BUILD_ID;
     print('Dart-to-JavaScript compiler (dart2js) version: $version');
   }
   if (wantHelp) {
@@ -649,16 +570,14 @@ void batchMain(List<String> batchArguments) {
       args.addAll(batchArguments);
       args.addAll(splitLine(line, windows: Platform.isWindows));
       return internalMain(args);
-    })
-    .catchError((exception, trace) {
+    }).catchError((exception, trace) {
       if (!identical(exception, _EXIT_SIGNAL)) {
         exitCode = 253;
       }
-    })
-    .whenComplete(() {
+    }).whenComplete(() {
       // The testing framework waits for a status line on stdout and stderr
       // before moving to the next test.
-      if (exitCode == 0){
+      if (exitCode == 0) {
         print(">>> TEST OK");
       } else if (exitCode == 253) {
         print(">>> TEST CRASH");

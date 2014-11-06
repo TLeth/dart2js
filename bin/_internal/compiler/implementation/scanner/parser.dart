@@ -59,8 +59,7 @@ class Parser {
   Token parseTopLevelDeclaration(Token token) {
     token = parseMetadataStar(token);
     final String value = token.stringValue;
-    if ((identical(value, 'abstract') && optional('class', token.next))
-        || identical(value, 'class')) {
+    if ((identical(value, 'abstract') && optional('class', token.next)) || identical(value, 'class')) {
       return parseClassOrNamedMixinApplication(token);
     } else if (identical(value, 'typedef')) {
       return parseTypedef(token);
@@ -269,8 +268,7 @@ class Parser {
         implementsKeyword = token;
         token = parseTypeList(token.next);
       }
-      listener.endNamedMixinApplication(
-          typedefKeyword, implementsKeyword, token);
+      listener.endNamedMixinApplication(typedefKeyword, implementsKeyword, token);
     } else {
       listener.beginFunctionTypeAlias(token);
       token = parseReturnTypeOpt(token.next);
@@ -360,13 +358,11 @@ class Parser {
       token = parseExpression(token.next);
       listener.handleValuedFormalParameter(equal, token);
       if (type.isRequired) {
-        listener.reportError(equal,
-            MessageKind.REQUIRED_PARAMETER_WITH_DEFAULT);
+        listener.reportError(equal, MessageKind.REQUIRED_PARAMETER_WITH_DEFAULT);
       } else if (type.isNamed && identical('=', value)) {
         listener.reportError(equal, MessageKind.NAMED_PARAMETER_WITH_EQUALS);
       } else if (type.isPositional && identical(':', value)) {
-        listener.reportError(equal,
-            MessageKind.POSITIONAL_PARAMETER_WITH_EQUALS);
+        listener.reportError(equal, MessageKind.POSITIONAL_PARAMETER_WITH_EQUALS);
       }
     }
     listener.endFormalParameter(thisKeyword);
@@ -380,8 +376,7 @@ class Parser {
     int parameterCount = 0;
     do {
       token = token.next;
-      var type = isNamed ? FormalParameterType.NAMED
-                         : FormalParameterType.POSITIONAL;
+      var type = isNamed ? FormalParameterType.NAMED : FormalParameterType.POSITIONAL;
       token = parseFormalParameter(token, type);
       ++parameterCount;
     } while (optional(',', token));
@@ -409,9 +404,7 @@ class Parser {
     if (identical(kind, KEYWORD_TOKEN)) {
       Keyword keyword = (token as KeywordToken).keyword;
       String value = keyword.syntax;
-      return keyword.isPseudo
-          || (identical(value, 'dynamic'))
-          || (identical(value, 'void'));
+      return keyword.isPseudo || (identical(value, 'dynamic')) || (identical(value, 'void'));
     }
     return false;
   }
@@ -497,8 +490,7 @@ class Parser {
       implementsKeyword = token;
       token = parseTypeList(token.next);
     }
-    listener.endNamedMixinApplication(
-        classKeyword, implementsKeyword, token);
+    listener.endNamedMixinApplication(classKeyword, implementsKeyword, token);
     return expect(';', token);
   }
 
@@ -527,8 +519,7 @@ class Parser {
       } while (optional(',', token));
     }
     token = parseClassBody(token);
-    listener.endClassDeclaration(interfacesCount, begin, extendsKeyword,
-                                 implementsKeyword, token);
+    listener.endClassDeclaration(interfacesCount, begin, extendsKeyword, implementsKeyword, token);
     return token.next;
   }
 
@@ -579,18 +570,13 @@ class Parser {
    * Returns true if the stringValue of the [token] is either [value1],
    * [value2], [value3], or [value4].
    */
-  bool isOneOf4(Token token,
-                String value1, String value2, String value3, String value4) {
+  bool isOneOf4(Token token, String value1, String value2, String value3, String value4) {
     String stringValue = token.stringValue;
-    return identical(value1, stringValue) ||
-           identical(value2, stringValue) ||
-           identical(value3, stringValue) ||
-           identical(value4, stringValue);
+    return identical(value1, stringValue) || identical(value2, stringValue) || identical(value3, stringValue) || identical(value4, stringValue);
   }
 
   bool notEofOrValue(String value, Token token) {
-    return !identical(token.kind, EOF_TOKEN) &&
-           !identical(value, token.stringValue);
+    return !identical(token.kind, EOF_TOKEN) && !identical(value, token.stringValue);
   }
 
   Token parseType(Token token) {
@@ -607,24 +593,15 @@ class Parser {
   }
 
   Token parseTypeArgumentsOpt(Token token) {
-    return parseStuff(token,
-                      (t) => listener.beginTypeArguments(t),
-                      (t) => parseType(t),
-                      (c, bt, et) => listener.endTypeArguments(c, bt, et),
-                      (t) => listener.handleNoTypeArguments(t));
+    return parseStuff(token, (t) => listener.beginTypeArguments(t), (t) => parseType(t), (c, bt, et) => listener.endTypeArguments(c, bt, et), (t) => listener.handleNoTypeArguments(t));
   }
 
   Token parseTypeVariablesOpt(Token token) {
-    return parseStuff(token,
-                      (t) => listener.beginTypeVariables(t),
-                      (t) => parseTypeVariable(t),
-                      (c, bt, et) => listener.endTypeVariables(c, bt, et),
-                      (t) => listener.handleNoTypeVariables(t));
+    return parseStuff(token, (t) => listener.beginTypeVariables(t), (t) => parseTypeVariable(t), (c, bt, et) => listener.endTypeVariables(c, bt, et), (t) => listener.handleNoTypeVariables(t));
   }
 
   // TODO(ahe): Clean this up.
-  Token parseStuff(Token token, Function beginStuff, Function stuffParser,
-                   Function endStuff, Function handleNoStuff) {
+  Token parseStuff(Token token, Function beginStuff, Function stuffParser, Function endStuff, Function handleNoStuff) {
     if (optional('<', token)) {
       Token begin = token;
       beginStuff(begin);
@@ -682,8 +659,7 @@ class Parser {
       // Loop to allow the listener to rewrite the token stream for
       // error handling.
       final String value = token.stringValue;
-      if ((identical(value, '(')) || (identical(value, '{'))
-          || (identical(value, '=>'))) {
+      if ((identical(value, '(')) || (identical(value, '{')) || (identical(value, '=>'))) {
         isField = false;
         break;
       } else if ((identical(value, '=')) || (identical(value, ','))) {
@@ -705,25 +681,18 @@ class Parser {
       }
     }
     var modifiers = identifiers.reverse();
-    return isField
-        ? parseFields(start, modifiers, type, getOrSet, name, true)
-        : parseTopLevelMethod(start, modifiers, type, getOrSet, name);
+    return isField ? parseFields(start, modifiers, type, getOrSet, name, true) : parseTopLevelMethod(start, modifiers, type, getOrSet, name);
   }
 
   bool isVarFinalOrConst(Token token) {
     String value = token.stringValue;
-    return identical('var', value)
-        || identical('final', value)
-        || identical('const', value);
+    return identical('var', value) || identical('final', value) || identical('const', value);
   }
 
-  Token expectVarFinalOrConst(Link<Token> modifiers,
-                              bool hasType,
-                              bool allowStatic) {
+  Token expectVarFinalOrConst(Link<Token> modifiers, bool hasType, bool allowStatic) {
     int modifierCount = 0;
     Token staticModifier;
-    if (allowStatic && !modifiers.isEmpty
-        && optional('static', modifiers.head)) {
+    if (allowStatic && !modifiers.isEmpty && optional('static', modifiers.head)) {
       staticModifier = modifiers.head;
       modifierCount++;
       parseModifier(staticModifier);
@@ -747,12 +716,9 @@ class Parser {
 
     // Slow case to report errors.
     List<Token> modifierList = modifiers.toList();
-    Token varFinalOrConst =
-        modifierList.firstWhere(isVarFinalOrConst, orElse: () => null);
+    Token varFinalOrConst = modifierList.firstWhere(isVarFinalOrConst, orElse: () => null);
     if (allowStatic && staticModifier == null) {
-      staticModifier =
-          modifierList.firstWhere(
-              (modifier) => optional('static', modifier), orElse: () => null);
+      staticModifier = modifierList.firstWhere((modifier) => optional('static', modifier), orElse: () => null);
       if (staticModifier != null) {
         modifierCount++;
         parseModifier(staticModifier);
@@ -767,24 +733,18 @@ class Parser {
       modifierList.remove(varFinalOrConst);
     }
     listener.handleModifiers(modifierCount);
-    var kind = hasTypeOrModifier
-        ? MessageKind.EXTRANEOUS_MODIFIER
-        : MessageKind.EXTRANEOUS_MODIFIER_REPLACE;
+    var kind = hasTypeOrModifier ? MessageKind.EXTRANEOUS_MODIFIER : MessageKind.EXTRANEOUS_MODIFIER_REPLACE;
     for (Token modifier in modifierList) {
-      listener.reportError(modifier, kind, {'modifier': modifier});
+      listener.reportError(modifier, kind, {
+        'modifier': modifier
+      });
     }
     return null;
   }
 
-  Token parseFields(Token start,
-                    Link<Token> modifiers,
-                    Token type,
-                    Token getOrSet,
-                    Token name,
-                    bool isTopLevel) {
+  Token parseFields(Token start, Link<Token> modifiers, Token type, Token getOrSet, Token name, bool isTopLevel) {
     bool hasType = type != null;
-    Token varFinalOrConst =
-        expectVarFinalOrConst(modifiers, hasType, !isTopLevel);
+    Token varFinalOrConst = expectVarFinalOrConst(modifiers, hasType, !isTopLevel);
     bool isVar = false;
     bool hasModifier = false;
     if (varFinalOrConst != null) {
@@ -793,10 +753,10 @@ class Parser {
     }
 
     if (getOrSet != null) {
-      var kind = (hasModifier || hasType)
-          ? MessageKind.EXTRANEOUS_MODIFIER
-          : MessageKind.EXTRANEOUS_MODIFIER_REPLACE;
-      listener.reportError(getOrSet, kind, {'modifier': getOrSet});
+      var kind = (hasModifier || hasType) ? MessageKind.EXTRANEOUS_MODIFIER : MessageKind.EXTRANEOUS_MODIFIER_REPLACE;
+      listener.reportError(getOrSet, kind, {
+        'modifier': getOrSet
+      });
     }
 
     if (!hasType) {
@@ -810,9 +770,9 @@ class Parser {
     } else {
       parseType(type);
       if (isVar) {
-        listener.reportError(
-            modifiers.head, MessageKind.EXTRANEOUS_MODIFIER,
-            {'modifier': modifiers.head});
+        listener.reportError(modifiers.head, MessageKind.EXTRANEOUS_MODIFIER, {
+          'modifier': modifiers.head
+        });
       }
     }
 
@@ -835,18 +795,15 @@ class Parser {
     return token;
   }
 
-  Token parseTopLevelMethod(Token start,
-                            Link<Token> modifiers,
-                            Token type,
-                            Token getOrSet,
-                            Token name) {
+  Token parseTopLevelMethod(Token start, Link<Token> modifiers, Token type, Token getOrSet, Token name) {
     Token externalModifier;
     for (Token modifier in modifiers) {
       if (externalModifier == null && optional('external', modifier)) {
         externalModifier = modifier;
       } else {
-        listener.reportError(
-            modifier, MessageKind.EXTRANEOUS_MODIFIER, {'modifier': modifier});
+        listener.reportError(modifier, MessageKind.EXTRANEOUS_MODIFIER, {
+          'modifier': modifier
+        });
       }
     }
     if (externalModifier != null) {
@@ -874,12 +831,10 @@ class Parser {
     Link<Token> identifiers = const Link<Token>();
     while (!identical(token.kind, EOF_TOKEN)) {
       String value = token.stringValue;
-      if ((identical(value, '(')) || (identical(value, '{'))
-          || (identical(value, '=>'))) {
+      if ((identical(value, '(')) || (identical(value, '{')) || (identical(value, '=>'))) {
         // A method.
         return identifiers;
-      } else if ((identical(value, '=')) || (identical(value, ';'))
-          || (identical(value, ','))) {
+      } else if ((identical(value, '=')) || (identical(value, ';')) || (identical(value, ','))) {
         // A field or abstract getter.
         return identifiers;
       }
@@ -958,12 +913,7 @@ class Parser {
 
   bool isModifier(Token token) {
     final String value = token.stringValue;
-    return (identical('final', value)) ||
-           (identical('var', value)) ||
-           (identical('const', value)) ||
-           (identical('abstract', value)) ||
-           (identical('static', value)) ||
-           (identical('external', value));
+    return (identical('final', value)) || (identical('var', value)) || (identical('const', value)) || (identical('abstract', value)) || (identical('static', value)) || (identical('external', value));
   }
 
   Token parseModifier(Token token) {
@@ -974,7 +924,7 @@ class Parser {
 
   void parseModifierList(Link<Token> tokens) {
     int count = 0;
-    for (; !tokens.isEmpty; tokens = tokens.tail) {
+    for ( ; !tokens.isEmpty; tokens = tokens.tail) {
       Token token = tokens.head;
       if (isModifier(token)) {
         parseModifier(token);
@@ -989,8 +939,7 @@ class Parser {
   Token parseModifiers(Token token) {
     int count = 0;
     while (identical(token.kind, KEYWORD_TOKEN)) {
-      if (!isModifier(token))
-        break;
+      if (!isModifier(token)) break;
       token = parseModifier(token);
       count++;
     }
@@ -1108,8 +1057,7 @@ class Parser {
       // Loop to allow the listener to rewrite the token stream for
       // error handling.
       final String value = token.stringValue;
-      if ((identical(value, '(')) || (identical(value, '.'))
-          || (identical(value, '{')) || (identical(value, '=>'))) {
+      if ((identical(value, '(')) || (identical(value, '.')) || (identical(value, '{')) || (identical(value, '=>'))) {
         isField = false;
         break;
       } else if (identical(value, ';')) {
@@ -1136,17 +1084,11 @@ class Parser {
     }
 
     var modifiers = identifiers.reverse();
-    return isField
-        ? parseFields(start, modifiers, type, getOrSet, name, false)
-        : parseMethod(start, modifiers, type, getOrSet, name);
+    return isField ? parseFields(start, modifiers, type, getOrSet, name, false) : parseMethod(start, modifiers, type, getOrSet, name);
 
   }
 
-  Token parseMethod(Token start,
-                    Link<Token> modifiers,
-                    Token type,
-                    Token getOrSet,
-                    Token name) {
+  Token parseMethod(Token start, Link<Token> modifiers, Token type, Token getOrSet, Token name) {
     Token externalModifier;
     Token staticModifier;
     Token constModifier;
@@ -1157,30 +1099,31 @@ class Parser {
         modifierCount++;
         externalModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(
-              modifier,
-              MessageKind.EXTRANEOUS_MODIFIER, {'modifier': modifier});
+          listener.reportError(modifier, MessageKind.EXTRANEOUS_MODIFIER, {
+            'modifier': modifier
+          });
         }
         allowedModifierCount++;
       } else if (staticModifier == null && optional('static', modifier)) {
         modifierCount++;
         staticModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(
-              modifier,
-              MessageKind.EXTRANEOUS_MODIFIER, {'modifier': modifier});
+          listener.reportError(modifier, MessageKind.EXTRANEOUS_MODIFIER, {
+            'modifier': modifier
+          });
         }
       } else if (constModifier == null && optional('const', modifier)) {
         modifierCount++;
         constModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(
-              modifier,
-              MessageKind.EXTRANEOUS_MODIFIER, {'modifier': modifier});
+          listener.reportError(modifier, MessageKind.EXTRANEOUS_MODIFIER, {
+            'modifier': modifier
+          });
         }
       } else {
-        listener.reportError(
-            modifier, MessageKind.EXTRANEOUS_MODIFIER, {'modifier': modifier});
+        listener.reportError(modifier, MessageKind.EXTRANEOUS_MODIFIER, {
+          'modifier': modifier
+        });
       }
     }
     parseModifierList(modifiers);
@@ -1195,9 +1138,9 @@ class Parser {
       token = parseOperatorName(name);
       if (staticModifier != null) {
         // TODO(ahe): Consider a more specific error message.
-        listener.reportError(
-            staticModifier, MessageKind.EXTRANEOUS_MODIFIER,
-            {'modifier': staticModifier});
+        listener.reportError(staticModifier, MessageKind.EXTRANEOUS_MODIFIER, {
+          'modifier': staticModifier
+        });
       }
     } else {
       token = parseIdentifier(name);
@@ -1209,8 +1152,7 @@ class Parser {
     if (optional('=', token)) {
       token = parseRedirectingFactoryBody(token);
     } else {
-      token = parseFunctionBody(
-          token, false, staticModifier == null || externalModifier != null);
+      token = parseFunctionBody(token, false, staticModifier == null || externalModifier != null);
     }
     listener.endMethod(getOrSet, start, token);
     return token.next;
@@ -1468,9 +1410,7 @@ class Parser {
       assert(identifier.isIdentifier());
       Token afterId = identifier.next;
       int afterIdKind = afterId.kind;
-      if (identical(afterIdKind, EQ_TOKEN) ||
-          identical(afterIdKind, SEMICOLON_TOKEN) ||
-          identical(afterIdKind, COMMA_TOKEN)) {
+      if (identical(afterIdKind, EQ_TOKEN) || identical(afterIdKind, SEMICOLON_TOKEN) || identical(afterIdKind, COMMA_TOKEN)) {
         // We are looking at "type identifier" followed by '=', ';', ','.
         return parseVariablesDeclaration(token);
       } else if (identical(afterIdKind, OPEN_PAREN_TOKEN)) {
@@ -1509,9 +1449,7 @@ class Parser {
       assert(identifier.isIdentifier());
       Token afterId = identifier.next;
       int afterIdKind = afterId.kind;
-      if (identical(afterIdKind, EQ_TOKEN) ||
-          identical(afterIdKind, SEMICOLON_TOKEN) ||
-          identical(afterIdKind, COMMA_TOKEN)) {
+      if (identical(afterIdKind, EQ_TOKEN) || identical(afterIdKind, SEMICOLON_TOKEN) || identical(afterIdKind, COMMA_TOKEN)) {
         // We are looking at "const type identifier" followed by '=', ';', or
         // ','.
         return parseVariablesDeclaration(token);
@@ -1550,15 +1488,11 @@ class Parser {
   }
 
   Token parseExpression(Token token) {
-    return optional('throw', token)
-        ? parseThrowExpression(token, true)
-        : parsePrecedenceExpression(token, ASSIGNMENT_PRECEDENCE, true);
+    return optional('throw', token) ? parseThrowExpression(token, true) : parsePrecedenceExpression(token, ASSIGNMENT_PRECEDENCE, true);
   }
 
   Token parseExpressionWithoutCascade(Token token) {
-    return optional('throw', token)
-        ? parseThrowExpression(token, false)
-        : parsePrecedenceExpression(token, ASSIGNMENT_PRECEDENCE, false);
+    return optional('throw', token) ? parseThrowExpression(token, false) : parsePrecedenceExpression(token, ASSIGNMENT_PRECEDENCE, false);
   }
 
   Token parseConditionalExpressionRest(Token token) {
@@ -1572,8 +1506,7 @@ class Parser {
     return token;
   }
 
-  Token parsePrecedenceExpression(Token token, int precedence,
-                                  bool allowCascades) {
+  Token parsePrecedenceExpression(Token token, int precedence, bool allowCascades) {
     assert(precedence >= 1);
     assert(precedence <= POSTFIX_PRECEDENCE);
     token = parseUnaryExpression(token, allowCascades);
@@ -1600,11 +1533,9 @@ class Parser {
             // directly.
             token = parseUnaryExpression(token.next, allowCascades);
             listener.handleBinaryExpression(operator);
-          } else if ((identical(info, OPEN_PAREN_INFO)) ||
-                     (identical(info, OPEN_SQUARE_BRACKET_INFO))) {
+          } else if ((identical(info, OPEN_PAREN_INFO)) || (identical(info, OPEN_SQUARE_BRACKET_INFO))) {
             token = parseArgumentOrIndexStar(token);
-          } else if ((identical(info, PLUS_PLUS_INFO)) ||
-                     (identical(info, MINUS_MINUS_INFO))) {
+          } else if ((identical(info, PLUS_PLUS_INFO)) || (identical(info, MINUS_MINUS_INFO))) {
             listener.handleUnaryPostfixAssignmentExpression(token);
             token = token.next;
           } else {
@@ -1619,8 +1550,7 @@ class Parser {
         } else {
           // Left associative, so we recurse at the next higher
           // precedence level.
-          token = parsePrecedenceExpression(token.next, level + 1,
-                                            allowCascades);
+          token = parsePrecedenceExpression(token.next, level + 1, allowCascades);
           listener.handleBinaryExpression(operator);
         }
         info = token.info;
@@ -1676,22 +1606,18 @@ class Parser {
       // Dart no longer allows prefix-plus.
       listener.reportError(token, MessageKind.UNSUPPORTED_PREFIX_PLUS);
       return parseUnaryExpression(token.next, allowCascades);
-    } else if ((identical(value, '!')) ||
-               (identical(value, '-')) ||
-               (identical(value, '~'))) {
+    } else if ((identical(value, '!')) || (identical(value, '-')) || (identical(value, '~'))) {
       Token operator = token;
       // Right associative, so we recurse at the same precedence
       // level.
-      token = parsePrecedenceExpression(token.next, POSTFIX_PRECEDENCE,
-                                        allowCascades);
+      token = parsePrecedenceExpression(token.next, POSTFIX_PRECEDENCE, allowCascades);
       listener.handleUnaryPrefixExpression(operator);
     } else if ((identical(value, '++')) || identical(value, '--')) {
       // TODO(ahe): Validate this is used correctly.
       Token operator = token;
       // Right associative, so we recurse at the same precedence
       // level.
-      token = parsePrecedenceExpression(token.next, POSTFIX_PRECEDENCE,
-                                        allowCascades);
+      token = parsePrecedenceExpression(token.next, POSTFIX_PRECEDENCE, allowCascades);
       listener.handleUnaryPrefixAssignmentExpression(operator);
     } else {
       token = parsePrimary(token);
@@ -1723,8 +1649,7 @@ class Parser {
     final kind = token.kind;
     if (identical(kind, IDENTIFIER_TOKEN)) {
       return parseSendOrFunctionLiteral(token);
-    } else if (identical(kind, INT_TOKEN)
-        || identical(kind, HEXADECIMAL_TOKEN)) {
+    } else if (identical(kind, INT_TOKEN) || identical(kind, HEXADECIMAL_TOKEN)) {
       return parseLiteralInt(token);
     } else if (identical(kind, DOUBLE_TOKEN)) {
       return parseLiteralDouble(token);
@@ -1755,10 +1680,7 @@ class Parser {
       }
     } else if (identical(kind, OPEN_PAREN_TOKEN)) {
       return parseParenthesizedExpressionOrFunctionLiteral(token);
-    } else if ((identical(kind, LT_TOKEN)) ||
-               (identical(kind, OPEN_SQUARE_BRACKET_TOKEN)) ||
-               (identical(kind, OPEN_CURLY_BRACKET_TOKEN)) ||
-               identical(token.stringValue, '[]')) {
+    } else if ((identical(kind, LT_TOKEN)) || (identical(kind, OPEN_SQUARE_BRACKET_TOKEN)) || (identical(kind, OPEN_CURLY_BRACKET_TOKEN)) || identical(token.stringValue, '[]')) {
       return parseLiteralListOrMap(token);
     } else {
       return listener.expectedExpression(token);
@@ -1768,9 +1690,7 @@ class Parser {
   Token parseParenthesizedExpressionOrFunctionLiteral(Token token) {
     BeginGroupToken beginGroup = token;
     int kind = beginGroup.endGroup.next.kind;
-    if (mayParseFunctionExpressions &&
-        (identical(kind, FUNCTION_TOKEN)
-            || identical(kind, OPEN_CURLY_BRACKET_TOKEN))) {
+    if (mayParseFunctionExpressions && (identical(kind, FUNCTION_TOKEN) || identical(kind, OPEN_CURLY_BRACKET_TOKEN))) {
       return parseUnamedFunction(token);
     } else {
       bool old = mayParseFunctionExpressions;
@@ -1878,9 +1798,7 @@ class Parser {
   Token parseSendOrFunctionLiteral(Token token) {
     if (!mayParseFunctionExpressions) return parseSend(token);
     Token peek = peekAfterIfType(token);
-    if (peek != null &&
-        identical(peek.kind, IDENTIFIER_TOKEN) &&
-        isFunctionDeclaration(peek.next)) {
+    if (peek != null && identical(peek.kind, IDENTIFIER_TOKEN) && isFunctionDeclaration(peek.next)) {
       return parseFunctionExpression(token);
     } else if (isFunctionDeclaration(token.next)) {
       return parseFunctionExpression(token);
@@ -1923,10 +1841,7 @@ class Parser {
     Token constKeyword = token;
     token = expect('const', token);
     final String value = token.stringValue;
-    if ((identical(value, '<')) ||
-        (identical(value, '[')) ||
-        (identical(value, '[]')) ||
-        (identical(value, '{'))) {
+    if ((identical(value, '<')) || (identical(value, '[')) || (identical(value, '[]')) || (identical(value, '{'))) {
       return parseLiteralListOrMap(constKeyword);
     }
     token = parseConstructorReference(token);
@@ -2106,8 +2021,7 @@ class Parser {
     return parseVariablesDeclarationMaybeSemicolon(token, false);
   }
 
-  Token parseVariablesDeclarationMaybeSemicolon(Token token,
-                                                bool endWithSemicolon) {
+  Token parseVariablesDeclarationMaybeSemicolon(Token token, bool endWithSemicolon) {
     int count = 1;
     listener.beginVariablesDeclaration(token);
     token = parseModifiers(token);
@@ -2255,9 +2169,7 @@ class Parser {
     Token throwToken = token;
     listener.beginThrowExpression(throwToken);
     token = expect('throw', token);
-    token = allowCascades
-        ? parseExpression(token)
-        : parseExpressionWithoutCascade(token);
+    token = allowCascades ? parseExpression(token) : parseExpressionWithoutCascade(token);
     listener.endThrowExpression(throwToken, token);
     return token;
   }
@@ -2397,9 +2309,7 @@ class Parser {
     int statementCount = 0;
     while (!identical(token.kind, EOF_TOKEN)) {
       String value = peek.stringValue;
-      if ((identical(value, 'case')) ||
-          (identical(value, 'default')) ||
-          ((identical(value, '}')) && (identical(token, peek)))) {
+      if ((identical(value, 'case')) || (identical(value, 'default')) || ((identical(value, '}')) && (identical(token, peek)))) {
         // A label just before "}" will be handled as a statement error.
         break;
       } else {
@@ -2408,8 +2318,7 @@ class Parser {
       statementCount++;
       peek = peekPastLabels(token);
     }
-    listener.handleSwitchCase(labelCount, expressionCount, defaultKeyword,
-                              statementCount, begin, token);
+    listener.handleSwitchCase(labelCount, expressionCount, defaultKeyword, statementCount, begin, token);
     return token;
   }
 

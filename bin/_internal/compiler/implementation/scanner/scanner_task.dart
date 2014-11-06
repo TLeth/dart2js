@@ -28,8 +28,7 @@ class ScannerTask extends CompilerTask {
 
   void scanElements(CompilationUnitElement compilationUnit) {
     Script script = compilationUnit.script;
-    Token tokens = new Scanner(script.file,
-        includeComments: compiler.preserveComments).tokenize();
+    Token tokens = new Scanner(script.file, includeComments: compiler.preserveComments).tokenize();
     if (compiler.preserveComments) {
       tokens = compiler.processAndStripComments(tokens);
     }
@@ -45,8 +44,7 @@ class ScannerTask extends CompilerTask {
    */
   Token tokenize(String source) {
     return measure(() {
-      return new StringScanner.fromString(source, includeComments: false)
-          .tokenize();
+      return new StringScanner.fromString(source, includeComments: false).tokenize();
     });
   }
 }
@@ -58,8 +56,7 @@ class DietParserTask extends CompilerTask {
   dietParse(CompilationUnitElement compilationUnit, Token tokens) {
     measure(() {
       Function idGenerator = compiler.getNextFreeClassId;
-      ElementListener listener =
-          new ElementListener(compiler, compilationUnit, idGenerator);
+      ElementListener listener = new ElementListener(compiler, compilationUnit, idGenerator);
       PartialParser parser = new PartialParser(listener);
       parser.parseUnit(tokens);
     });

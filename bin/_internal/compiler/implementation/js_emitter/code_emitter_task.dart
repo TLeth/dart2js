@@ -21,14 +21,10 @@ class CodeEmitterTask extends CompilerTask {
   Emitter emitter;
 
   final Set<ClassElement> neededClasses = new Set<ClassElement>();
-  final Map<OutputUnit, List<ClassElement>> outputClassLists =
-      new Map<OutputUnit, List<ClassElement>>();
-  final Map<OutputUnit, List<ConstantValue>> outputConstantLists =
-      new Map<OutputUnit, List<ConstantValue>>();
-  final Map<OutputUnit, List<Element>> outputStaticLists =
-      new Map<OutputUnit, List<Element>>();
-  final Map<OutputUnit, Set<LibraryElement>> outputLibraryLists =
-      new Map<OutputUnit, Set<LibraryElement>>();
+  final Map<OutputUnit, List<ClassElement>> outputClassLists = new Map<OutputUnit, List<ClassElement>>();
+  final Map<OutputUnit, List<ConstantValue>> outputConstantLists = new Map<OutputUnit, List<ConstantValue>>();
+  final Map<OutputUnit, List<Element>> outputStaticLists = new Map<OutputUnit, List<Element>>();
+  final Map<OutputUnit, Set<LibraryElement>> outputLibraryLists = new Map<OutputUnit, Set<LibraryElement>>();
 
   /// True, if the output contains a constant list.
   ///
@@ -38,8 +34,7 @@ class CodeEmitterTask extends CompilerTask {
   final List<ClassElement> nativeClasses = <ClassElement>[];
 
   /// Records if a type variable is read dynamically for type tests.
-  final Set<TypeVariableElement> readTypeVariables =
-      new Set<TypeVariableElement>();
+  final Set<TypeVariableElement> readTypeVariables = new Set<TypeVariableElement>();
 
   List<TypedefElement> typedefsNeededForReflection;
 
@@ -49,9 +44,7 @@ class CodeEmitterTask extends CompilerTask {
       : super(compiler),
         this.namer = namer {
     oldEmitter = new OldEmitter(compiler, namer, generateSourceMap, this);
-    emitter = USE_NEW_EMITTER
-        ? new new_js_emitter.Emitter(compiler, namer)
-        : oldEmitter;
+    emitter = USE_NEW_EMITTER ? new new_js_emitter.Emitter(compiler, namer) : oldEmitter;
     nativeEmitter = new NativeEmitter(this);
     typeTestEmitter.emitter = this.oldEmitter;
     // TODO(18886): Remove this call (and the show in the import) once the
@@ -100,19 +93,16 @@ class CodeEmitterTask extends CompilerTask {
     // Go over specialized interceptors and then constants to know which
     // interceptors are needed.
     Set<ClassElement> needed = new Set<ClassElement>();
-    backend.specializedGetInterceptors.forEach(
-        (_, Iterable<ClassElement> elements) {
-          needed.addAll(elements);
-        }
-    );
+    backend.specializedGetInterceptors.forEach((_, Iterable<ClassElement> elements) {
+      needed.addAll(elements);
+    });
 
     // Add interceptors referenced by constants.
     needed.addAll(interceptorsReferencedFromConstants());
 
     // Add unneeded interceptors to the [unneededClasses] set.
     for (ClassElement interceptor in backend.interceptedClasses) {
-      if (!needed.contains(interceptor)
-          && interceptor != compiler.objectClass) {
+      if (!needed.contains(interceptor) && interceptor != compiler.objectClass) {
         unneededClasses.add(interceptor);
       }
     }
@@ -142,8 +132,7 @@ class CodeEmitterTask extends CompilerTask {
           bool shouldRetainMetadata = backend.retainMetadataOf(element);
           if (shouldRetainMetadata && element.isFunction) {
             FunctionElement function = element;
-            function.functionSignature.forEachParameter(
-                backend.retainMetadataOf);
+            function.functionSignature.forEachParameter(backend.retainMetadataOf);
           }
         }
       }
@@ -151,13 +140,7 @@ class CodeEmitterTask extends CompilerTask {
         final onlyForRti = typeTestEmitter.rtiNeededClasses.contains(cls);
         if (!onlyForRti) {
           backend.retainMetadataOf(cls);
-          oldEmitter.classEmitter.visitFields(cls, false,
-              (Element member,
-               String name,
-               String accessorName,
-               bool needsGetter,
-               bool needsSetter,
-               bool needsCheckedSetter) {
+          oldEmitter.classEmitter.visitFields(cls, false, (Element member, String name, String accessorName, bool needsGetter, bool needsSetter, bool needsCheckedSetter) {
             bool needsAccessor = needsGetter || needsSetter;
             if (needsAccessor && backend.isAccessibleByReflection(member)) {
               backend.retainMetadataOf(member);
@@ -169,44 +152,34 @@ class CodeEmitterTask extends CompilerTask {
     }
 
     JavaScriptConstantCompiler handler = backend.constants;
-    List<ConstantValue> constants = handler.getConstantsForEmission(
-        compiler.hasIncrementalSupport ? null : emitter.compareConstants);
+    List<ConstantValue> constants = handler.getConstantsForEmission(compiler.hasIncrementalSupport ? null : emitter.compareConstants);
     for (ConstantValue constant in constants) {
       if (emitter.isConstantInlinedOrAlreadyEmitted(constant)) continue;
 
       if (constant.isList) outputContainsConstantList = true;
 
-      OutputUnit constantUnit =
-          compiler.deferredLoadTask.outputUnitForConstant(constant);
+      OutputUnit constantUnit = compiler.deferredLoadTask.outputUnitForConstant(constant);
       if (constantUnit == null) {
         // The back-end introduces some constants, like "InterceptorConstant" or
         // some list constants. They are emitted in the main output-unit.
         // TODO(sigurdm): We should track those constants.
         constantUnit = compiler.deferredLoadTask.mainOutputUnit;
       }
-      outputConstantLists.putIfAbsent(
-          constantUnit, () => new List<ConstantValue>()).add(constant);
+      outputConstantLists.putIfAbsent(constantUnit, () => new List<ConstantValue>()).add(constant);
     }
   }
 
   /// Compute all the classes and typedefs that must be emitted.
   void computeNeededDeclarations() {
     // Compute needed typedefs.
-    typedefsNeededForReflection = Elements.sortedByPosition(
-        compiler.world.allTypedefs
-            .where(backend.isAccessibleByReflection)
-            .toList());
+    typedefsNeededForReflection = Elements.sortedByPosition(compiler.world.allTypedefs.where(backend.isAccessibleByReflection).toList());
 
     // Compute needed classes.
-    Set<ClassElement> instantiatedClasses =
-        compiler.codegenWorld.directlyInstantiatedClasses
-            .where(computeClassFilter()).toSet();
+    Set<ClassElement> instantiatedClasses = compiler.codegenWorld.directlyInstantiatedClasses.where(computeClassFilter()).toSet();
 
     void addClassWithSuperclasses(ClassElement cls) {
       neededClasses.add(cls);
-      for (ClassElement superclass = cls.superclass;
-          superclass != null;
-          superclass = superclass.superclass) {
+      for (ClassElement superclass = cls.superclass; superclass != null; superclass = superclass.superclass) {
         neededClasses.add(superclass);
       }
     }
@@ -221,10 +194,7 @@ class CodeEmitterTask extends CompilerTask {
     addClassesWithSuperclasses(instantiatedClasses);
 
     // 2. Add all classes used as mixins.
-    Set<ClassElement> mixinClasses = neededClasses
-        .where((ClassElement element) => element.isMixinApplication)
-        .map(computeMixinClass)
-        .toSet();
+    Set<ClassElement> mixinClasses = neededClasses.where((ClassElement element) => element.isMixinApplication).map(computeMixinClass).toSet();
     neededClasses.addAll(mixinClasses);
 
     // 3. If we need noSuchMethod support, we run through all needed
@@ -280,37 +250,26 @@ class CodeEmitterTask extends CompilerTask {
     List<ClassElement> sortedClasses = Elements.sortedByPosition(neededClasses);
 
     for (ClassElement element in sortedClasses) {
-      if (Elements.isNativeOrExtendsNative(element) &&
-          !typeTestEmitter.rtiNeededClasses.contains(element)) {
+      if (Elements.isNativeOrExtendsNative(element) && !typeTestEmitter.rtiNeededClasses.contains(element)) {
         // For now, native classes and related classes cannot be deferred.
         nativeClasses.add(element);
         if (!element.isNative) {
-          assert(invariant(element,
-                           !compiler.deferredLoadTask.isDeferred(element)));
-          outputClassLists.putIfAbsent(compiler.deferredLoadTask.mainOutputUnit,
-              () => new List<ClassElement>()).add(element);
+          assert(invariant(element, !compiler.deferredLoadTask.isDeferred(element)));
+          outputClassLists.putIfAbsent(compiler.deferredLoadTask.mainOutputUnit, () => new List<ClassElement>()).add(element);
         }
       } else {
-        outputClassLists.putIfAbsent(
-            compiler.deferredLoadTask.outputUnitForElement(element),
-            () => new List<ClassElement>())
-            .add(element);
+        outputClassLists.putIfAbsent(compiler.deferredLoadTask.outputUnitForElement(element), () => new List<ClassElement>()).add(element);
       }
     }
   }
 
   void computeNeededStatics() {
-    bool isStaticFunction(Element element) =>
-        !element.isInstanceMember && !element.isField;
+    bool isStaticFunction(Element element) => !element.isInstanceMember && !element.isField;
 
-    Iterable<Element> elements =
-        backend.generatedCode.keys.where(isStaticFunction);
+    Iterable<Element> elements = backend.generatedCode.keys.where(isStaticFunction);
 
     for (Element element in Elements.sortedByPosition(elements)) {
-      outputStaticLists.putIfAbsent(
-          compiler.deferredLoadTask.outputUnitForElement(element),
-          () => new List<Element>())
-          .add(element);
+      outputStaticLists.putIfAbsent(compiler.deferredLoadTask.outputUnitForElement(element), () => new List<Element>()).add(element);
     }
   }
 
@@ -318,13 +277,12 @@ class CodeEmitterTask extends CompilerTask {
     void addSurroundingLibraryToSet(Element element) {
       OutputUnit unit = compiler.deferredLoadTask.outputUnitForElement(element);
       LibraryElement library = element.library;
-      outputLibraryLists.putIfAbsent(unit, () => new Set<LibraryElement>())
-          .add(library);
+      outputLibraryLists.putIfAbsent(unit, () => new Set<LibraryElement>()).add(library);
     }
 
     backend.generatedCode.keys.forEach(addSurroundingLibraryToSet);
     neededClasses.forEach(addSurroundingLibraryToSet);
-}
+  }
 
   void assembleProgram() {
     measure(() {

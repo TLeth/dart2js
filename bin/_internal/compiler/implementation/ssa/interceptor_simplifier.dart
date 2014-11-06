@@ -21,8 +21,7 @@ part of ssa;
  * an intercepted call a candidate for being generated at use site.
  *
  */
-class SsaSimplifyInterceptors extends HBaseVisitor
-    implements OptimizationPhase {
+class SsaSimplifyInterceptors extends HBaseVisitor implements OptimizationPhase {
   final String name = "SsaSimplifyInterceptors";
   final ConstantSystem constantSystem;
   final Compiler compiler;
@@ -56,16 +55,14 @@ class SsaSimplifyInterceptors extends HBaseVisitor
     if (!invoke.isInterceptedCall) return false;
     var interceptor = invoke.inputs[0];
     if (interceptor is! HInterceptor) return false;
-    HInstruction constant = tryComputeConstantInterceptor(
-        invoke.inputs[1], interceptor.interceptedClasses);
+    HInstruction constant = tryComputeConstantInterceptor(invoke.inputs[1], interceptor.interceptedClasses);
     if (constant != null) {
       invoke.changeUse(interceptor, constant);
     }
     return false;
   }
 
-  bool canUseSelfForInterceptor(HInstruction receiver,
-                                Set<ClassElement> interceptedClasses) {
+  bool canUseSelfForInterceptor(HInstruction receiver, Set<ClassElement> interceptedClasses) {
     JavaScriptBackend backend = compiler.backend;
     ClassWorld classWorld = compiler.world;
 
@@ -73,22 +70,17 @@ class SsaSimplifyInterceptors extends HBaseVisitor
       // Primitives always need interceptors.
       return false;
     }
-    if (receiver.canBeNull() &&
-        interceptedClasses.contains(backend.jsNullClass)) {
+    if (receiver.canBeNull() && interceptedClasses.contains(backend.jsNullClass)) {
       // Need the JSNull interceptor.
       return false;
     }
 
     // All intercepted classes extend `Interceptor`, so if the receiver can't be
     // a class extending `Interceptor` then it can be called directly.
-    return new TypeMask.nonNullSubclass(backend.jsInterceptorClass, classWorld)
-        .intersection(receiver.instructionType, classWorld)
-        .isEmpty;
+    return new TypeMask.nonNullSubclass(backend.jsInterceptorClass, classWorld).intersection(receiver.instructionType, classWorld).isEmpty;
   }
 
-  HInstruction tryComputeConstantInterceptor(
-      HInstruction input,
-      Set<ClassElement> interceptedClasses) {
+  HInstruction tryComputeConstantInterceptor(HInstruction input, Set<ClassElement> interceptedClasses) {
     if (input == graph.explicitReceiverParameter) {
       // If `explicitReceiverParameter` is set it means the current method is an
       // interceptor method, and `this` is the interceptor.  The caller just did
@@ -113,9 +105,7 @@ class SsaSimplifyInterceptors extends HBaseVisitor
       constantInterceptor = backend.jsStringClass;
     } else if (input.isArray(compiler)) {
       constantInterceptor = backend.jsArrayClass;
-    } else if (input.isNumber(compiler) &&
-        !interceptedClasses.contains(backend.jsIntClass) &&
-        !interceptedClasses.contains(backend.jsDoubleClass)) {
+    } else if (input.isNumber(compiler) && !interceptedClasses.contains(backend.jsIntClass) && !interceptedClasses.contains(backend.jsDoubleClass)) {
       // If the method being intercepted is not defined in [int] or [double] we
       // can safely use the number interceptor.  This is because none of the
       // [int] or [double] methods are called from a method defined on [num].
@@ -142,13 +132,11 @@ class SsaSimplifyInterceptors extends HBaseVisitor
 
     // If we just happen to be in an instance method of the constant
     // interceptor, `this` is a shorter alias.
-    if (constantInterceptor == work.element.enclosingClass &&
-        graph.thisInstruction != null) {
+    if (constantInterceptor == work.element.enclosingClass && graph.thisInstruction != null) {
       return graph.thisInstruction;
     }
 
-    ConstantValue constant =
-        new InterceptorConstantValue(constantInterceptor.thisType);
+    ConstantValue constant = new InterceptorConstantValue(constantInterceptor.thisType);
     return graph.addConstant(constant, compiler);
   }
 
@@ -174,21 +162,15 @@ class SsaSimplifyInterceptors extends HBaseVisitor
     HInstruction dominator = findDominator(node.usedBy);
     // If there is a call that dominates all other uses, we can use just the
     // selector of that instruction.
-    if (dominator is HInvokeDynamic &&
-        dominator.isCallOnInterceptor(compiler) &&
-        node == dominator.receiver) {
-      interceptedClasses =
-            backend.getInterceptedClassesOn(dominator.selector.name);
+    if (dominator is HInvokeDynamic && dominator.isCallOnInterceptor(compiler) && node == dominator.receiver) {
+      interceptedClasses = backend.getInterceptedClassesOn(dominator.selector.name);
 
       // If we found that we need number, we must still go through all
       // uses to check if they require int, or double.
-      if (interceptedClasses.contains(backend.jsNumberClass) &&
-          !(interceptedClasses.contains(backend.jsDoubleClass) ||
-            interceptedClasses.contains(backend.jsIntClass))) {
+      if (interceptedClasses.contains(backend.jsNumberClass) && !(interceptedClasses.contains(backend.jsDoubleClass) || interceptedClasses.contains(backend.jsIntClass))) {
         for (HInstruction user in node.usedBy) {
           if (user is! HInvoke) continue;
-          Set<ClassElement> intercepted =
-              backend.getInterceptedClassesOn(user.selector.name);
+          Set<ClassElement> intercepted = backend.getInterceptedClassesOn(user.selector.name);
           if (intercepted.contains(backend.jsIntClass)) {
             interceptedClasses.add(backend.jsIntClass);
           }
@@ -200,11 +182,8 @@ class SsaSimplifyInterceptors extends HBaseVisitor
     } else {
       interceptedClasses = new Set<ClassElement>();
       for (HInstruction user in node.usedBy) {
-        if (user is HInvokeDynamic &&
-            user.isCallOnInterceptor(compiler) &&
-            node == user.receiver) {
-          interceptedClasses.addAll(
-              backend.getInterceptedClassesOn(user.selector.name));
+        if (user is HInvokeDynamic && user.isCallOnInterceptor(compiler) && node == user.receiver) {
+          interceptedClasses.addAll(backend.getInterceptedClassesOn(user.selector.name));
         } else {
           // Use a most general interceptor for other instructions, example,
           // is-checks and escaping interceptors.
@@ -220,8 +199,7 @@ class SsaSimplifyInterceptors extends HBaseVisitor
     }
 
     // Try computing a constant interceptor.
-    HInstruction constantInterceptor =
-        tryComputeConstantInterceptor(receiver, interceptedClasses);
+    HInstruction constantInterceptor = tryComputeConstantInterceptor(receiver, interceptedClasses);
     if (constantInterceptor != null) {
       node.block.rewrite(node, constantInterceptor);
       return false;
@@ -231,7 +209,7 @@ class SsaSimplifyInterceptors extends HBaseVisitor
 
     // Try creating a one-shot interceptor.
     if (node.usedBy.length != 1) return false;
-    if (node.usedBy[0] is !HInvokeDynamic) return false;
+    if (node.usedBy[0] is! HInvokeDynamic) return false;
 
     HInvokeDynamic user = node.usedBy[0];
 
@@ -242,8 +220,7 @@ class SsaSimplifyInterceptors extends HBaseVisitor
     HConstant nullConstant = graph.addConstantNull(compiler);
     List<HInstruction> inputs = new List<HInstruction>.from(user.inputs);
     inputs[0] = nullConstant;
-    HOneShotInterceptor interceptor = new HOneShotInterceptor(
-        user.selector, inputs, user.instructionType, node.interceptedClasses);
+    HOneShotInterceptor interceptor = new HOneShotInterceptor(user.selector, inputs, user.instructionType, node.interceptedClasses);
     interceptor.sourcePosition = user.sourcePosition;
     interceptor.sourceElement = user.sourceElement;
 
@@ -271,30 +248,20 @@ class SsaSimplifyInterceptors extends HBaseVisitor
   }
 
   bool visitOneShotInterceptor(HOneShotInterceptor node) {
-    HInstruction constant = tryComputeConstantInterceptor(
-        node.inputs[1], node.interceptedClasses);
+    HInstruction constant = tryComputeConstantInterceptor(node.inputs[1], node.interceptedClasses);
 
     if (constant == null) return false;
 
     Selector selector = node.selector;
     HInstruction instruction;
     if (selector.isGetter) {
-      instruction = new HInvokeDynamicGetter(
-          selector,
-          node.element,
-          <HInstruction>[constant, node.inputs[1]],
-          node.instructionType);
+      instruction = new HInvokeDynamicGetter(selector, node.element, <HInstruction>[constant, node.inputs[1]], node.instructionType);
     } else if (selector.isSetter) {
-      instruction = new HInvokeDynamicSetter(
-          selector,
-          node.element,
-          <HInstruction>[constant, node.inputs[1], node.inputs[2]],
-          node.instructionType);
+      instruction = new HInvokeDynamicSetter(selector, node.element, <HInstruction>[constant, node.inputs[1], node.inputs[2]], node.instructionType);
     } else {
       List<HInstruction> inputs = new List<HInstruction>.from(node.inputs);
       inputs[0] = constant;
-      instruction = new HInvokeDynamicMethod(
-          selector, inputs, node.instructionType, true);
+      instruction = new HInvokeDynamicMethod(selector, inputs, node.instructionType, true);
     }
 
     HBasicBlock block = node.block;

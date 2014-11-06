@@ -12,11 +12,9 @@ void handleSsaNative(SsaBuilder builder, Expression nativeBody) {
   NativeEmitter nativeEmitter = builder.nativeEmitter;
   JavaScriptBackend backend = builder.backend;
 
-  HInstruction convertDartClosure(ParameterElement  parameter,
-                                  FunctionType type) {
+  HInstruction convertDartClosure(ParameterElement parameter, FunctionType type) {
     HInstruction local = builder.localsHandler.readLocal(parameter);
-    ConstantValue arityConstant =
-        builder.constantSystem.createInt(type.computeArity());
+    ConstantValue arityConstant = builder.constantSystem.createInt(type.computeArity());
     HInstruction arity = builder.graph.addConstant(arityConstant, compiler);
     // TODO(ngeoffray): For static methods, we could pass a method with a
     // defined arity.
@@ -40,8 +38,7 @@ void handleSsaNative(SsaBuilder builder, Expression nativeBody) {
     LiteralString jsCode = nativeBody.asLiteralString();
     String str = jsCode.dartString.slowToString();
     if (nativeRedirectionRegExp.hasMatch(str)) {
-      compiler.internalError(
-          nativeBody, "Deprecated syntax, use @JSName('name') instead.");
+      compiler.internalError(nativeBody, "Deprecated syntax, use @JSName('name') instead.");
     }
     hasBody = true;
   }
@@ -80,32 +77,19 @@ void handleSsaNative(SsaBuilder builder, Expression nativeBody) {
     } else if (element.kind == ElementKind.SETTER) {
       nativeMethodCall = '$receiver$nativeMethodName = $foreignParameters';
     } else {
-      builder.compiler.internalError(element,
-                                     'Unexpected kind: "${element.kind}".');
+      builder.compiler.internalError(element, 'Unexpected kind: "${element.kind}".');
     }
 
-    builder.push(
-        new HForeign(
-            // TODO(sra): This could be cached.  The number of templates should
-            // be proportional to the number of native methods, which is bounded
-            // by the dart: libraries.
-            js.js.uncachedExpressionTemplate(nativeMethodCall),
-            backend.dynamicType,
-            inputs, effects: new SideEffects()));
+    builder.push(new HForeign(// TODO(sra): This could be cached.  The number of templates should
+    // be proportional to the number of native methods, which is bounded
+    // by the dart: libraries.
+    js.js.uncachedExpressionTemplate(nativeMethodCall), backend.dynamicType, inputs, effects: new SideEffects()));
     builder.close(new HReturn(builder.pop())).addSuccessor(builder.graph.exit);
   } else {
     if (parameters.parameterCount != 0) {
-      compiler.internalError(nativeBody,
-          'native "..." syntax is restricted to '
-          'functions with zero parameters.');
+      compiler.internalError(nativeBody, 'native "..." syntax is restricted to ' 'functions with zero parameters.');
     }
     LiteralString jsCode = nativeBody.asLiteralString();
-    builder.push(new HForeign.statement(
-        js.js.statementTemplateYielding(
-            new js.LiteralStatement(jsCode.dartString.slowToString())),
-        <HInstruction>[],
-        new SideEffects(),
-        null,
-        backend.dynamicType));
+    builder.push(new HForeign.statement(js.js.statementTemplateYielding(new js.LiteralStatement(jsCode.dartString.slowToString())), <HInstruction>[], new SideEffects(), null, backend.dynamicType));
   }
 }

@@ -13,8 +13,7 @@ import 'elements/elements.dart' as elements;
 import '../../libraries.dart';
 import 'source_file.dart';
 
-const bool forceIncrementalSupport =
-    const bool.fromEnvironment('DART2JS_EXPERIMENTAL_INCREMENTAL_SUPPORT');
+const bool forceIncrementalSupport = const bool.fromEnvironment('DART2JS_EXPERIMENTAL_INCREMENTAL_SUPPORT');
 
 class Compiler extends leg.Compiler {
   api.CompilerInputProvider provider;
@@ -29,58 +28,11 @@ class Compiler extends leg.Compiler {
   leg.GenericTask userHandlerTask;
   leg.GenericTask userProviderTask;
 
-  Compiler(this.provider,
-           api.CompilerOutputProvider outputProvider,
-           this.handler,
-           this.libraryRoot,
-           this.packageRoot,
-           List<String> options,
-           this.environment)
+  Compiler(this.provider, api.CompilerOutputProvider outputProvider, this.handler, this.libraryRoot, this.packageRoot, List<String> options, this.environment)
       : this.options = options,
         this.allowedLibraryCategories = getAllowedLibraryCategories(options),
-        super(
-            outputProvider: outputProvider,
-            enableTypeAssertions: hasOption(options, '--enable-checked-mode'),
-            enableUserAssertions: hasOption(options, '--enable-checked-mode'),
-            trustTypeAnnotations:
-                hasOption(options, '--trust-type-annotations'),
-            enableMinification: hasOption(options, '--minify'),
-            enableNativeLiveTypeAnalysis:
-                !hasOption(options, '--disable-native-live-type-analysis'),
-            emitJavaScript: !(hasOption(options, '--output-type=dart') ||
-                              hasOption(options, '--output-type=dart-multi')),
-            dart2dartMultiFile: hasOption(options, '--output-type=dart-multi'),
-            generateSourceMap: !hasOption(options, '--no-source-maps'),
-            analyzeAllFlag: hasOption(options, '--analyze-all'),
-            analyzeOnly: hasOption(options, '--analyze-only'),
-            analyzeMain: hasOption(options, '--analyze-main'),
-            analyzeSignaturesOnly:
-                hasOption(options, '--analyze-signatures-only'),
-            strips: extractCsvOption(options, '--force-strip='),
-            enableConcreteTypeInference:
-                hasOption(options, '--enable-concrete-type-inference'),
-            disableTypeInferenceFlag:
-                hasOption(options, '--disable-type-inference'),
-            preserveComments: hasOption(options, '--preserve-comments'),
-            verbose: hasOption(options, '--verbose'),
-            sourceMapUri: extractUriOption(options, '--source-map='),
-            outputUri: extractUriOption(options, '--out='),
-            terseDiagnostics: hasOption(options, '--terse'),
-            dumpInfo: hasOption(options, '--dump-info'),
-            buildId: extractStringOption(
-                options, '--build-id=',
-                "build number could not be determined"),
-            showPackageWarnings:
-                hasOption(options, '--show-package-warnings'),
-            useContentSecurityPolicy: hasOption(options, '--csp'),
-            hasIncrementalSupport:
-                forceIncrementalSupport ||
-                hasOption(options, '--incremental-support'),
-            suppressWarnings: hasOption(options, '--suppress-warnings')) {
-    tasks.addAll([
-        userHandlerTask = new leg.GenericTask('Diagnostic handler', this),
-        userProviderTask = new leg.GenericTask('Input provider', this),
-    ]);
+        super(outputProvider: outputProvider, enableTypeAssertions: hasOption(options, '--enable-checked-mode'), enableUserAssertions: hasOption(options, '--enable-checked-mode'), trustTypeAnnotations: hasOption(options, '--trust-type-annotations'), enableMinification: hasOption(options, '--minify'), enableNativeLiveTypeAnalysis: !hasOption(options, '--disable-native-live-type-analysis'), emitJavaScript: !(hasOption(options, '--output-type=dart') || hasOption(options, '--output-type=dart-multi')), dart2dartMultiFile: hasOption(options, '--output-type=dart-multi'), generateSourceMap: !hasOption(options, '--no-source-maps'), analyzeAllFlag: hasOption(options, '--analyze-all'), analyzeOnly: hasOption(options, '--analyze-only'), analyzeMain: hasOption(options, '--analyze-main'), analyzeSignaturesOnly: hasOption(options, '--analyze-signatures-only'), strips: extractCsvOption(options, '--force-strip='), enableConcreteTypeInference: hasOption(options, '--enable-concrete-type-inference'), disableTypeInferenceFlag: hasOption(options, '--disable-type-inference'), preserveComments: hasOption(options, '--preserve-comments'), verbose: hasOption(options, '--verbose'), sourceMapUri: extractUriOption(options, '--source-map='), outputUri: extractUriOption(options, '--out='), terseDiagnostics: hasOption(options, '--terse'), dumpInfo: hasOption(options, '--dump-info'), buildId: extractStringOption(options, '--build-id=', "build number could not be determined"), showPackageWarnings: hasOption(options, '--show-package-warnings'), useContentSecurityPolicy: hasOption(options, '--csp'), hasIncrementalSupport: forceIncrementalSupport || hasOption(options, '--incremental-support'), suppressWarnings: hasOption(options, '--suppress-warnings')) {
+    tasks.addAll([userHandlerTask = new leg.GenericTask('Diagnostic handler', this), userProviderTask = new leg.GenericTask('Input provider', this),]);
     if (!libraryRoot.path.endsWith("/")) {
       throw new ArgumentError("libraryRoot must end with a /");
     }
@@ -89,9 +41,7 @@ class Compiler extends leg.Compiler {
     }
   }
 
-  static String extractStringOption(List<String> options,
-                                    String prefix,
-                                    String defaultValue) {
+  static String extractStringOption(List<String> options, String prefix, String defaultValue) {
     for (String option in options) {
       if (option.startsWith(prefix)) {
         return option.substring(prefix.length);
@@ -157,8 +107,7 @@ class Compiler extends leg.Compiler {
   }
 
   /// See [leg.Compiler.translateResolvedUri].
-  Uri translateResolvedUri(elements.LibraryElement importingLibrary,
-                           Uri resolvedUri, tree.Node node) {
+  Uri translateResolvedUri(elements.LibraryElement importingLibrary, Uri resolvedUri, tree.Node node) {
     if (resolvedUri.scheme == 'dart') {
       return translateDartUri(importingLibrary, resolvedUri, node);
     }
@@ -171,8 +120,7 @@ class Compiler extends leg.Compiler {
   Future<leg.Script> readScript(leg.Spannable node, Uri readableUri) {
     if (!readableUri.isAbsolute) {
       if (node == null) node = leg.NO_LOCATION_SPANNABLE;
-      internalError(node,
-          'Relative uri $readableUri provided to readScript(Uri).');
+      internalError(node, 'Relative uri $readableUri provided to readScript(Uri).');
     }
 
     // We need to store the current element since we are reporting read errors
@@ -181,9 +129,10 @@ class Compiler extends leg.Compiler {
     elements.Element element = currentElement;
     void reportReadError(exception) {
       withCurrentElement(element, () {
-        reportError(node,
-                    leg.MessageKind.READ_SCRIPT_ERROR,
-                    {'uri': readableUri, 'exception': exception});
+        reportError(node, leg.MessageKind.READ_SCRIPT_ERROR, {
+          'uri': readableUri,
+          'exception': exception
+        });
       });
     }
 
@@ -199,8 +148,7 @@ class Compiler extends leg.Compiler {
       } else if (data is String) {
         sourceFile = new StringSourceFile(resourceUriString, data);
       } else {
-        String message = "Expected a 'String' or a 'List<int>' from the input "
-                         "provider, but got: ${Error.safeToString(data)}.";
+        String message = "Expected a 'String' or a 'List<int>' from the input " "provider, but got: ${Error.safeToString(data)}.";
         reportReadError(message);
       }
       // We use [readableUri] as the URI for the script since need to preserve
@@ -221,48 +169,45 @@ class Compiler extends leg.Compiler {
    */
   Uri translateUri(leg.Spannable node, Uri readableUri) {
     switch (readableUri.scheme) {
-      case 'package': return translatePackageUri(node, readableUri);
-      default: return readableUri;
+      case 'package':
+        return translatePackageUri(node, readableUri);
+      default:
+        return readableUri;
     }
   }
 
-  Uri translateDartUri(elements.LibraryElement importingLibrary,
-                       Uri resolvedUri, tree.Node node) {
+  Uri translateDartUri(elements.LibraryElement importingLibrary, Uri resolvedUri, tree.Node node) {
     LibraryInfo libraryInfo = LIBRARIES[resolvedUri.path];
     String path = lookupLibraryPath(resolvedUri.path);
-    if (libraryInfo != null &&
-        libraryInfo.category == "Internal") {
+    if (libraryInfo != null && libraryInfo.category == "Internal") {
       bool allowInternalLibraryAccess = false;
       if (importingLibrary != null) {
         if (importingLibrary.isPlatformLibrary || importingLibrary.isPatch) {
           allowInternalLibraryAccess = true;
-        } else if (importingLibrary.canonicalUri.path.contains(
-                       'dart/tests/compiler/dart2js_native')) {
+        } else if (importingLibrary.canonicalUri.path.contains('dart/tests/compiler/dart2js_native')) {
           allowInternalLibraryAccess = true;
         }
       }
       if (!allowInternalLibraryAccess) {
         if (importingLibrary != null) {
-          reportError(
-              node,
-              leg.MessageKind.INTERNAL_LIBRARY_FROM,
-              {'resolvedUri': resolvedUri,
-               'importingUri': importingLibrary.canonicalUri});
+          reportError(node, leg.MessageKind.INTERNAL_LIBRARY_FROM, {
+            'resolvedUri': resolvedUri,
+            'importingUri': importingLibrary.canonicalUri
+          });
         } else {
-          reportError(
-              node,
-              leg.MessageKind.INTERNAL_LIBRARY,
-              {'resolvedUri': resolvedUri});
+          reportError(node, leg.MessageKind.INTERNAL_LIBRARY, {
+            'resolvedUri': resolvedUri
+          });
         }
       }
     }
     if (path == null) {
-      reportError(node, leg.MessageKind.LIBRARY_NOT_FOUND,
-                  {'resolvedUri': resolvedUri});
+      reportError(node, leg.MessageKind.LIBRARY_NOT_FOUND, {
+        'resolvedUri': resolvedUri
+      });
       return null;
     }
-    if (resolvedUri.path == 'html' ||
-        resolvedUri.path == 'io') {
+    if (resolvedUri.path == 'html' || resolvedUri.path == 'io') {
       // TODO(ahe): Get rid of mockableLibraryUsed when test.dart
       // supports this use case better.
       mockableLibraryUsed = true;
@@ -278,8 +223,9 @@ class Compiler extends leg.Compiler {
 
   Uri translatePackageUri(leg.Spannable node, Uri uri) {
     if (packageRoot == null) {
-      reportFatalError(
-          node, leg.MessageKind.PACKAGE_ROOT_NOT_SET, {'uri': uri});
+      reportFatalError(node, leg.MessageKind.PACKAGE_ROOT_NOT_SET, {
+        'uri': uri
+      });
     }
     return packageRoot.resolve(uri.path);
   }
@@ -296,18 +242,14 @@ class Compiler extends leg.Compiler {
         }
       }
       int total = totalCompileTime.elapsedMilliseconds;
-      log('Total compile-time ${total}msec;'
-          ' unaccounted ${total - cumulated}msec');
+      log('Total compile-time ${total}msec;' ' unaccounted ${total - cumulated}msec');
       return success;
     });
   }
 
-  void reportDiagnostic(leg.Spannable node,
-                        leg.Message message,
-                        api.Diagnostic kind) {
+  void reportDiagnostic(leg.Spannable node, leg.Message message, api.Diagnostic kind) {
     leg.SourceSpan span = spanFromSpannable(node);
-    if (identical(kind, api.Diagnostic.ERROR)
-        || identical(kind, api.Diagnostic.CRASH)) {
+    if (identical(kind, api.Diagnostic.ERROR) || identical(kind, api.Diagnostic.CRASH)) {
       compilationFailed = true;
     }
     // [:span.uri:] might be [:null:] in case of a [Script] with no [uri]. For
@@ -315,25 +257,21 @@ class Compiler extends leg.Compiler {
     if (span == null || span.uri == null) {
       callUserHandler(null, null, null, '$message', kind);
     } else {
-      callUserHandler(
-          translateUri(null, span.uri), span.begin, span.end, '$message', kind);
+      callUserHandler(translateUri(null, span.uri), span.begin, span.end, '$message', kind);
     }
   }
 
   bool get isMockCompilation {
-    return mockableLibraryUsed
-      && (options.indexOf('--allow-mock-compilation') != -1);
+    return mockableLibraryUsed && (options.indexOf('--allow-mock-compilation') != -1);
   }
 
-  void callUserHandler(Uri uri, int begin, int end,
-                       String message, api.Diagnostic kind) {
+  void callUserHandler(Uri uri, int begin, int end, String message, api.Diagnostic kind) {
     try {
       userHandlerTask.measure(() {
         handler(uri, begin, end, message, kind);
       });
     } catch (ex, s) {
-      diagnoseCrashInUserCode(
-          'Uncaught exception in diagnostic handler', ex, s);
+      diagnoseCrashInUserCode('Uncaught exception in diagnostic handler', ex, s);
       rethrow;
     }
   }

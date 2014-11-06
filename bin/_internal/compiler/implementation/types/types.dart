@@ -78,144 +78,126 @@ class TypesTask extends CompilerTask {
 
   TypeMask get dynamicType {
     if (dynamicTypeCache == null) {
-      dynamicTypeCache =
-          new TypeMask.subclass(classWorld.objectClass, classWorld);
+      dynamicTypeCache = new TypeMask.subclass(classWorld.objectClass, classWorld);
     }
     return dynamicTypeCache;
   }
 
   TypeMask get nonNullType {
     if (nonNullTypeCache == null) {
-      nonNullTypeCache =
-          new TypeMask.nonNullSubclass(classWorld.objectClass, classWorld);
+      nonNullTypeCache = new TypeMask.nonNullSubclass(classWorld.objectClass, classWorld);
     }
     return nonNullTypeCache;
   }
 
   TypeMask get intType {
     if (intTypeCache == null) {
-      intTypeCache = new TypeMask.nonNullSubclass(
-          compiler.backend.intImplementation, compiler.world);
+      intTypeCache = new TypeMask.nonNullSubclass(compiler.backend.intImplementation, compiler.world);
     }
     return intTypeCache;
   }
 
   TypeMask get uint32Type {
     if (uint32TypeCache == null) {
-      uint32TypeCache = new TypeMask.nonNullSubclass(
-          compiler.backend.uint32Implementation, compiler.world);
+      uint32TypeCache = new TypeMask.nonNullSubclass(compiler.backend.uint32Implementation, compiler.world);
     }
     return uint32TypeCache;
   }
 
   TypeMask get uint31Type {
     if (uint31TypeCache == null) {
-      uint31TypeCache = new TypeMask.nonNullExact(
-          compiler.backend.uint31Implementation, compiler.world);
+      uint31TypeCache = new TypeMask.nonNullExact(compiler.backend.uint31Implementation, compiler.world);
     }
     return uint31TypeCache;
   }
 
   TypeMask get positiveIntType {
     if (positiveIntTypeCache == null) {
-      positiveIntTypeCache = new TypeMask.nonNullSubclass(
-          compiler.backend.positiveIntImplementation, compiler.world);
+      positiveIntTypeCache = new TypeMask.nonNullSubclass(compiler.backend.positiveIntImplementation, compiler.world);
     }
     return positiveIntTypeCache;
   }
 
   TypeMask get doubleType {
     if (doubleTypeCache == null) {
-      doubleTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.doubleImplementation, compiler.world);
+      doubleTypeCache = new TypeMask.nonNullExact(compiler.backend.doubleImplementation, compiler.world);
     }
     return doubleTypeCache;
   }
 
   TypeMask get numType {
     if (numTypeCache == null) {
-      numTypeCache = new TypeMask.nonNullSubclass(
-          compiler.backend.numImplementation, compiler.world);
+      numTypeCache = new TypeMask.nonNullSubclass(compiler.backend.numImplementation, compiler.world);
     }
     return numTypeCache;
   }
 
   TypeMask get boolType {
     if (boolTypeCache == null) {
-      boolTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.boolImplementation, compiler.world);
+      boolTypeCache = new TypeMask.nonNullExact(compiler.backend.boolImplementation, compiler.world);
     }
     return boolTypeCache;
   }
 
   TypeMask get functionType {
     if (functionTypeCache == null) {
-      functionTypeCache = new TypeMask.nonNullSubtype(
-          compiler.backend.functionImplementation, classWorld);
+      functionTypeCache = new TypeMask.nonNullSubtype(compiler.backend.functionImplementation, classWorld);
     }
     return functionTypeCache;
   }
 
   TypeMask get listType {
     if (listTypeCache == null) {
-      listTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.listImplementation, compiler.world);
+      listTypeCache = new TypeMask.nonNullExact(compiler.backend.listImplementation, compiler.world);
     }
     return listTypeCache;
   }
 
   TypeMask get constListType {
     if (constListTypeCache == null) {
-      constListTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.constListImplementation, compiler.world);
+      constListTypeCache = new TypeMask.nonNullExact(compiler.backend.constListImplementation, compiler.world);
     }
     return constListTypeCache;
   }
 
   TypeMask get fixedListType {
     if (fixedListTypeCache == null) {
-      fixedListTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.fixedListImplementation, compiler.world);
+      fixedListTypeCache = new TypeMask.nonNullExact(compiler.backend.fixedListImplementation, compiler.world);
     }
     return fixedListTypeCache;
   }
 
   TypeMask get growableListType {
     if (growableListTypeCache == null) {
-      growableListTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.growableListImplementation, compiler.world);
+      growableListTypeCache = new TypeMask.nonNullExact(compiler.backend.growableListImplementation, compiler.world);
     }
     return growableListTypeCache;
   }
 
   TypeMask get mapType {
     if (mapTypeCache == null) {
-      mapTypeCache = new TypeMask.nonNullSubtype(
-          compiler.backend.mapImplementation, classWorld);
+      mapTypeCache = new TypeMask.nonNullSubtype(compiler.backend.mapImplementation, classWorld);
     }
     return mapTypeCache;
   }
 
   TypeMask get constMapType {
     if (constMapTypeCache == null) {
-      constMapTypeCache = new TypeMask.nonNullSubtype(
-          compiler.backend.constMapImplementation, classWorld);
+      constMapTypeCache = new TypeMask.nonNullSubtype(compiler.backend.constMapImplementation, classWorld);
     }
     return constMapTypeCache;
   }
 
   TypeMask get stringType {
     if (stringTypeCache == null) {
-      stringTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.stringImplementation, compiler.world);
+      stringTypeCache = new TypeMask.nonNullExact(compiler.backend.stringImplementation, compiler.world);
     }
     return stringTypeCache;
   }
 
   TypeMask get typeType {
     if (typeTypeCache == null) {
-      typeTypeCache = new TypeMask.nonNullExact(
-          compiler.backend.typeImplementation, compiler.world);
+      typeTypeCache = new TypeMask.nonNullExact(compiler.backend.typeImplementation, compiler.world);
     }
     return typeTypeCache;
   }
@@ -251,12 +233,9 @@ class TypesTask extends CompilerTask {
   bool better(TypeMask type1, TypeMask type2) {
     if (type1 == null) return false;
     if (type2 == null) {
-      return (type1 != null) &&
-             (type1 != dynamicType);
+      return (type1 != null) && (type1 != dynamicType);
     }
-    return (type1 != type2) &&
-           type2.containsMask(type1, classWorld) &&
-           !type1.containsMask(type2, classWorld);
+    return (type1 != type2) && type2.containsMask(type1, classWorld) && !type1.containsMask(type2, classWorld);
   }
 
   /**
@@ -284,23 +263,14 @@ class TypesTask extends CompilerTask {
   TypeMask getGuaranteedTypeOfElement(Element element) {
     return measure(() {
       TypeMask guaranteedType = typesInferrer.getTypeOfElement(element);
-      return (concreteTypesInferrer == null)
-          ? guaranteedType
-          : intersection(guaranteedType,
-                         concreteTypesInferrer.getTypeOfElement(element),
-                         element);
+      return (concreteTypesInferrer == null) ? guaranteedType : intersection(guaranteedType, concreteTypesInferrer.getTypeOfElement(element), element);
     });
   }
 
   TypeMask getGuaranteedReturnTypeOfElement(Element element) {
     return measure(() {
-      TypeMask guaranteedType =
-          typesInferrer.getReturnTypeOfElement(element);
-      return (concreteTypesInferrer == null)
-          ? guaranteedType
-          : intersection(guaranteedType,
-                         concreteTypesInferrer.getReturnTypeOfElement(element),
-                         element);
+      TypeMask guaranteedType = typesInferrer.getReturnTypeOfElement(element);
+      return (concreteTypesInferrer == null) ? guaranteedType : intersection(guaranteedType, concreteTypesInferrer.getReturnTypeOfElement(element), element);
     });
   }
 
@@ -311,11 +281,7 @@ class TypesTask extends CompilerTask {
   TypeMask getGuaranteedTypeOfNode(owner, node) {
     return measure(() {
       TypeMask guaranteedType = typesInferrer.getTypeOfNode(owner, node);
-      return (concreteTypesInferrer == null)
-          ? guaranteedType
-          : intersection(guaranteedType,
-                         concreteTypesInferrer.getTypeOfNode(owner, node),
-                         node);
+      return (concreteTypesInferrer == null) ? guaranteedType : intersection(guaranteedType, concreteTypesInferrer.getTypeOfNode(owner, node), node);
     });
   }
 
@@ -324,13 +290,8 @@ class TypesTask extends CompilerTask {
    */
   TypeMask getGuaranteedTypeOfSelector(Selector selector) {
     return measure(() {
-      TypeMask guaranteedType =
-          typesInferrer.getTypeOfSelector(selector);
-      return (concreteTypesInferrer == null)
-          ? guaranteedType
-          : intersection(guaranteedType,
-                         concreteTypesInferrer.getTypeOfSelector(selector),
-                         selector);
+      TypeMask guaranteedType = typesInferrer.getTypeOfSelector(selector);
+      return (concreteTypesInferrer == null) ? guaranteedType : intersection(guaranteedType, concreteTypesInferrer.getTypeOfSelector(selector), selector);
     });
   }
 }

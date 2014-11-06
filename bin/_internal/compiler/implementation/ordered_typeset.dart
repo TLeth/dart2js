@@ -32,13 +32,10 @@ class OrderedTypeSet {
   final Link<DartType> types;
   final Link<DartType> _supertypes;
 
-  OrderedTypeSet._internal(List<Link<DartType>> this._levels,
-                           Link<DartType> this.types,
-                           Link<DartType> this._supertypes);
+  OrderedTypeSet._internal(List<Link<DartType>> this._levels, Link<DartType> this.types, Link<DartType> this._supertypes);
 
   factory OrderedTypeSet.singleton(DartType type) {
-    Link<DartType> types =
-        new LinkEntry<DartType>(type, const Link<DartType>());
+    Link<DartType> types = new LinkEntry<DartType>(type, const Link<DartType>());
     List<Link<DartType>> list = new List<Link<DartType>>(1);
     list[0] = types;
     return new OrderedTypeSet._internal(list, types, const Link<DartType>());
@@ -48,18 +45,14 @@ class OrderedTypeSet {
   /// class which this set represents. This is for instance used to create the
   /// type set for [ClosureClassElement] which extends [Closure].
   OrderedTypeSet extendClass(InterfaceType type) {
-    assert(invariant(type.element, types.head.treatAsRaw,
-        message: 'Cannot extend generic class ${types.head} using '
-                 'OrderedTypeSet.extendClass'));
-    Link<DartType> extendedTypes =
-        new LinkEntry<DartType>(type, types);
+    assert(invariant(type.element, types.head.treatAsRaw, message: 'Cannot extend generic class ${types.head} using ' 'OrderedTypeSet.extendClass'));
+    Link<DartType> extendedTypes = new LinkEntry<DartType>(type, types);
     List<Link<DartType>> list = new List<Link<DartType>>(levels + 1);
     for (int i = 0; i < levels; i++) {
       list[i] = _levels[i];
     }
     list[levels] = extendedTypes;
-    return new OrderedTypeSet._internal(
-        list, extendedTypes, _supertypes.prepend(types.head));
+    return new OrderedTypeSet._internal(list, extendedTypes, _supertypes.prepend(types.head));
   }
 
   Link<DartType> get supertypes => _supertypes;
@@ -78,8 +71,7 @@ class OrderedTypeSet {
   void forEach(int level, void f(DartType type)) {
     if (level < levels) {
       Link<DartType> pointer = _levels[level];
-      Link<DartType> end =
-          level > 0 ? _levels[level - 1] : const Link<DartType>();
+      Link<DartType> end = level > 0 ? _levels[level - 1] : const Link<DartType>();
       while (!identical(pointer, end)) {
         f(pointer.head);
         pointer = pointer.tail;
@@ -91,8 +83,7 @@ class OrderedTypeSet {
     int level = cls.hierarchyDepth;
     if (level < levels) {
       Link<DartType> pointer = _levels[level];
-      Link<DartType> end =
-          level > 0 ? _levels[level - 1] : const Link<DartType>();
+      Link<DartType> end = level > 0 ? _levels[level - 1] : const Link<DartType>();
       while (!identical(pointer, end)) {
         if (cls == pointer.head.element) {
           return pointer.head;
@@ -155,11 +146,11 @@ class OrderedTypeSetBuilder {
       DartType existingType = link.head;
       if (existingType == type) return;
       if (existingType.element == type.element) {
-        compiler.reportError(cls,
-            MessageKind.MULTI_INHERITANCE,
-            {'thisType': cls.thisType,
-             'firstType': existingType,
-             'secondType': type});
+        compiler.reportError(cls, MessageKind.MULTI_INHERITANCE, {
+          'thisType': cls.thisType,
+          'firstType': existingType,
+          'secondType': type
+        });
         return;
       }
       prev = link;
@@ -180,8 +171,7 @@ class OrderedTypeSetBuilder {
   OrderedTypeSet toTypeSet() {
     List<Link<DartType>> levels = new List<Link<DartType>>(maxDepth + 1);
     if (maxDepth < 0) {
-      return new OrderedTypeSet._internal(
-          levels, const Link<DartType>(), const Link<DartType>());
+      return new OrderedTypeSet._internal(levels, const Link<DartType>(), const Link<DartType>());
     }
     Link<DartType> next = const Link<DartType>();
     for (int depth = 0; depth <= maxDepth; depth++) {
@@ -198,8 +188,7 @@ class OrderedTypeSetBuilder {
         next = first;
       }
     }
-    return new OrderedTypeSet._internal(
-        levels, levels.last, allSupertypes.toLink());
+    return new OrderedTypeSet._internal(levels, levels.last, allSupertypes.toLink());
   }
 
   String toString() {

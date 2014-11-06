@@ -27,12 +27,7 @@ String relativize(Uri base, Uri uri, bool isWindows) {
     }
   }
 
-  if (equalsNCS(base.scheme, 'file') &&
-      equalsNCS(base.scheme, uri.scheme) &&
-      base.userInfo == uri.userInfo &&
-      equalsNCS(base.host, uri.host) &&
-      base.port == uri.port &&
-      uri.query == "" && uri.fragment == "") {
+  if (equalsNCS(base.scheme, 'file') && equalsNCS(base.scheme, uri.scheme) && base.userInfo == uri.userInfo && equalsNCS(base.host, uri.host) && base.port == uri.port && uri.query == "" && uri.fragment == "") {
     if (normalize(uri.path).startsWith(normalize(base.path))) {
       return uri.path.substring(base.path.lastIndexOf('/') + 1);
     }
@@ -41,8 +36,7 @@ String relativize(Uri base, Uri uri, bool isWindows) {
     List<String> baseParts = base.path.split('/');
     int common = 0;
     int length = min(uriParts.length, baseParts.length);
-    while (common < length &&
-           normalize(uriParts[common]) == normalize(baseParts[common])) {
+    while (common < length && normalize(uriParts[common]) == normalize(baseParts[common])) {
       common++;
     }
     if (common == 1 || (isWindows && common == 2)) {

@@ -28,9 +28,7 @@ class UnionTypeMask implements TypeMask {
     return union;
   }
 
-  static void unionOfHelper(Iterable<TypeMask> masks,
-                            List<FlatTypeMask> disjoint,
-                            ClassWorld classWorld) {
+  static void unionOfHelper(Iterable<TypeMask> masks, List<FlatTypeMask> disjoint, ClassWorld classWorld) {
     // TODO(johnniwinther): Impose an order on the mask to ensure subclass masks
     // are preferred to subtype masks.
     for (TypeMask mask in masks) {
@@ -89,17 +87,14 @@ class UnionTypeMask implements TypeMask {
     bool useSubclass = masks.every((e) => !e.isSubtype);
     bool isNullable = masks.any((e) => e.isNullable);
 
-    Iterable<ClassElement> candidates =
-        classWorld.commonSupertypesOf(masks.map((mask) => mask.base));
+    Iterable<ClassElement> candidates = classWorld.commonSupertypesOf(masks.map((mask) => mask.base));
 
     // Compute the best candidate and its kind.
     ClassElement bestElement;
     int bestKind;
     int bestSize;
     for (ClassElement candidate in candidates) {
-      Iterable<ClassElement> subclasses = useSubclass
-          ? classWorld.subclassesOf(candidate)
-          : const <ClassElement>[];
+      Iterable<ClassElement> subclasses = useSubclass ? classWorld.subclassesOf(candidate) : const <ClassElement>[];
       int size;
       int kind;
       if (masks.every((t) => subclasses.contains(t.base))) {
@@ -128,8 +123,7 @@ class UnionTypeMask implements TypeMask {
     other = TypeMask.nonForwardingMask(other);
     if (!other.isUnion && disjointMasks.contains(other)) return this;
 
-    List<FlatTypeMask> newList =
-        new List<FlatTypeMask>.from(disjointMasks);
+    List<FlatTypeMask> newList = new List<FlatTypeMask>.from(disjointMasks);
     if (!other.isUnion) {
       newList.add(other);
     } else {
@@ -165,8 +159,7 @@ class UnionTypeMask implements TypeMask {
 
   TypeMask nonNullable() {
     if (!isNullable) return this;
-    Iterable<FlatTypeMask> newIterable =
-        disjointMasks.map((e) => e.nonNullable());
+    Iterable<FlatTypeMask> newIterable = disjointMasks.map((e) => e.nonNullable());
     return new UnionTypeMask._internal(newIterable);
   }
 
@@ -243,8 +236,7 @@ class UnionTypeMask implements TypeMask {
     if (other.isNullable && !isNullable) return false;
     if (other.isUnion) return other.isInMask(this, classWorld);
     other = other.nonNullable(); // nullable is not canonicalized, so drop it.
-    bool contained =
-        disjointMasks.any((mask) => mask.containsMask(other, classWorld));
+    bool contained = disjointMasks.any((mask) => mask.containsMask(other, classWorld));
     assert(contained || !slowContainsCheck(other, classWorld));
     return contained;
   }
@@ -290,8 +282,7 @@ class UnionTypeMask implements TypeMask {
   ClassElement singleClass(ClassWorld classWorld) => null;
 
   bool needsNoSuchMethodHandling(Selector selector, ClassWorld classWorld) {
-    return disjointMasks.any(
-        (e) => e.needsNoSuchMethodHandling(selector, classWorld));
+    return disjointMasks.any((e) => e.needsNoSuchMethodHandling(selector, classWorld));
   }
 
   bool canHit(Element element, Selector selector, ClassWorld classWorld) {
@@ -314,12 +305,11 @@ class UnionTypeMask implements TypeMask {
   }
 
   String toString() {
-    String masksString = (disjointMasks.map((TypeMask mask) => mask.toString())
-        .toList()..sort()).join(", ");
+    String masksString = (disjointMasks.map((TypeMask mask) => mask.toString()).toList()..sort()).join(", ");
     return 'Union of [$masksString]';
   }
 
-  bool operator==(other) {
+  bool operator ==(other) {
     if (identical(this, other)) return true;
 
     bool containsAll() {
@@ -329,10 +319,7 @@ class UnionTypeMask implements TypeMask {
       });
     }
 
-    return other is UnionTypeMask
-        && other.isNullable == isNullable
-        && other.disjointMasks.length == disjointMasks.length
-        && containsAll();
+    return other is UnionTypeMask && other.isNullable == isNullable && other.disjointMasks.length == disjointMasks.length && containsAll();
   }
 
   int get hashCode {

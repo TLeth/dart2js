@@ -88,7 +88,7 @@ class Utf8BytesScanner extends ArrayBasedScanner {
   void ensureZeroTermination() {
     if (bytes.isEmpty || bytes[bytes.length - 1] != 0) {
       // TODO(lry): abort instead of copying the array, or warn?
-      var newBytes =  new Uint8List(bytes.length + 1);
+      var newBytes = new Uint8List(bytes.length + 1);
       for (int i = 0; i < bytes.length; i++) {
         newBytes[i] = bytes[i];
       }
@@ -100,10 +100,7 @@ class Utf8BytesScanner extends ArrayBasedScanner {
   bool _containsBomAt(int offset) {
     const BOM_UTF8 = const [0xEF, 0xBB, 0xBF];
 
-    return offset + 3 < bytes.length &&
-        bytes[offset] == BOM_UTF8[0] &&
-        bytes[offset + 1] == BOM_UTF8[1] &&
-        bytes[offset + 2] == BOM_UTF8[2];
+    return offset + 3 < bytes.length && bytes[offset] == BOM_UTF8[0] && bytes[offset + 1] == BOM_UTF8[1] && bytes[offset + 2] == BOM_UTF8[2];
   }
 
   int advance() => bytes[++byteOffset];
@@ -202,10 +199,8 @@ class Utf8BytesScanner extends ArrayBasedScanner {
   Token firstToken() => tokens.next;
   Token previousToken() => tail;
 
-  void appendSubstringToken(PrecedenceInfo info, int start, bool asciiOnly,
-                            [int extraOffset = 0]) {
-    tail.next = new StringToken.fromUtf8Bytes(
-        info, bytes, start, byteOffset + extraOffset, asciiOnly, tokenStart);
+  void appendSubstringToken(PrecedenceInfo info, int start, bool asciiOnly, [int extraOffset = 0]) {
+    tail.next = new StringToken.fromUtf8Bytes(info, bytes, start, byteOffset + extraOffset, asciiOnly, tokenStart);
     tail = tail.next;
   }
 

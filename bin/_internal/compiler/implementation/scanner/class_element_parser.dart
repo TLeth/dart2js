@@ -13,11 +13,7 @@ class ClassElementParser extends PartialParser {
 class PartialClassElement extends ClassElementX with PartialElement {
   ClassNode cachedNode;
 
-  PartialClassElement(String name,
-                      Token beginToken,
-                      Token endToken,
-                      Element enclosing,
-                      int id)
+  PartialClassElement(String name, Token beginToken, Token endToken, Element enclosing, int id)
       : super(name, enclosing, id, STATE_NOT_STARTED) {
     this.beginToken = beginToken;
     this.endToken = endToken;
@@ -38,8 +34,7 @@ class PartialClassElement extends ClassElementX with PartialElement {
   bool get hasNode => cachedNode != null;
 
   ClassNode get node {
-    assert(invariant(this, cachedNode != null,
-        message: "Node has not been computed for $this."));
+    assert(invariant(this, cachedNode != null, message: "Node has not been computed for $this."));
     return cachedNode;
   }
 
@@ -52,8 +47,7 @@ class PartialClassElement extends ClassElementX with PartialElement {
         Token token = parser.parseTopLevelDeclaration(beginToken);
         assert(identical(token, endToken.next));
         cachedNode = listener.popNode();
-        assert(invariant(beginToken, listener.nodes.isEmpty,
-            message: "Non-empty listener stack: ${listener.nodes}"));
+        assert(invariant(beginToken, listener.nodes.isEmpty, message: "Non-empty listener stack: ${listener.nodes}"));
       });
       compiler.patchParser.measure(() {
         if (isPatched) {
@@ -69,8 +63,7 @@ class PartialClassElement extends ClassElementX with PartialElement {
   Token get position => beginToken;
 
   // TODO(johnniwinther): Ensure that modifiers are always available.
-  Modifiers get modifiers =>
-      cachedNode != null ? cachedNode.modifiers : Modifiers.EMPTY;
+  Modifiers get modifiers => cachedNode != null ? cachedNode.modifiers : Modifiers.EMPTY;
 
   accept(ElementVisitor visitor) => visitor.visitClassElement(this);
 }
@@ -78,14 +71,12 @@ class PartialClassElement extends ClassElementX with PartialElement {
 class MemberListener extends NodeListener {
   final ClassElement enclosingElement;
 
-  MemberListener(DiagnosticListener listener,
-                 Element enclosingElement)
+  MemberListener(DiagnosticListener listener, Element enclosingElement)
       : this.enclosingElement = enclosingElement,
         super(listener, enclosingElement.compilationUnit);
 
   bool isConstructorName(Node nameNode) {
-    if (enclosingElement == null ||
-        enclosingElement.kind != ElementKind.CLASS) {
+    if (enclosingElement == null || enclosingElement.kind != ElementKind.CLASS) {
       return false;
     }
     String name;
@@ -116,9 +107,9 @@ class MemberListener extends NodeListener {
       return Elements.constructOperatorName(operator.source, isUnary);
     } else {
       if (receiver == null || receiver.source != enclosingElement.name) {
-        listener.reportError(send.receiver,
-                                 MessageKind.INVALID_CONSTRUCTOR_NAME,
-                                 {'name': enclosingElement.name});
+        listener.reportError(send.receiver, MessageKind.INVALID_CONSTRUCTOR_NAME, {
+          'name': enclosingElement.name
+        });
       }
       return selector.source;
     }
@@ -135,21 +126,13 @@ class MemberListener extends NodeListener {
       if (getOrSet != null) {
         recoverableError(getOrSet, 'illegal modifier');
       }
-      memberElement = new PartialConstructorElement(
-          name, beginToken, endToken,
-          ElementKind.GENERATIVE_CONSTRUCTOR,
-          method.modifiers,
-          enclosingElement);
+      memberElement = new PartialConstructorElement(name, beginToken, endToken, ElementKind.GENERATIVE_CONSTRUCTOR, method.modifiers, enclosingElement);
     } else {
       ElementKind kind = ElementKind.FUNCTION;
       if (getOrSet != null) {
-        kind = (identical(getOrSet.stringValue, 'get'))
-               ? ElementKind.GETTER : ElementKind.SETTER;
+        kind = (identical(getOrSet.stringValue, 'get')) ? ElementKind.GETTER : ElementKind.SETTER;
       }
-      memberElement =
-          new PartialFunctionElement(name, beginToken, getOrSet, endToken,
-                                     kind, method.modifiers, enclosingElement,
-                                     !method.hasBody());
+      memberElement = new PartialFunctionElement(name, beginToken, getOrSet, endToken, kind, method.modifiers, enclosingElement, !method.hasBody());
     }
     addMember(memberElement);
   }
@@ -162,17 +145,13 @@ class MemberListener extends NodeListener {
     Identifier singleIdentifierName = method.name.asIdentifier();
     if (singleIdentifierName != null && singleIdentifierName.source == name) {
       if (name != enclosingElement.name) {
-        listener.reportError(singleIdentifierName,
-                                 MessageKind.INVALID_UNNAMED_CONSTRUCTOR_NAME,
-                                 {'name': enclosingElement.name});
+        listener.reportError(singleIdentifierName, MessageKind.INVALID_UNNAMED_CONSTRUCTOR_NAME, {
+          'name': enclosingElement.name
+        });
       }
     }
     ElementKind kind = ElementKind.FUNCTION;
-    Element memberElement = new PartialConstructorElement(
-        name, beginToken, endToken,
-        ElementKind.FUNCTION,
-        method.modifiers,
-        enclosingElement);
+    Element memberElement = new PartialConstructorElement(name, beginToken, endToken, ElementKind.FUNCTION, method.modifiers, enclosingElement);
     addMember(memberElement);
   }
 
@@ -183,19 +162,15 @@ class MemberListener extends NodeListener {
     Modifiers modifiers = variableDefinitions.modifiers;
     pushNode(null);
     void buildFieldElement(Identifier name, VariableList fields) {
-      Element element =
-          new FieldElementX(name, enclosingElement, fields);
+      Element element = new FieldElementX(name, enclosingElement, fields);
       addMember(element);
     }
-    buildFieldElements(modifiers, variableDefinitions.definitions,
-                       enclosingElement,
-                       buildFieldElement, beginToken, endToken,
-                       hasParseError);
+    buildFieldElements(modifiers, variableDefinitions.definitions, enclosingElement, buildFieldElement, beginToken, endToken, hasParseError);
   }
 
   void endInitializer(Token assignmentOperator) {
     pushNode(null); // Super expects an expression, but
-                    // ClassElementParser just skips expressions.
+    // ClassElementParser just skips expressions.
     super.endInitializer(assignmentOperator);
   }
 

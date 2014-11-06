@@ -25,14 +25,9 @@ class InterceptorStubGenerator {
       assert(backend.isInterceptorClass(cls));
       if (cls == backend.jsBoolClass) {
         condition = js('(typeof receiver) == "boolean"');
-      } else if (cls == backend.jsIntClass ||
-                 cls == backend.jsDoubleClass ||
-                 cls == backend.jsNumberClass) {
+      } else if (cls == backend.jsIntClass || cls == backend.jsDoubleClass || cls == backend.jsNumberClass) {
         throw 'internal error';
-      } else if (cls == backend.jsArrayClass ||
-                 cls == backend.jsMutableArrayClass ||
-                 cls == backend.jsFixedArrayClass ||
-                 cls == backend.jsExtendableArrayClass) {
+      } else if (cls == backend.jsArrayClass || cls == backend.jsMutableArrayClass || cls == backend.jsFixedArrayClass || cls == backend.jsExtendableArrayClass) {
         condition = js('receiver.constructor == Array');
       } else if (cls == backend.jsStringClass) {
         condition = js('(typeof receiver) == "string"');
@@ -52,21 +47,10 @@ class InterceptorStubGenerator {
     bool hasNumber = false;
     bool hasString = false;
     bool hasNative = false;
-    bool anyNativeClasses = compiler.enqueuer.codegen.nativeEnqueuer
-          .hasInstantiatedNativeClasses();
+    bool anyNativeClasses = compiler.enqueuer.codegen.nativeEnqueuer.hasInstantiatedNativeClasses();
 
     for (ClassElement cls in classes) {
-      if (cls == backend.jsArrayClass ||
-          cls == backend.jsMutableArrayClass ||
-          cls == backend.jsFixedArrayClass ||
-          cls == backend.jsExtendableArrayClass) hasArray = true;
-      else if (cls == backend.jsBoolClass) hasBool = true;
-      else if (cls == backend.jsDoubleClass) hasDouble = true;
-      else if (cls == backend.jsIntClass) hasInt = true;
-      else if (cls == backend.jsNullClass) hasNull = true;
-      else if (cls == backend.jsNumberClass) hasNumber = true;
-      else if (cls == backend.jsStringClass) hasString = true;
-      else {
+      if (cls == backend.jsArrayClass || cls == backend.jsMutableArrayClass || cls == backend.jsFixedArrayClass || cls == backend.jsExtendableArrayClass) hasArray = true; else if (cls == backend.jsBoolClass) hasBool = true; else if (cls == backend.jsDoubleClass) hasDouble = true; else if (cls == backend.jsIntClass) hasInt = true; else if (cls == backend.jsNullClass) hasNull = true; else if (cls == backend.jsNumberClass) hasNumber = true; else if (cls == backend.jsStringClass) hasString = true; else {
         // The set of classes includes classes mixed-in to interceptor classes
         // and user extensions of native classes.
         //
@@ -100,8 +84,7 @@ class InterceptorStubGenerator {
       /// and JavaScript's Number (typeof receiver == 'number').  This
       /// is the fallback used when we have determined that receiver
       /// is a JavaScript Number.
-      jsAst.Expression interceptorForNumber = interceptorFor(
-          hasDouble ? backend.jsDoubleClass : backend.jsNumberClass);
+      jsAst.Expression interceptorForNumber = interceptorFor(hasDouble ? backend.jsDoubleClass : backend.jsNumberClass);
 
       if (hasInt) {
         whenNumber = js.statement('''{
@@ -111,8 +94,7 @@ class InterceptorStubGenerator {
       } else {
         whenNumber = js.statement('return #', interceptorForNumber);
       }
-      statements.add(
-          js.statement('if (typeof receiver == "number") #;', whenNumber));
+      statements.add(js.statement('if (typeof receiver == "number") #;', whenNumber));
     }
 
     if (hasString) {
@@ -124,8 +106,7 @@ class InterceptorStubGenerator {
       // Returning "undefined" or "null" here will provoke a JavaScript
       // TypeError which is later identified as a null-error by
       // [unwrapException] in js_helper.dart.
-      statements.add(
-          js.statement('if (receiver == null) return receiver'));
+      statements.add(js.statement('if (receiver == null) return receiver'));
     }
     if (hasBool) {
       statements.add(buildInterceptorCheck(backend.jsBoolClass));
@@ -141,18 +122,12 @@ class InterceptorStubGenerator {
           if (typeof receiver != "object") return receiver;
           if (receiver instanceof #) return receiver;
           return #(receiver);
-      }''', [
-          namer.elementAccess(compiler.objectClass),
-          namer.elementAccess(backend.getNativeInterceptorMethod)]));
+      }''', [namer.elementAccess(compiler.objectClass), namer.elementAccess(backend.getNativeInterceptorMethod)]));
 
     } else {
       ClassElement jsUnknown = backend.jsUnknownJavaScriptObjectClass;
-      if (compiler.codegenWorld
-              .directlyInstantiatedClasses.contains(jsUnknown)) {
-        statements.add(
-            js.statement('if (!(receiver instanceof #)) return #;',
-                [namer.elementAccess(compiler.objectClass),
-                 interceptorFor(jsUnknown)]));
+      if (compiler.codegenWorld.directlyInstantiatedClasses.contains(jsUnknown)) {
+        statements.add(js.statement('if (!(receiver instanceof #)) return #;', [namer.elementAccess(compiler.objectClass), interceptorFor(jsUnknown)]));
       }
 
       statements.add(js.statement('return receiver'));
@@ -164,8 +139,7 @@ class InterceptorStubGenerator {
   // Returns a statement that takes care of performance critical
   // common case for a one-shot interceptor, or null if there is no
   // fast path.
-  jsAst.Statement _fastPathForOneShotInterceptor(Selector selector,
-                                                 Set<ClassElement> classes) {
+  jsAst.Statement _fastPathForOneShotInterceptor(Selector selector, Set<ClassElement> classes) {
 
     if (selector.isOperator) {
       String name = selector.name;
@@ -176,9 +150,7 @@ class InterceptorStubGenerator {
             return a0 != null && receiver === a0;
         }''');
       }
-      if (!classes.contains(backend.jsIntClass)
-          && !classes.contains(backend.jsNumberClass)
-          && !classes.contains(backend.jsDoubleClass)) {
+      if (!classes.contains(backend.jsIntClass) && !classes.contains(backend.jsNumberClass) && !classes.contains(backend.jsDoubleClass)) {
         return null;
       }
       if (selector.argumentCount == 1) {
@@ -190,13 +162,9 @@ class InterceptorStubGenerator {
         if (name == '&' || name == '|' || name == '^') {
           result = js('# >>> 0', result);
         }
-        return js.statement(
-            'if (typeof receiver == "number" && typeof a0 == "number")'
-            '  return #;',
-            result);
+        return js.statement('if (typeof receiver == "number" && typeof a0 == "number")' '  return #;', result);
       } else if (name == 'unary-') {
-        return js.statement(
-            'if (typeof receiver == "number") return -receiver');
+        return js.statement('if (typeof receiver == "number") return -receiver');
       } else {
         assert(name == '~');
         return js.statement('''
@@ -222,24 +190,20 @@ class InterceptorStubGenerator {
       //    }
       bool containsArray = classes.contains(backend.jsArrayClass);
       bool containsString = classes.contains(backend.jsStringClass);
-      bool containsJsIndexable =
-          backend.jsIndexingBehaviorInterface.isResolved && classes.any((cls) {
-        return compiler.world.isSubtypeOf(cls,
-            backend.jsIndexingBehaviorInterface);
+      bool containsJsIndexable = backend.jsIndexingBehaviorInterface.isResolved && classes.any((cls) {
+        return compiler.world.isSubtypeOf(cls, backend.jsIndexingBehaviorInterface);
       });
       // The index set operator requires a check on its set value in
       // checked mode, so we don't optimize the interceptor if the
       // compiler has type assertions enabled.
-      if (selector.isIndexSet
-          && (compiler.enableTypeAssertions || !containsArray)) {
+      if (selector.isIndexSet && (compiler.enableTypeAssertions || !containsArray)) {
         return null;
       }
       if (!containsArray && !containsString) {
         return null;
       }
       jsAst.Expression arrayCheck = js('receiver.constructor == Array');
-      jsAst.Expression indexableCheck =
-          backend.generateIsJsIndexableCall(js('receiver'), js('receiver'));
+      jsAst.Expression indexableCheck = backend.generateIsJsIndexableCall(js('receiver'), js('receiver'));
 
       jsAst.Expression orExp(left, right) {
         return left == null ? right : js('# || #', [left, right]);
@@ -286,10 +250,8 @@ class InterceptorStubGenerator {
 
   jsAst.Expression generateOneShotInterceptor(String name) {
     Selector selector = backend.oneShotInterceptors[name];
-    Set<ClassElement> classes =
-        backend.getInterceptedClassesOn(selector.name);
-    String getInterceptorName =
-        namer.getInterceptorName(backend.getInterceptorMethod, classes);
+    Set<ClassElement> classes = backend.getInterceptedClassesOn(selector.name);
+    String getInterceptorName = namer.getInterceptorName(backend.getInterceptorMethod, classes);
 
     List<String> parameterNames = <String>[];
     parameterNames.add('receiver');
@@ -305,14 +267,9 @@ class InterceptorStubGenerator {
     String invocationName = backend.namer.invocationName(selector);
     String globalObject = namer.globalObjectFor(backend.interceptorsLibrary);
 
-    jsAst.Statement optimizedPath =
-        _fastPathForOneShotInterceptor(selector, classes);
+    jsAst.Statement optimizedPath = _fastPathForOneShotInterceptor(selector, classes);
     if (optimizedPath == null) optimizedPath = js.statement(';');
 
-    return js(
-        'function(#) { #; return #.#(receiver).#(#) }',
-        [parameterNames,
-         optimizedPath,
-         globalObject, getInterceptorName, invocationName, parameterNames]);
+    return js('function(#) { #; return #.#(receiver).#(#) }', [parameterNames, optimizedPath, globalObject, getInterceptorName, invocationName, parameterNames]);
   }
 }

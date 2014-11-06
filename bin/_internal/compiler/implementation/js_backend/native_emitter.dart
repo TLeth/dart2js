@@ -66,17 +66,15 @@ class NativeEmitter {
    * [additionalProperties] is used to collect properties that are pushed up
    * from the above optimizations onto a non-native class, e.g, `Interceptor`.
    */
-  void generateNativeClasses(
-      List<ClassElement> classes,
-      CodeBuffer mainBuffer,
-      Map<ClassElement, Map<String, jsAst.Expression>> additionalProperties) {
+  void generateNativeClasses(List<ClassElement> classes, CodeBuffer mainBuffer, Map<ClassElement, Map<String, jsAst.Expression>> additionalProperties) {
     // Compute a pre-order traversal of the subclass forest.  We actually want a
     // post-order traversal but it is easier to compute the pre-order and use it
     // in reverse.
 
     List<ClassElement> preOrder = <ClassElement>[];
     Set<ClassElement> seen = new Set<ClassElement>();
-    seen..add(compiler.objectClass)
+    seen
+        ..add(compiler.objectClass)
         ..add(backend.jsInterceptorClass);
     void walk(ClassElement element) {
       if (seen.contains(element)) return;
@@ -88,8 +86,7 @@ class NativeEmitter {
 
     // Generate code for each native class into [ClassBuilder]s.
 
-    Map<ClassElement, ClassBuilder> builders =
-        new Map<ClassElement, ClassBuilder>();
+    Map<ClassElement, ClassBuilder> builders = new Map<ClassElement, ClassBuilder>();
     for (ClassElement classElement in classes) {
       if (classElement.isNative) {
         ClassBuilder builder = generateNativeClass(classElement);
@@ -104,15 +101,12 @@ class NativeEmitter {
     Set<ClassElement> neededClasses = new Set<ClassElement>();
     Set<ClassElement> nonleafClasses = new Set<ClassElement>();
 
-    Map<ClassElement, List<ClassElement>> extensionPoints =
-        computeExtensionPoints(preOrder);
+    Map<ClassElement, List<ClassElement>> extensionPoints = computeExtensionPoints(preOrder);
 
     neededClasses.add(compiler.objectClass);
 
-    Set<ClassElement> neededByConstant =
-        emitterTask.interceptorsReferencedFromConstants();
-    Set<ClassElement> modifiedClasses =
-        emitterTask.typeTestEmitter.classesModifiedByEmitRuntimeTypeSupport();
+    Set<ClassElement> neededByConstant = emitterTask.interceptorsReferencedFromConstants();
+    Set<ClassElement> modifiedClasses = emitterTask.typeTestEmitter.classesModifiedByEmitRuntimeTypeSupport();
 
     for (ClassElement classElement in preOrder.reversed) {
       // Post-order traversal ensures we visit the subclasses before their
@@ -136,8 +130,7 @@ class NativeEmitter {
       } else if (extensionPoints.containsKey(classElement)) {
         needed = true;
       }
-      if (classElement.isNative &&
-          native.nativeTagsForcedNonLeaf(classElement)) {
+      if (classElement.isNative && native.nativeTagsForcedNonLeaf(classElement)) {
         needed = true;
         nonleafClasses.add(classElement);
       }
@@ -151,20 +144,15 @@ class NativeEmitter {
 
     // Collect all the tags that map to each native class.
 
-    Map<ClassElement, Set<String>> leafTags =
-        new Map<ClassElement, Set<String>>();
-    Map<ClassElement, Set<String>> nonleafTags =
-        new Map<ClassElement, Set<String>>();
+    Map<ClassElement, Set<String>> leafTags = new Map<ClassElement, Set<String>>();
+    Map<ClassElement, Set<String>> nonleafTags = new Map<ClassElement, Set<String>>();
 
     for (ClassElement classElement in classes) {
       if (!classElement.isNative) continue;
       List<String> nativeTags = native.nativeTagsOfClass(classElement);
 
-      if (nonleafClasses.contains(classElement) ||
-          extensionPoints.containsKey(classElement)) {
-        nonleafTags
-            .putIfAbsent(classElement, () => new Set<String>())
-            .addAll(nativeTags);
+      if (nonleafClasses.contains(classElement) || extensionPoints.containsKey(classElement)) {
+        nonleafTags.putIfAbsent(classElement, () => new Set<String>()).addAll(nativeTags);
       } else {
         ClassElement sufficingInterceptor = classElement;
         while (!neededClasses.contains(sufficingInterceptor)) {
@@ -173,16 +161,13 @@ class NativeEmitter {
         if (sufficingInterceptor == compiler.objectClass) {
           sufficingInterceptor = backend.jsInterceptorClass;
         }
-        leafTags
-            .putIfAbsent(sufficingInterceptor, () => new Set<String>())
-            .addAll(nativeTags);
+        leafTags.putIfAbsent(sufficingInterceptor, () => new Set<String>()).addAll(nativeTags);
       }
     }
 
     // Add properties containing the information needed to construct maps used
     // by getNativeInterceptor and custom elements.
-    if (compiler.enqueuer.codegen.nativeEnqueuer
-        .hasInstantiatedNativeClasses()) {
+    if (compiler.enqueuer.codegen.nativeEnqueuer.hasInstantiatedNativeClasses()) {
       void generateClassInfo(ClassElement classElement) {
         // Property has the form:
         //
@@ -203,11 +188,14 @@ class NativeEmitter {
 
         StringBuffer sb = new StringBuffer(leafStr);
         if (nonleafStr != '') {
-          sb..write(';')..write(nonleafStr);
+          sb
+              ..write(';')
+              ..write(nonleafStr);
         }
         if (extensions != null) {
-          sb..write(';')
-            ..writeAll(extensions.map(backend.namer.getNameOfClass), '|');
+          sb
+              ..write(';')
+              ..writeAll(extensions.map(backend.namer.getNameOfClass), '|');
         }
         String encoding = sb.toString();
 
@@ -216,14 +204,11 @@ class NativeEmitter {
           // No builder because this is an intermediate mixin application or
           // Interceptor - these are not direct native classes.
           if (encoding != '') {
-            Map<String, jsAst.Expression> properties =
-                additionalProperties.putIfAbsent(classElement,
-                    () => new LinkedHashMap<String, jsAst.Expression>());
+            Map<String, jsAst.Expression> properties = additionalProperties.putIfAbsent(classElement, () => new LinkedHashMap<String, jsAst.Expression>());
             properties[backend.namer.nativeSpecProperty] = js.string(encoding);
           }
         } else {
-          builder.addProperty(
-              backend.namer.nativeSpecProperty, js.string(encoding));
+          builder.addProperty(backend.namer.nativeSpecProperty, js.string(encoding));
         }
       }
       generateClassInfo(backend.jsInterceptorClass);
@@ -237,10 +222,7 @@ class NativeEmitter {
       if (!classElement.isNative) continue;
       if (neededClasses.contains(classElement)) {
         // Define interceptor class for [classElement].
-        emitterTask.oldEmitter.classEmitter.emitClassBuilderWithReflectionData(
-            backend.namer.getNameOfClass(classElement),
-            classElement, builders[classElement],
-            emitterTask.oldEmitter.getElementDescriptor(classElement));
+        emitterTask.oldEmitter.classEmitter.emitClassBuilderWithReflectionData(backend.namer.getNameOfClass(classElement), classElement, builders[classElement], emitterTask.oldEmitter.getElementDescriptor(classElement));
         emitterTask.oldEmitter.needsDefineClass = true;
       }
     }
@@ -251,8 +233,7 @@ class NativeEmitter {
    * classes and the set non-mative classes that extend them.  (A List is used
    * instead of a Set for out stability).
    */
-  Map<ClassElement, List<ClassElement>> computeExtensionPoints(
-      List<ClassElement> classes) {
+  Map<ClassElement, List<ClassElement>> computeExtensionPoints(List<ClassElement> classes) {
     ClassElement nativeSuperclassOf(ClassElement element) {
       if (element == null) return null;
       if (element.isNative) return element;
@@ -263,16 +244,13 @@ class NativeEmitter {
       return nativeSuperclassOf(element.superclass);
     }
 
-    Map<ClassElement, List<ClassElement>> map =
-        new Map<ClassElement, List<ClassElement>>();
+    Map<ClassElement, List<ClassElement>> map = new Map<ClassElement, List<ClassElement>>();
 
     for (ClassElement classElement in classes) {
       if (classElement.isNative) continue;
       ClassElement nativeAncestor = nativeAncestorOf(classElement);
       if (nativeAncestor != null) {
-        map
-          .putIfAbsent(nativeAncestor, () => <ClassElement>[])
-          .add(classElement);
+        map.putIfAbsent(nativeAncestor, () => <ClassElement>[]).add(classElement);
       }
     }
     return map;
@@ -304,20 +282,14 @@ class NativeEmitter {
 
     String superName = backend.namer.getNameOfClass(superclass);
 
-    emitterTask.oldEmitter.classEmitter.emitClassConstructor(
-        classElement, builder);
-    bool hasFields = emitterTask.oldEmitter.classEmitter.emitFields(
-        classElement, builder, superName, classIsNative: true);
+    emitterTask.oldEmitter.classEmitter.emitClassConstructor(classElement, builder);
+    bool hasFields = emitterTask.oldEmitter.classEmitter.emitFields(classElement, builder, superName, classIsNative: true);
     int propertyCount = builder.properties.length;
-    emitterTask.oldEmitter.classEmitter.emitClassGettersSetters(
-        classElement, builder);
-    emitterTask.oldEmitter.classEmitter.emitInstanceMembers(
-        classElement, builder);
+    emitterTask.oldEmitter.classEmitter.emitClassGettersSetters(classElement, builder);
+    emitterTask.oldEmitter.classEmitter.emitInstanceMembers(classElement, builder);
     emitterTask.typeTestEmitter.emitIsTests(classElement, builder);
 
-    if (!hasFields &&
-        builder.properties.length == propertyCount &&
-        superclass is! MixinApplicationElement) {
+    if (!hasFields && builder.properties.length == propertyCount && superclass is! MixinApplicationElement) {
       builder.isTrivial = true;
     }
 
@@ -330,10 +302,7 @@ class NativeEmitter {
     // specializations.
   }
 
-  void potentiallyConvertDartClosuresToJs(
-      List<jsAst.Statement> statements,
-      FunctionElement member,
-      List<jsAst.Parameter> stubParameters) {
+  void potentiallyConvertDartClosuresToJs(List<jsAst.Statement> statements, FunctionElement member, List<jsAst.Parameter> stubParameters) {
     FunctionSignature parameters = member.functionSignature;
     Element converter = backend.findHelper('convertDartClosureToJS');
     jsAst.Expression closureConverter = backend.namer.elementAccess(converter);
@@ -349,9 +318,7 @@ class NativeEmitter {
             // typedef(s).
             FunctionType functionType = type;
             int arity = functionType.computeArity();
-            statements.add(
-                js.statement('# = #(#, $arity)',
-                    [name, closureConverter, name]));
+            statements.add(js.statement('# = #(#, $arity)', [name, closureConverter, name]));
             break;
           }
         }
@@ -359,13 +326,7 @@ class NativeEmitter {
     });
   }
 
-  List<jsAst.Statement> generateParameterStubStatements(
-      FunctionElement member,
-      bool isInterceptedMethod,
-      String invocationName,
-      List<jsAst.Parameter> stubParameters,
-      List<jsAst.Expression> argumentsBuffer,
-      int indexOfLastOptionalArgumentInParameters) {
+  List<jsAst.Statement> generateParameterStubStatements(FunctionElement member, bool isInterceptedMethod, String invocationName, List<jsAst.Parameter> stubParameters, List<jsAst.Expression> argumentsBuffer, int indexOfLastOptionalArgumentInParameters) {
     // The target JS function may check arguments.length so we need to
     // make sure not to pass any unspecified optional arguments to it.
     // For example, for the following Dart method:
@@ -391,15 +352,12 @@ class NativeEmitter {
 
     if (isInterceptedMethod) {
       receiver = argumentsBuffer[0];
-      arguments = argumentsBuffer.sublist(1,
-          indexOfLastOptionalArgumentInParameters + 1);
+      arguments = argumentsBuffer.sublist(1, indexOfLastOptionalArgumentInParameters + 1);
     } else {
       receiver = js('this');
-      arguments = argumentsBuffer.sublist(0,
-          indexOfLastOptionalArgumentInParameters + 1);
+      arguments = argumentsBuffer.sublist(0, indexOfLastOptionalArgumentInParameters + 1);
     }
-    statements.add(
-        js.statement('return #.#(#)', [receiver, target, arguments]));
+    statements.add(js.statement('return #.#(#)', [receiver, target, arguments]));
 
     return statements;
   }
@@ -464,13 +422,10 @@ class NativeEmitter {
           (function(table) {
             for(var key in table)
               #(Object.prototype, key, table[key]);
-           })(#)''',
-          [ defPropFunction,
-            new jsAst.ObjectInitializer(objectProperties)]);
+           })(#)''', [defPropFunction, new jsAst.ObjectInitializer(objectProperties)]);
 
       if (emitterTask.compiler.enableMinification) targetBuffer.add(';');
-      targetBuffer.add(jsAst.prettyPrint(
-          new jsAst.ExpressionStatement(init), compiler));
+      targetBuffer.add(jsAst.prettyPrint(new jsAst.ExpressionStatement(init), compiler));
       targetBuffer.add('\n');
     }
 

@@ -22,8 +22,7 @@ class NsmEmitter extends CodeEmitterHelper {
     // Do not generate no such method handlers if there is no class.
     if (compiler.codegenWorld.directlyInstantiatedClasses.isEmpty) return;
 
-    String noSuchMethodName = namer.publicInstanceMethodNameByArity(
-        Compiler.NO_SUCH_METHOD, Compiler.NO_SUCH_METHOD_ARG_COUNT);
+    String noSuchMethodName = namer.publicInstanceMethodNameByArity(Compiler.NO_SUCH_METHOD, Compiler.NO_SUCH_METHOD_ARG_COUNT);
 
     // Keep track of the JavaScript names we've already added so we
     // do not introduce duplicates (bad for code size).
@@ -57,43 +56,28 @@ class NsmEmitter extends CodeEmitterHelper {
     // Set flag used by generateMethod helper below.  If we have very few
     // handlers we use addProperty for them all, rather than try to generate
     // them at runtime.
-    bool haveVeryFewNoSuchMemberHandlers =
-        (addedJsNames.length < VERY_FEW_NO_SUCH_METHOD_HANDLERS);
+    bool haveVeryFewNoSuchMemberHandlers = (addedJsNames.length < VERY_FEW_NO_SUCH_METHOD_HANDLERS);
 
     jsAst.Expression generateMethod(String jsName, Selector selector) {
       // Values match JSInvocationMirror in js-helper library.
       int type = selector.invocationMirrorKind;
-      List<String> parameterNames =
-          new List.generate(selector.argumentCount, (i) => '\$$i');
+      List<String> parameterNames = new List.generate(selector.argumentCount, (i) => '\$$i');
 
-      List<jsAst.Expression> argNames =
-          selector.getOrderedNamedArguments().map((String name) =>
-              js.string(name)).toList();
+      List<jsAst.Expression> argNames = selector.getOrderedNamedArguments().map((String name) => js.string(name)).toList();
 
       String methodName = selector.invocationMirrorMemberName;
       String internalName = namer.invocationMirrorInternalName(selector);
       String reflectionName = emitter.getReflectionName(selector, internalName);
-      if (!haveVeryFewNoSuchMemberHandlers &&
-          isTrivialNsmHandler(type, argNames, selector, internalName) &&
-          reflectionName == null) {
+      if (!haveVeryFewNoSuchMemberHandlers && isTrivialNsmHandler(type, argNames, selector, internalName) && reflectionName == null) {
         trivialNsmHandlers.add(selector);
         return null;
       }
 
       assert(backend.isInterceptedName(Compiler.NO_SUCH_METHOD));
-      jsAst.Expression expression = js('this.#(this, #(#, #, #, #, #))', [
-          noSuchMethodName,
-          namer.elementAccess(backend.getCreateInvocationMirror()),
-          js.string(compiler.enableMinification ?
-              internalName : methodName),
-          js.string(internalName),
-          js.number(type),
-          new jsAst.ArrayInitializer.from(parameterNames.map(js)),
-          new jsAst.ArrayInitializer.from(argNames)]);
+      jsAst.Expression expression = js('this.#(this, #(#, #, #, #, #))', [noSuchMethodName, namer.elementAccess(backend.getCreateInvocationMirror()), js.string(compiler.enableMinification ? internalName : methodName), js.string(internalName), js.number(type), new jsAst.ArrayInitializer.from(parameterNames.map(js)), new jsAst.ArrayInitializer.from(argNames)]);
 
       if (backend.isInterceptedName(selector.name)) {
-        return js(r'function($receiver, #) { return # }',
-                  [parameterNames, expression]);
+        return js(r'function($receiver, #) { return # }', [parameterNames, expression]);
       } else {
         return js(r'function(#) { return # }', [parameterNames, expression]);
       }
@@ -106,8 +90,7 @@ class NsmEmitter extends CodeEmitterHelper {
         addProperty(jsName, method);
         String reflectionName = emitter.getReflectionName(selector, jsName);
         if (reflectionName != null) {
-          bool accessible = compiler.world.allFunctions.filter(selector).any(
-              (Element e) => backend.isAccessibleByReflection(e));
+          bool accessible = compiler.world.allFunctions.filter(selector).any((Element e) => backend.isAccessibleByReflection(e));
           addProperty('+$reflectionName', js(accessible ? '2' : '0'));
         }
       }
@@ -116,8 +99,7 @@ class NsmEmitter extends CodeEmitterHelper {
 
   // Identify the noSuchMethod handlers that are so simple that we can
   // generate them programatically.
-  bool isTrivialNsmHandler(
-      int type, List argNames, Selector selector, String internalName) {
+  bool isTrivialNsmHandler(int type, List argNames, Selector selector, String internalName) {
     if (!generateTrivialNsmHandlers) return false;
     // Check for interceptor calling convention.
     if (backend.isInterceptedName(selector.name)) {
@@ -201,8 +183,7 @@ class NsmEmitter extends CodeEmitterHelper {
     }
 
     // Get the short names (JS names, perhaps minified).
-    Iterable<String> shorts = trivialNsmHandlers.map((selector) =>
-         namer.invocationMirrorInternalName(selector));
+    Iterable<String> shorts = trivialNsmHandlers.map((selector) => namer.invocationMirrorInternalName(selector));
     final diffShorts = <String>[];
     var diffEncoding = new StringBuffer();
 
@@ -250,8 +231,7 @@ class NsmEmitter extends CodeEmitterHelper {
         diffEncoding.write(".");
         previous = 0;
       }
-      if (short.length <= MAX_MINIFIED_LENGTH_FOR_DIFF_ENCODING &&
-          useDiffEncoding) {
+      if (short.length <= MAX_MINIFIED_LENGTH_FOR_DIFF_ENCODING && useDiffEncoding) {
         int base63 = fromBase88(short);
         int diff = base63 - previous;
         previous = base63;
@@ -269,10 +249,8 @@ class NsmEmitter extends CodeEmitterHelper {
     // Startup code that loops over the method names and puts handlers on the
     // Object class to catch noSuchMethod invocations.
     ClassElement objectClass = compiler.objectClass;
-    jsAst.Expression createInvocationMirror = namer.elementAccess(
-        backend.getCreateInvocationMirror());
-    String noSuchMethodName = namer.publicInstanceMethodNameByArity(
-        Compiler.NO_SUCH_METHOD, Compiler.NO_SUCH_METHOD_ARG_COUNT);
+    jsAst.Expression createInvocationMirror = namer.elementAccess(backend.getCreateInvocationMirror());
+    String noSuchMethodName = namer.publicInstanceMethodNameByArity(Compiler.NO_SUCH_METHOD, Compiler.NO_SUCH_METHOD_ARG_COUNT);
     var type = 0;
     if (useDiffEncoding) {
       statements.add(js.statement('''{
@@ -315,38 +293,21 @@ class NsmEmitter extends CodeEmitterHelper {
             }
             shortNames.splice.apply(shortNames, calculatedShortNames);
           }
-        }''', [
-            js.string(namer.getNameOfClass(objectClass)),
-            js.string('$diffEncoding')]));
+        }''', [js.string(namer.getNameOfClass(objectClass)), js.string('$diffEncoding')]));
     } else {
       // No useDiffEncoding version.
-      Iterable<String> longs = trivialNsmHandlers.map((selector) =>
-             selector.invocationMirrorMemberName);
-      statements.add(js.statement(
-          'var objectClassObject = collectedClasses[#],'
-          '    shortNames = #.split(",")', [
-              js.string(namer.getNameOfClass(objectClass)),
-              js.string('$diffEncoding')]));
+      Iterable<String> longs = trivialNsmHandlers.map((selector) => selector.invocationMirrorMemberName);
+      statements.add(js.statement('var objectClassObject = collectedClasses[#],' '    shortNames = #.split(",")', [js.string(namer.getNameOfClass(objectClass)), js.string('$diffEncoding')]));
       if (!minify) {
-        statements.add(js.statement('var longNames = #.split(",")',
-                js.string(longs.join(','))));
+        statements.add(js.statement('var longNames = #.split(",")', js.string(longs.join(','))));
       }
-      statements.add(js.statement(
-          'if (objectClassObject instanceof Array)'
-          '  objectClassObject = objectClassObject[1];'));
+      statements.add(js.statement('if (objectClassObject instanceof Array)' '  objectClassObject = objectClassObject[1];'));
     }
 
     // TODO(9631): This is no longer valid for native methods.
-    String whatToPatch = emitter.nativeEmitter.handleNoSuchMethod ?
-                         "Object.prototype" :
-                         "objectClassObject";
+    String whatToPatch = emitter.nativeEmitter.handleNoSuchMethod ? "Object.prototype" : "objectClassObject";
 
-    List<jsAst.Expression> sliceOffsetArguments =
-        firstNormalSelector == 0
-        ? []
-        : (firstNormalSelector == shorts.length
-            ? [js.number(1)]
-            : [js('(j < #) ? 1 : 0', js.number(firstNormalSelector))]);
+    List<jsAst.Expression> sliceOffsetArguments = firstNormalSelector == 0 ? [] : (firstNormalSelector == shorts.length ? [js.number(1)] : [js('(j < #) ? 1 : 0', js.number(firstNormalSelector))]);
 
     var sliceOffsetParams = sliceOffsetArguments.isEmpty ? [] : ['sliceOffset'];
 
@@ -374,14 +335,9 @@ class NsmEmitter extends CodeEmitterHelper {
               }
           })(#[j], short, type, #);
         }
-      }''', [
-          sliceOffsetParams,  // parameter
-          noSuchMethodName,
-          createInvocationMirror,
-          sliceOffsetParams,  // argument to slice
-          minify ? 'shortNames' : 'longNames',
-          sliceOffsetArguments
-      ]));
+      }''', [sliceOffsetParams, // parameter
+      noSuchMethodName, createInvocationMirror, sliceOffsetParams, // argument to slice
+      minify ? 'shortNames' : 'longNames', sliceOffsetArguments]));
 
     return statements;
   }

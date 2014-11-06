@@ -13,18 +13,11 @@ class InterceptorEmitter extends CodeEmitterHelper {
     }
   }
 
-  void emitGetInterceptorMethod(CodeBuffer buffer,
-                                String key,
-                                Set<ClassElement> classes) {
-    InterceptorStubGenerator stubGenerator =
-        new InterceptorStubGenerator(compiler, namer, backend);
-    jsAst.Expression function =
-        stubGenerator.generateGetInterceptorMethod(classes);
+  void emitGetInterceptorMethod(CodeBuffer buffer, String key, Set<ClassElement> classes) {
+    InterceptorStubGenerator stubGenerator = new InterceptorStubGenerator(compiler, namer, backend);
+    jsAst.Expression function = stubGenerator.generateGetInterceptorMethod(classes);
 
-    buffer.write(jsAst.prettyPrint(
-        js('${namer.globalObjectFor(backend.interceptorsLibrary)}.# = #',
-           [key, function]),
-        compiler));
+    buffer.write(jsAst.prettyPrint(js('${namer.globalObjectFor(backend.interceptorsLibrary)}.# = #', [key, function]), compiler));
     buffer.write(N);
   }
 
@@ -33,8 +26,7 @@ class InterceptorEmitter extends CodeEmitterHelper {
    */
   void emitGetInterceptorMethods(CodeBuffer buffer) {
     emitter.addComment('getInterceptor methods', buffer);
-    Map<String, Set<ClassElement>> specializedGetInterceptors =
-        backend.specializedGetInterceptors;
+    Map<String, Set<ClassElement>> specializedGetInterceptors = backend.specializedGetInterceptors;
     for (String name in specializedGetInterceptors.keys.toList()..sort()) {
       Set<ClassElement> classes = specializedGetInterceptors[name];
       emitGetInterceptorMethod(buffer, name, classes);
@@ -45,14 +37,11 @@ class InterceptorEmitter extends CodeEmitterHelper {
     List<String> names = backend.oneShotInterceptors.keys.toList();
     names.sort();
 
-    InterceptorStubGenerator stubGenerator =
-        new InterceptorStubGenerator(compiler, namer, backend);
+    InterceptorStubGenerator stubGenerator = new InterceptorStubGenerator(compiler, namer, backend);
     String globalObject = namer.globalObjectFor(backend.interceptorsLibrary);
     for (String name in names) {
-      jsAst.Expression function =
-          stubGenerator.generateOneShotInterceptor(name);
-      jsAst.Expression assignment =
-          js('${globalObject}.# = #', [name, function]);
+      jsAst.Expression function = stubGenerator.generateOneShotInterceptor(name);
+      jsAst.Expression assignment = js('${globalObject}.# = #', [name, function]);
 
       buffer.write(jsAst.prettyPrint(assignment, compiler));
       buffer.write(N);
@@ -78,16 +67,13 @@ class InterceptorEmitter extends CodeEmitterHelper {
 
     int index = 0;
     var invocationNames = interceptorInvocationNames.toList()..sort();
-    List<jsAst.ArrayElement> elements = invocationNames.map(
-      (String invocationName) {
-        jsAst.Literal str = js.string(invocationName);
-        return new jsAst.ArrayElement(index++, str);
-      }).toList();
-    jsAst.ArrayInitializer array =
-        new jsAst.ArrayInitializer(invocationNames.length, elements);
+    List<jsAst.ArrayElement> elements = invocationNames.map((String invocationName) {
+      jsAst.Literal str = js.string(invocationName);
+      return new jsAst.ArrayElement(index++, str);
+    }).toList();
+    jsAst.ArrayInitializer array = new jsAst.ArrayInitializer(invocationNames.length, elements);
 
-    jsAst.Expression assignment =
-        js('${emitter.isolateProperties}.# = #', [name, array]);
+    jsAst.Expression assignment = js('${emitter.isolateProperties}.# = #', [name, array]);
 
     buffer.write(jsAst.prettyPrint(assignment, compiler));
     buffer.write(N);
@@ -105,8 +91,7 @@ class InterceptorEmitter extends CodeEmitterHelper {
 
     List<jsAst.Expression> elements = <jsAst.Expression>[];
     JavaScriptConstantCompiler handler = backend.constants;
-    List<ConstantValue> constants =
-        handler.getConstantsForEmission(emitter.compareConstants);
+    List<ConstantValue> constants = handler.getConstantsForEmission(emitter.compareConstants);
     for (ConstantValue constant in constants) {
       if (constant is TypeConstantValue) {
         TypeConstantValue typeConstant = constant;
@@ -135,10 +120,7 @@ class InterceptorEmitter extends CodeEmitterHelper {
           // We expect most of the time the map will be a singleton.
           var properties = [];
           for (Element member in analysis.constructors(classElement)) {
-            properties.add(
-                new jsAst.Property(
-                    js.string(member.name),
-                    backend.namer.elementAccess(member)));
+            properties.add(new jsAst.Property(js.string(member.name), backend.namer.elementAccess(member)));
           }
 
           var map = new jsAst.ObjectInitializer(properties);
@@ -148,10 +130,8 @@ class InterceptorEmitter extends CodeEmitterHelper {
     }
 
     jsAst.ArrayInitializer array = new jsAst.ArrayInitializer.from(elements);
-    String name =
-        backend.namer.getNameOfGlobalField(backend.mapTypeToInterceptor);
-    jsAst.Expression assignment =
-        js('${emitter.isolateProperties}.# = #', [name, array]);
+    String name = backend.namer.getNameOfGlobalField(backend.mapTypeToInterceptor);
+    jsAst.Expression assignment = js('${emitter.isolateProperties}.# = #', [name, array]);
 
     buffer.write(jsAst.prettyPrint(assignment, compiler));
     buffer.write(N);

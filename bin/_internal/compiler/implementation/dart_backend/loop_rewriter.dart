@@ -88,18 +88,10 @@ class LoopRewriter extends RecursiveVisitor {
       bool elseHasContinue = usedContinueLabels.remove(node.label);
       if (thenHasContinue && !elseHasContinue) {
         node.label.binding = null; // Prepare to rebind the label.
-        return new WhileCondition(
-            node.label,
-            body.condition,
-            body.thenStatement,
-            body.elseStatement);
+        return new WhileCondition(node.label, body.condition, body.thenStatement, body.elseStatement);
       } else if (!thenHasContinue && elseHasContinue) {
         node.label.binding = null;
-        return new WhileCondition(
-            node.label,
-            new Not(body.condition),
-            body.elseStatement,
-            body.thenStatement);
+        return new WhileCondition(node.label, new Not(body.condition), body.elseStatement, body.thenStatement);
       }
     } else {
       node.body = visitStatement(node.body);

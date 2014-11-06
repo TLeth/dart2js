@@ -46,8 +46,7 @@ class Builder extends cps_ir.Visitor<Node> {
   final dart2js.Compiler compiler;
 
   /// Maps variable/parameter elements to the Tree variables that represent it.
-  final Map<Element, List<Variable>> element2variables =
-      <Element,List<Variable>>{};
+  final Map<Element, List<Variable>> element2variables = <Element, List<Variable>>{};
 
   /// Like [element2variables], except for closure variables. Closure variables
   /// are not subject to SSA, so at most one variable is used per local.
@@ -108,9 +107,7 @@ class Builder extends cps_ir.Visitor<Node> {
   Expression getVariableReference(cps_ir.Reference reference) {
     Variable variable = getVariable(reference.definition);
     if (variable == null) {
-      compiler.internalError(
-          compiler.currentElement,
-          "Reference to ${reference.definition} has no register");
+      compiler.internalError(compiler.currentElement, "Reference to ${reference.definition} has no register");
     }
     ++variable.readCount;
     return variable;
@@ -122,19 +119,14 @@ class Builder extends cps_ir.Visitor<Node> {
   }
 
   List<Expression> translateArguments(List<cps_ir.Reference> args) {
-    return new List<Expression>.generate(args.length,
-         (int index) => getVariableReference(args[index]));
+    return new List<Expression>.generate(args.length, (int index) => getVariableReference(args[index]));
   }
 
   List<Variable> translatePhiArguments(List<cps_ir.Reference> args) {
-    return new List<Variable>.generate(args.length,
-         (int index) => getVariableReference(args[index]));
+    return new List<Variable>.generate(args.length, (int index) => getVariableReference(args[index]));
   }
 
-  Statement buildContinuationAssignment(
-      cps_ir.Parameter parameter,
-      Expression argument,
-      Statement buildRest()) {
+  Statement buildContinuationAssignment(cps_ir.Parameter parameter, Expression argument, Statement buildRest()) {
     Variable variable = getVariable(parameter);
     Statement assignment;
     if (variable == null) {
@@ -148,10 +140,7 @@ class Builder extends cps_ir.Visitor<Node> {
 
   /// Simultaneously assigns each argument to the corresponding parameter,
   /// then continues at the statement created by [buildRest].
-  Statement buildPhiAssignments(
-      List<cps_ir.Parameter> parameters,
-      List<Variable> arguments,
-      Statement buildRest()) {
+  Statement buildPhiAssignments(List<cps_ir.Parameter> parameters, List<Variable> arguments, Statement buildRest()) {
     assert(parameters.length == arguments.length);
     // We want a parallel assignment to all parameters simultaneously.
     // Since we do not have parallel assignments in dart_tree, we must linearize
@@ -175,7 +164,8 @@ class Builder extends cps_ir.Visitor<Node> {
       list.add(i);
     }
 
-    Statement first, current;
+    Statement first;
+    Statement current;
     void addAssignment(Variable dst, Variable src) {
       if (first == null) {
         first = current = new Assign(dst, src, null);
@@ -234,8 +224,7 @@ class Builder extends cps_ir.Visitor<Node> {
 
   Expression visitFunctionDefinition(cps_ir.FunctionDefinition node) {
     List<Variable> parameters = <Variable>[];
-    function = new FunctionDefinition(node.element, parameters,
-        null, node.localConstants, node.defaultParameterValues);
+    function = new FunctionDefinition(node.element, parameters, null, node.localConstants, node.defaultParameterValues);
     returnContinuation = node.returnContinuation;
     for (cps_ir.Parameter p in node.parameters) {
       Variable parameter = getVariable(p);
@@ -313,17 +302,14 @@ class Builder extends cps_ir.Visitor<Node> {
     return continueWithExpression(node.continuation, concat);
   }
 
-  Statement continueWithExpression(cps_ir.Reference continuation,
-                                   Expression expression) {
+  Statement continueWithExpression(cps_ir.Reference continuation, Expression expression) {
     cps_ir.Continuation cont = continuation.definition;
     if (cont == returnContinuation) {
       return new Return(expression);
     } else {
       assert(cont.parameters.length == 1);
-      Function nextBuilder = cont.hasExactlyOneUse ?
-          () => visit(cont.body) : () => new Break(labels[cont]);
-      return buildContinuationAssignment(cont.parameters.single, expression,
-          nextBuilder);
+      Function nextBuilder = cont.hasExactlyOneUse ? () => visit(cont.body) : () => new Break(labels[cont]);
+      return buildContinuationAssignment(cont.parameters.single, expression, nextBuilder);
     }
   }
 
@@ -334,8 +320,7 @@ class Builder extends cps_ir.Visitor<Node> {
   Statement visitSetClosureVariable(cps_ir.SetClosureVariable node) {
     Variable variable = getClosureVariable(node.variable);
     Expression value = getVariableReference(node.value);
-    return new Assign(variable, value, visit(node.body),
-                      isDeclaration: node.isDeclaration);
+    return new Assign(variable, value, visit(node.body), isDeclaration: node.isDeclaration);
   }
 
   Statement visitDeclareFunction(cps_ir.DeclareFunction node) {
@@ -352,8 +337,7 @@ class Builder extends cps_ir.Visitor<Node> {
 
   Statement visitInvokeConstructor(cps_ir.InvokeConstructor node) {
     List<Expression> arguments = translateArguments(node.arguments);
-    Expression invoke =
-        new InvokeConstructor(node.type, node.target, node.selector, arguments);
+    Expression invoke = new InvokeConstructor(node.type, node.target, node.selector, arguments);
     return continueWithExpression(node.continuation, invoke);
   }
 
@@ -369,43 +353,37 @@ class Builder extends cps_ir.Visitor<Node> {
       return new Return(getVariableReference(node.arguments.single));
     } else {
       List<Expression> arguments = translatePhiArguments(node.arguments);
-      return buildPhiAssignments(cont.parameters, arguments,
-          () {
-            // Translate invocations of recursive and non-recursive
-            // continuations differently.
-            //   * Non-recursive continuations
-            //     - If there is one use, translate the continuation body
-            //       inline at the invocation site.
-            //     - If there are multiple uses, translate to Break.
-            //   * Recursive continuations
-            //     - There is a single non-recursive invocation.  Translate
-            //       the continuation body inline as a labeled loop at the
-            //       invocation site.
-            //     - Translate the recursive invocations to Continue.
-            if (cont.isRecursive) {
-              return node.isRecursive
-                  ? new Continue(labels[cont])
-                  : new WhileTrue(labels[cont], visit(cont.body));
-            } else {
-              return cont.hasExactlyOneUse
-                  ? visit(cont.body)
-                  : new Break(labels[cont]);
-            }
-          });
+      return buildPhiAssignments(cont.parameters, arguments, () {
+        // Translate invocations of recursive and non-recursive
+        // continuations differently.
+        //   * Non-recursive continuations
+        //     - If there is one use, translate the continuation body
+        //       inline at the invocation site.
+        //     - If there are multiple uses, translate to Break.
+        //   * Recursive continuations
+        //     - There is a single non-recursive invocation.  Translate
+        //       the continuation body inline as a labeled loop at the
+        //       invocation site.
+        //     - Translate the recursive invocations to Continue.
+        if (cont.isRecursive) {
+          return node.isRecursive ? new Continue(labels[cont]) : new WhileTrue(labels[cont], visit(cont.body));
+        } else {
+          return cont.hasExactlyOneUse ? visit(cont.body) : new Break(labels[cont]);
+        }
+      });
     }
   }
 
   Statement visitBranch(cps_ir.Branch node) {
     Expression condition = visit(node.condition);
-    Statement thenStatement, elseStatement;
+    Statement thenStatement;
+    Statement elseStatement;
     cps_ir.Continuation cont = node.trueContinuation.definition;
     assert(cont.parameters.isEmpty);
-    thenStatement =
-        cont.hasExactlyOneUse ? visit(cont.body) : new Break(labels[cont]);
+    thenStatement = cont.hasExactlyOneUse ? visit(cont.body) : new Break(labels[cont]);
     cont = node.falseContinuation.definition;
     assert(cont.parameters.isEmpty);
-    elseStatement =
-        cont.hasExactlyOneUse ? visit(cont.body) : new Break(labels[cont]);
+    elseStatement = cont.hasExactlyOneUse ? visit(cont.body) : new Break(labels[cont]);
     return new If(condition, thenStatement, elseStatement);
   }
 
@@ -422,16 +400,11 @@ class Builder extends cps_ir.Visitor<Node> {
   }
 
   Expression visitLiteralList(cps_ir.LiteralList node) {
-    return new LiteralList(
-            node.type,
-            translateArguments(node.values));
+    return new LiteralList(node.type, translateArguments(node.values));
   }
 
   Expression visitLiteralMap(cps_ir.LiteralMap node) {
-    return new LiteralMap(
-        node.type,
-        translateArguments(node.keys),
-        translateArguments(node.values));
+    return new LiteralMap(node.type, translateArguments(node.keys), translateArguments(node.values));
   }
 
   FunctionDefinition makeSubFunction(cps_ir.FunctionDefinition function) {

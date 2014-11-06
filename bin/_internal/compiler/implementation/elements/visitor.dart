@@ -5,10 +5,7 @@
 library visitor;
 
 import 'elements.dart';
-import '../closure.dart'
-    show BoxFieldElement,
-         ClosureClassElement,
-         ClosureFieldElement;
+import '../closure.dart' show BoxFieldElement, ClosureClassElement, ClosureFieldElement;
 
 abstract class ElementVisitor<R> {
   R visit(Element e) => e.accept(this);
@@ -26,8 +23,7 @@ abstract class ElementVisitor<R> {
   R visitParameterElement(ParameterElement e) => visitVariableElement(e);
   R visitFormalElement(FormalElement e) => visitElement(e);
   R visitFieldElement(FieldElement e) => visitVariableElement(e);
-  R visitFieldParameterElement(InitializingFormalElement e) =>
-      visitParameterElement(e);
+  R visitFieldParameterElement(InitializingFormalElement e) => visitParameterElement(e);
   R visitAbstractFieldElement(AbstractFieldElement e) => visitElement(e);
   R visitFunctionElement(FunctionElement e) => visitElement(e);
   R visitConstructorBodyElement(ConstructorBodyElement e) => visitElement(e);

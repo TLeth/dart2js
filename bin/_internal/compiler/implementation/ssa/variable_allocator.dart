@@ -111,8 +111,8 @@ class LiveEnvironment {
   final Map<HInstruction, LiveInterval> liveIntervals;
 
   LiveEnvironment(this.liveIntervals, this.endId)
-    : liveInstructions = new Map<HInstruction, int>(),
-      loopMarkers = new Map<HBasicBlock, int>();
+      : liveInstructions = new Map<HInstruction, int>(),
+        loopMarkers = new Map<HBasicBlock, int>();
 
   /**
    * Remove an instruction from the liveIn set. This method also
@@ -120,8 +120,7 @@ class LiveEnvironment {
    * range: [id, / id contained in [liveInstructions] /].
    */
   void remove(HInstruction instruction, int id) {
-    LiveInterval interval = liveIntervals.putIfAbsent(
-        instruction, () => new LiveInterval());
+    LiveInterval interval = liveIntervals.putIfAbsent(instruction, () => new LiveInterval());
     int lastId = liveInstructions[instruction];
     // If [lastId] is null, then this instruction is not being used.
     interval.add(new LiveRange(id, lastId == null ? id : lastId));
@@ -152,12 +151,13 @@ class LiveEnvironment {
       // else block have the same end id for an instruction that is
       // being used in the join block and defined before the if/else.
       if (existingId == endId) return;
-      LiveInterval range = liveIntervals.putIfAbsent(
-          instruction, () => new LiveInterval());
+      LiveInterval range = liveIntervals.putIfAbsent(instruction, () => new LiveInterval());
       range.add(new LiveRange(other.startId, existingId));
       liveInstructions[instruction] = endId;
     });
-    other.loopMarkers.forEach((k, v) { loopMarkers[k] = v; });
+    other.loopMarkers.forEach((k, v) {
+      loopMarkers[k] = v;
+    });
   }
 
   void addLoopMarker(HBasicBlock header, int id) {
@@ -171,8 +171,7 @@ class LiveEnvironment {
   }
 
   bool get isEmpty => liveInstructions.isEmpty && loopMarkers.isEmpty;
-  bool contains(HInstruction instruction) =>
-      liveInstructions.containsKey(instruction);
+  bool contains(HInstruction instruction) => liveInstructions.containsKey(instruction);
   String toString() => liveInstructions.toString();
 }
 
@@ -204,10 +203,9 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
    */
   final Map<HInstruction, LiveInterval> liveIntervals;
 
-  SsaLiveIntervalBuilder(
-      this.compiler, this.generateAtUseSite, this.controlFlowOperators)
-    : liveInstructions = new Map<HBasicBlock, LiveEnvironment>(),
-      liveIntervals = new Map<HInstruction, LiveInterval>();
+  SsaLiveIntervalBuilder(this.compiler, this.generateAtUseSite, this.controlFlowOperators)
+      : liveInstructions = new Map<HBasicBlock, LiveEnvironment>(),
+        liveIntervals = new Map<HInstruction, LiveInterval>();
 
   void visitGraph(HGraph graph) {
     visitPostDominatorTree(graph);
@@ -216,10 +214,13 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
     }
   }
 
-  void markInputsAsLiveInEnvironment(HInstruction instruction,
-                                     LiveEnvironment environment) {
-    for (int i = 0, len = instruction.inputs.length; i < len; i++) {
-      markAsLiveInEnvironment(instruction.inputs[i], environment);
+  void markInputsAsLiveInEnvironment(HInstruction instruction, LiveEnvironment environment) {
+    {
+      int i = 0;
+      int len = instruction.inputs.length;
+      for ( ; i < len; i++) {
+        markAsLiveInEnvironment(instruction.inputs[i], environment);
+      }
     }
   }
 
@@ -249,8 +250,7 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
     return checked;
   }
 
-  void markAsLiveInEnvironment(HInstruction instruction,
-                               LiveEnvironment environment) {
+  void markAsLiveInEnvironment(HInstruction instruction, LiveEnvironment environment) {
     if (generateAtUseSite.contains(instruction)) {
       markInputsAsLiveInEnvironment(instruction, environment);
     } else {
@@ -268,8 +268,7 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
     }
   }
 
-  void removeFromEnvironment(HInstruction instruction,
-                             LiveEnvironment environment) {
+  void removeFromEnvironment(HInstruction instruction, LiveEnvironment environment) {
     environment.remove(instruction, instructionId);
     // Special case the HCheck instruction to have the same live
     // interval as the instruction it is checking.
@@ -280,15 +279,13 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
         liveIntervals.putIfAbsent(checked, () => new LiveInterval());
         // Unconditionally force the live ranges of the HCheck to
         // be the live ranges of the instruction it is checking.
-        liveIntervals[instruction] =
-            new LiveInterval.forCheck(instructionId, liveIntervals[checked]);
+        liveIntervals[instruction] = new LiveInterval.forCheck(instructionId, liveIntervals[checked]);
       }
     }
   }
 
   void visitBasicBlock(HBasicBlock block) {
-    LiveEnvironment environment =
-        new LiveEnvironment(liveIntervals, instructionId);
+    LiveEnvironment environment = new LiveEnvironment(liveIntervals, instructionId);
 
     // If the control flow instruction in this block will actually be
     // inlined in the codegen in the join block, we need to make
@@ -298,8 +295,7 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
       HIf ifInstruction = block.last;
       HBasicBlock joinBlock = ifInstruction.joinBlock;
       if (generateAtUseSite.contains(joinBlock.phis.first)) {
-        markInputsAsLiveInEnvironment(
-            ifInstruction, liveInstructions[joinBlock]);
+        markInputsAsLiveInEnvironment(ifInstruction, liveInstructions[joinBlock]);
       }
     }
 
@@ -359,8 +355,7 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
     // Update all instructions that are liveIns in [header] to have a
     // range that covers the loop.
     env.liveInstructions.forEach((HInstruction instruction, int id) {
-      LiveInterval range = env.liveIntervals.putIfAbsent(
-          instruction, () => new LiveInterval());
+      LiveInterval range = env.liveIntervals.putIfAbsent(instruction, () => new LiveInterval());
       range.loopUpdate(env.startId, lastId);
       env.liveInstructions[instruction] = lastId;
     });
@@ -374,7 +369,9 @@ class SsaLiveIntervalBuilder extends HBaseVisitor {
           other.liveInstructions[instruction] = id;
         });
         other.removeLoopMarker(header);
-        env.loopMarkers.forEach((k, v) { other.loopMarkers[k] = v; });
+        env.loopMarkers.forEach((k, v) {
+          other.loopMarkers[k] = v;
+        });
       }
     });
   }
@@ -409,8 +406,8 @@ class CopyHandler {
   final List<Copy> assignments;
 
   CopyHandler()
-    : copies = new List<Copy>(),
-      assignments = new List<Copy>();
+      : copies = new List<Copy>(),
+        assignments = new List<Copy>();
 
   void addCopy(HInstruction source, HInstruction destination) {
     copies.add(new Copy(source, destination));
@@ -447,10 +444,10 @@ class VariableNames {
   }
 
   VariableNames()
-    : ownName = new Map<HInstruction, String>(),
-      copyHandlers = new Map<HBasicBlock, CopyHandler>(),
-      allUsedNames = new Set<String>(),
-      swapTemp = 't0';
+      : ownName = new Map<HInstruction, String>(),
+        copyHandlers = new Map<HBasicBlock, CopyHandler>(),
+        allUsedNames = new Set<String>(),
+        swapTemp = 't0';
 
   int get numberOfVariables => allUsedNames.length;
 
@@ -469,14 +466,12 @@ class VariableNames {
   bool hasName(HInstruction instruction) => ownName.containsKey(instruction);
 
   void addCopy(HBasicBlock block, HInstruction source, HPhi destination) {
-    CopyHandler handler =
-        copyHandlers.putIfAbsent(block, () => new CopyHandler());
+    CopyHandler handler = copyHandlers.putIfAbsent(block, () => new CopyHandler());
     handler.addCopy(source, destination);
   }
 
   void addAssignment(HBasicBlock block, HInstruction source, HPhi destination) {
-    CopyHandler handler =
-        copyHandlers.putIfAbsent(block, () => new CopyHandler());
+    CopyHandler handler = copyHandlers.putIfAbsent(block, () => new CopyHandler());
     handler.addAssignment(source, destination);
   }
 }
@@ -492,11 +487,9 @@ class VariableNamer {
   int temporaryIndex = 0;
   static final RegExp regexp = new RegExp('t[0-9]+');
 
-  VariableNamer(LiveEnvironment environment,
-                this.names,
-                this.compiler)
-    : usedNames = new Set<String>(),
-      freeTemporaryNames = new List<String>() {
+  VariableNamer(LiveEnvironment environment, this.names, this.compiler)
+      : usedNames = new Set<String>(),
+        freeTemporaryNames = new List<String>() {
     // [VariableNames.swapTemp] is used when there is a cycle in a copy handler.
     // Therefore we make sure no one uses it.
     usedNames.add(names.swapTemp);
@@ -616,19 +609,15 @@ class SsaVariableAllocator extends HBaseVisitor {
 
   final VariableNames names;
 
-  SsaVariableAllocator(this.compiler,
-                       this.liveInstructions,
-                       this.liveIntervals,
-                       this.generateAtUseSite)
-    : this.names = new VariableNames();
+  SsaVariableAllocator(this.compiler, this.liveInstructions, this.liveIntervals, this.generateAtUseSite)
+      : this.names = new VariableNames();
 
   void visitGraph(HGraph graph) {
     visitDominatorTree(graph);
   }
 
   void visitBasicBlock(HBasicBlock block) {
-    VariableNamer namer = new VariableNamer(
-        liveInstructions[block], names, compiler);
+    VariableNamer namer = new VariableNamer(liveInstructions[block], names, compiler);
 
     block.forEachPhi((HPhi phi) {
       handlePhi(phi, namer);
@@ -661,19 +650,23 @@ class SsaVariableAllocator extends HBaseVisitor {
     return instructionInterval.diesAt(start);
   }
 
-  void freeUsedNamesAt(HInstruction instruction,
-                       HInstruction at,
-                       VariableNamer namer) {
+  void freeUsedNamesAt(HInstruction instruction, HInstruction at, VariableNamer namer) {
     if (needsName(instruction)) {
       if (diesAt(instruction, at)) {
         namer.freeName(instruction);
       }
     } else if (generateAtUseSite.contains(instruction)) {
-      // If the instruction is generated at use site, then all its
-      // inputs may also die at [at].
-      for (int i = 0, len = instruction.inputs.length; i < len; i++) {
-        HInstruction input = instruction.inputs[i];
-        freeUsedNamesAt(input, at, namer);
+
+
+      {
+        int i = 0;
+        int len = instruction.inputs.length;
+        // If the instruction is generated at use site, then all its
+        // inputs may also die at [at].
+        for ( ; i < len; i++) {
+          HInstruction input = instruction.inputs[i];
+          freeUsedNamesAt(input, at, namer);
+        }
       }
     }
   }
@@ -684,9 +677,13 @@ class SsaVariableAllocator extends HBaseVisitor {
       return;
     }
 
-    for (int i = 0, len = instruction.inputs.length; i < len; i++) {
-      HInstruction input = instruction.inputs[i];
-      freeUsedNamesAt(input, instruction, namer);
+    {
+      int i = 0;
+      int len = instruction.inputs.length;
+      for ( ; i < len; i++) {
+        HInstruction input = instruction.inputs[i];
+        freeUsedNamesAt(input, instruction, namer);
+      }
     }
 
     if (needsName(instruction)) {

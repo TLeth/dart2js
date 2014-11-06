@@ -63,8 +63,7 @@ class CustomElementsAnalysis {
     codegenJoin.allClassesSelected = true;
   }
 
-  CustomElementsAnalysisJoin joinFor(Enqueuer enqueuer) =>
-      enqueuer.isResolutionQueue ? resolutionJoin : codegenJoin;
+  CustomElementsAnalysisJoin joinFor(Enqueuer enqueuer) => enqueuer.isResolutionQueue ? resolutionJoin : codegenJoin;
 
   void registerInstantiatedClass(ClassElement classElement, Enqueuer enqueuer) {
     classElement.ensureResolved(compiler);
@@ -102,8 +101,7 @@ class CustomElementsAnalysis {
     assert(element != null);
     if (!fetchedTableAccessorMethod) {
       fetchedTableAccessorMethod = true;
-      tableAccessorMethod = backend.findInterceptor(
-          'findIndexForNativeSubclassType');
+      tableAccessorMethod = backend.findInterceptor('findIndexForNativeSubclassType');
     }
     if (element == tableAccessorMethod) {
       joinFor(enqueuer).demanded = true;
@@ -116,11 +114,9 @@ class CustomElementsAnalysis {
 
   bool get needsTable => codegenJoin.demanded;
 
-  bool needsClass(ClassElement classElement) =>
-      codegenJoin.activeClasses.contains(classElement);
+  bool needsClass(ClassElement classElement) => codegenJoin.activeClasses.contains(classElement);
 
-  List<Element> constructors(ClassElement classElement) =>
-      codegenJoin.computeEscapingConstructors(classElement);
+  List<Element> constructors(ClassElement classElement) => codegenJoin.computeEscapingConstructors(classElement);
 }
 
 
@@ -151,24 +147,18 @@ class CustomElementsAnalysisJoin {
     var newActiveClasses = new Set<ClassElement>();
     for (ClassElement classElement in instantiatedClasses) {
       bool isNative = classElement.isNative;
-      bool isExtension =
-          !isNative && Elements.isNativeOrExtendsNative(classElement);
+      bool isExtension = !isNative && Elements.isNativeOrExtendsNative(classElement);
       // Generate table entries for native classes that are explicitly named and
       // extensions that fix our criteria.
-      if ((isNative && selectedClasses.contains(classElement)) ||
-          (isExtension &&
-              (allClassesSelected || selectedClasses.contains(classElement)))) {
+      if ((isNative && selectedClasses.contains(classElement)) || (isExtension && (allClassesSelected || selectedClasses.contains(classElement)))) {
         newActiveClasses.add(classElement);
-        Iterable<Element> escapingConstructors =
-            computeEscapingConstructors(classElement);
+        Iterable<Element> escapingConstructors = computeEscapingConstructors(classElement);
         escapingConstructors.forEach(enqueuer.registerStaticUse);
-        escapingConstructors
-            .forEach(compiler.globalDependencies.registerDependency);
+        escapingConstructors.forEach(compiler.globalDependencies.registerDependency);
         // Force the generaton of the type constant that is the key to an entry
         // in the generated table.
         ConstantValue constant = makeTypeConstant(classElement);
-        backend.registerCompileTimeConstant(
-            constant, compiler.globalDependencies);
+        backend.registerCompileTimeConstant(constant, compiler.globalDependencies);
         backend.constants.addCompileTimeConstantForEmission(constant);
       }
     }
@@ -199,9 +189,7 @@ class CustomElementsAnalysisJoin {
         }
       }
     }
-    classElement.forEachMember(selectGenerativeConstructors,
-        includeBackendMembers: false,
-        includeSuperAndInjectedMembers: false);
+    classElement.forEachMember(selectGenerativeConstructors, includeBackendMembers: false, includeSuperAndInjectedMembers: false);
     return result;
   }
 }

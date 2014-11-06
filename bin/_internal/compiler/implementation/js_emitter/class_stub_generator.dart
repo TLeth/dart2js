@@ -11,8 +11,7 @@ class ClassStubGenerator {
 
   ClassStubGenerator(this.compiler, this.namer, this.backend);
 
-  jsAst.Expression generateClassConstructor(ClassElement classElement,
-                                            Iterable<String> fields) {
+  jsAst.Expression generateClassConstructor(ClassElement classElement, Iterable<String> fields) {
     // TODO(sra): Implement placeholders in VariableDeclaration position:
     //
     //     String constructorName = namer.getNameOfClass(classElement);
@@ -20,9 +19,7 @@ class ClassStubGenerator {
     //        [ constructorName, fields,
     //            fields.map(
     //                (name) => js('this.# = #', [name, name]))]));
-    return js('function(#) { #; }',
-        [fields,
-         fields.map((name) => js('this.# = #', [name, name]))]);
+    return js('function(#) { #; }', [fields, fields.map((name) => js('this.# = #', [name, name]))]);
   }
 
   jsAst.Expression generateGetter(Element member, String fieldName) {
@@ -37,7 +34,6 @@ class ClassStubGenerator {
     String receiver = backend.isInterceptorClass(cls) ? 'receiver' : 'this';
     List<String> args = backend.isInterceptedMethod(member) ? ['receiver'] : [];
     // TODO(floitsch): remove 'return'?
-    return js('function(#, v) { return #.# = v; }',
-        [args, receiver, fieldName]);
+    return js('function(#, v) { return #.# = v; }', [args, receiver, fieldName]);
   }
 }

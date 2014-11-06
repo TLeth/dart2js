@@ -22,8 +22,7 @@ class Universe {
   /// Invariant: Elements are declaration elements.
   // TODO(johnniwinther): [_directlyInstantiatedClasses] and
   // [_instantiatedTypes] sets should be merged.
-  final Set<ClassElement> _directlyInstantiatedClasses =
-      new Set<ClassElement>();
+  final Set<ClassElement> _directlyInstantiatedClasses = new Set<ClassElement>();
 
   /// The set of all directly instantiated types, that is, the types of the
   /// directly instantiated classes.
@@ -42,16 +41,11 @@ class Universe {
    *
    * Invariant: Elements are declaration elements.
    */
-  final Set<FunctionElement> staticFunctionsNeedingGetter =
-      new Set<FunctionElement>();
-  final Set<FunctionElement> methodsNeedingSuperGetter =
-      new Set<FunctionElement>();
-  final Map<String, Set<Selector>> invokedNames =
-      new Map<String, Set<Selector>>();
-  final Map<String, Set<Selector>> invokedGetters =
-      new Map<String, Set<Selector>>();
-  final Map<String, Set<Selector>> invokedSetters =
-      new Map<String, Set<Selector>>();
+  final Set<FunctionElement> staticFunctionsNeedingGetter = new Set<FunctionElement>();
+  final Set<FunctionElement> methodsNeedingSuperGetter = new Set<FunctionElement>();
+  final Map<String, Set<Selector>> invokedNames = new Map<String, Set<Selector>>();
+  final Map<String, Set<Selector>> invokedGetters = new Map<String, Set<Selector>>();
+  final Map<String, Set<Selector>> invokedSetters = new Map<String, Set<Selector>>();
 
   /**
    * Fields accessed. Currently only the codegen knows this
@@ -130,20 +124,16 @@ class Universe {
   // TODO(johnniwinther): Fully enforce the separation between exact, through
   // subclass and through subtype instantiated types/classes.
   // TODO(johnniwinther): Support unknown type arguments for generic types.
-  void registerTypeInstantiation(InterfaceType type,
-                                 {bool byMirrors: false}) {
+  void registerTypeInstantiation(InterfaceType type, {bool byMirrors: false}) {
     _instantiatedTypes.add(type);
     ClassElement cls = type.element;
-    if (!cls.isAbstract
-        // We can't use the closed-world assumption with native abstract
-        // classes; a native abstract class may have non-abstract subclasses
-        // not declared to the program.  Instances of these classes are
-        // indistinguishable from the abstract class.
-        || cls.isNative
-        // Likewise, if this registration comes from the mirror system,
-        // all bets are off.
-        // TODO(herhut): Track classes required by mirrors seperately.
-        || byMirrors) {
+    if (!cls.isAbstract // Likewise, if this registration comes from the mirror system,
+    // all bets are off.
+    // TODO(herhut): Track classes required by mirrors seperately.
+    || cls.isNative // Likewise, if this registration comes from the mirror system,
+    // all bets are off.
+    // TODO(herhut): Track classes required by mirrors seperately.
+    || byMirrors) {
       _directlyInstantiatedClasses.add(cls);
     }
 
@@ -154,9 +144,7 @@ class Universe {
     });
   }
 
-  bool hasMatchingSelector(Set<Selector> selectors,
-                           Element member,
-                           World world) {
+  bool hasMatchingSelector(Set<Selector> selectors, Element member, World world) {
     if (selectors == null) return false;
     for (Selector selector in selectors) {
       if (selector.appliesUnnamed(member, world)) return true;
@@ -194,9 +182,7 @@ class Universe {
     _directlyInstantiatedClasses.remove(element);
     _allInstantiatedClasses.remove(element);
     if (element is ClassElement) {
-      assert(invariant(
-          element, element.thisType.isRaw,
-          message: 'Generic classes not supported (${element.thisType}).'));
+      assert(invariant(element, element.thisType.isRaw, message: 'Generic classes not supported (${element.thisType}).'));
       _instantiatedTypes
           ..remove(element.rawType)
           ..remove(element.thisType);
@@ -207,10 +193,9 @@ class Universe {
   // by using a map.
   List<LocalFunctionElement> slowDirectlyNestedClosures(Element element) {
     // Return new list to guard against concurrent modifications.
-    return new List<LocalFunctionElement>.from(
-        allClosures.where((LocalFunctionElement closure) {
-          return closure.executableContext == element;
-        }));
+    return new List<LocalFunctionElement>.from(allClosures.where((LocalFunctionElement closure) {
+      return closure.executableContext == element;
+    }));
   }
 }
 
@@ -239,43 +224,24 @@ class Selector {
   final List<String> _orderedNamedArguments;
   final int hashCode;
 
-  static const String INDEX_NAME ="[]";
+  static const String INDEX_NAME = "[]";
   static const String INDEX_SET_NAME = "[]=";
   static const String CALL_NAME = Compiler.CALL_OPERATOR_NAME;
 
-  Selector.internal(this.kind,
-                    this.name,
-                    this.library,
-                    this.argumentCount,
-                    this.namedArguments,
-                    this._orderedNamedArguments,
-                    this.hashCode) {
-    assert(kind == SelectorKind.INDEX
-           || (name != INDEX_NAME && name != INDEX_SET_NAME));
-    assert(kind == SelectorKind.OPERATOR
-           || kind == SelectorKind.INDEX
-           || !Elements.isOperatorName(name));
-    assert(kind == SelectorKind.CALL
-           || kind == SelectorKind.GETTER
-           || kind == SelectorKind.SETTER
-           || Elements.isOperatorName(name));
+  Selector.internal(this.kind, this.name, this.library, this.argumentCount, this.namedArguments, this._orderedNamedArguments, this.hashCode) {
+    assert(kind == SelectorKind.INDEX || (name != INDEX_NAME && name != INDEX_SET_NAME));
+    assert(kind == SelectorKind.OPERATOR || kind == SelectorKind.INDEX || !Elements.isOperatorName(name));
+    assert(kind == SelectorKind.CALL || kind == SelectorKind.GETTER || kind == SelectorKind.SETTER || Elements.isOperatorName(name));
     assert(!isPrivateName(name) || library != null);
   }
 
-  static Map<int, List<Selector>> canonicalizedValues =
-      new Map<int, List<Selector>>();
+  static Map<int, List<Selector>> canonicalizedValues = new Map<int, List<Selector>>();
 
-  factory Selector(SelectorKind kind,
-                   String name,
-                   LibraryElement library,
-                   int argumentCount,
-                   [List<String> namedArguments]) {
+  factory Selector(SelectorKind kind, String name, LibraryElement library, int argumentCount, [List<String> namedArguments]) {
     if (!isPrivateName(name)) library = null;
     if (namedArguments == null) namedArguments = const <String>[];
-    int hashCode = computeHashCode(
-        kind, name, library, argumentCount, namedArguments);
-    List<Selector> list = canonicalizedValues.putIfAbsent(hashCode,
-        () => <Selector>[]);
+    int hashCode = computeHashCode(kind, name, library, argumentCount, namedArguments);
+    List<Selector> list = canonicalizedValues.putIfAbsent(hashCode, () => <Selector>[]);
     for (int i = 0; i < list.length; i++) {
       Selector existing = list[i];
       if (existing.match(kind, name, library, argumentCount, namedArguments)) {
@@ -284,13 +250,8 @@ class Selector {
         return existing;
       }
     }
-    List<String> orderedNamedArguments = namedArguments.isEmpty
-        ? const <String>[]
-        : <String>[];
-    Selector result = new Selector.internal(
-        kind, name, library, argumentCount,
-        namedArguments, orderedNamedArguments,
-        hashCode);
+    List<String> orderedNamedArguments = namedArguments.isEmpty ? const <String>[] : <String>[];
+    Selector result = new Selector.internal(kind, name, library, argumentCount, namedArguments, orderedNamedArguments, hashCode);
     list.add(result);
     return result;
   }
@@ -303,22 +264,18 @@ class Selector {
       } else if (name == '[]=') {
         return new Selector.indexSet();
       }
-      FunctionSignature signature =
-          element.asFunctionElement().functionSignature;
+      FunctionSignature signature = element.asFunctionElement().functionSignature;
       int arity = signature.parameterCount;
       List<String> namedArguments = null;
       if (signature.optionalParametersAreNamed) {
-        namedArguments =
-            signature.orderedOptionalParameters.map((e) => e.name).toList();
+        namedArguments = signature.orderedOptionalParameters.map((e) => e.name).toList();
       }
       if (element.isOperator) {
         // Operators cannot have named arguments, however, that doesn't prevent
         // a user from declaring such an operator.
-        return new Selector(
-            SelectorKind.OPERATOR, name, null, arity, namedArguments);
+        return new Selector(SelectorKind.OPERATOR, name, null, arity, namedArguments);
       } else {
-        return new Selector.call(
-            name, element.library, arity, namedArguments);
+        return new Selector.call(name, element.library, arity, namedArguments);
       }
     } else if (element.isSetter) {
       return new Selector.setter(name, element.library);
@@ -327,62 +284,33 @@ class Selector {
     } else if (element.isField) {
       return new Selector.getter(name, element.library);
     } else {
-      throw new SpannableAssertionFailure(
-          element, "Can't get selector from $element");
+      throw new SpannableAssertionFailure(element, "Can't get selector from $element");
     }
   }
 
-  factory Selector.getter(String name, LibraryElement library)
-      => new Selector(SelectorKind.GETTER, name, library, 0);
+  factory Selector.getter(String name, LibraryElement library) => new Selector(SelectorKind.GETTER, name, library, 0);
 
-  factory Selector.getterFrom(Selector selector)
-      => new Selector(SelectorKind.GETTER, selector.name, selector.library, 0);
+  factory Selector.getterFrom(Selector selector) => new Selector(SelectorKind.GETTER, selector.name, selector.library, 0);
 
-  factory Selector.setter(String name, LibraryElement library)
-      => new Selector(SelectorKind.SETTER, name, library, 1);
+  factory Selector.setter(String name, LibraryElement library) => new Selector(SelectorKind.SETTER, name, library, 1);
 
-  factory Selector.unaryOperator(String name)
-      => new Selector(SelectorKind.OPERATOR,
-                      Elements.constructOperatorName(name, true),
-                      null, 0);
+  factory Selector.unaryOperator(String name) => new Selector(SelectorKind.OPERATOR, Elements.constructOperatorName(name, true), null, 0);
 
-  factory Selector.binaryOperator(String name)
-      => new Selector(SelectorKind.OPERATOR,
-                      Elements.constructOperatorName(name, false),
-                      null, 1);
+  factory Selector.binaryOperator(String name) => new Selector(SelectorKind.OPERATOR, Elements.constructOperatorName(name, false), null, 1);
 
-  factory Selector.index()
-      => new Selector(SelectorKind.INDEX,
-                      Elements.constructOperatorName(INDEX_NAME, false),
-                      null, 1);
+  factory Selector.index() => new Selector(SelectorKind.INDEX, Elements.constructOperatorName(INDEX_NAME, false), null, 1);
 
-  factory Selector.indexSet()
-      => new Selector(SelectorKind.INDEX,
-                      Elements.constructOperatorName(INDEX_SET_NAME, false),
-                      null, 2);
+  factory Selector.indexSet() => new Selector(SelectorKind.INDEX, Elements.constructOperatorName(INDEX_SET_NAME, false), null, 2);
 
-  factory Selector.call(String name,
-                        LibraryElement library,
-                        int arity,
-                        [List<String> namedArguments])
-      => new Selector(SelectorKind.CALL, name, library, arity, namedArguments);
+  factory Selector.call(String name, LibraryElement library, int arity, [List<String> namedArguments]) => new Selector(SelectorKind.CALL, name, library, arity, namedArguments);
 
-  factory Selector.callClosure(int arity, [List<String> namedArguments])
-      => new Selector(SelectorKind.CALL, CALL_NAME, null,
-                      arity, namedArguments);
+  factory Selector.callClosure(int arity, [List<String> namedArguments]) => new Selector(SelectorKind.CALL, CALL_NAME, null, arity, namedArguments);
 
-  factory Selector.callClosureFrom(Selector selector)
-      => new Selector(SelectorKind.CALL, CALL_NAME, null,
-                      selector.argumentCount, selector.namedArguments);
+  factory Selector.callClosureFrom(Selector selector) => new Selector(SelectorKind.CALL, CALL_NAME, null, selector.argumentCount, selector.namedArguments);
 
-  factory Selector.callConstructor(String name, LibraryElement library,
-                                   [int arity = 0,
-                                    List<String> namedArguments])
-      => new Selector(SelectorKind.CALL, name, library,
-                      arity, namedArguments);
+  factory Selector.callConstructor(String name, LibraryElement library, [int arity = 0, List<String> namedArguments]) => new Selector(SelectorKind.CALL, name, library, arity, namedArguments);
 
-  factory Selector.callDefaultConstructor(LibraryElement library)
-      => new Selector(SelectorKind.CALL, "", library, 0);
+  factory Selector.callDefaultConstructor(LibraryElement library) => new Selector(SelectorKind.CALL, "", library, 0);
 
   bool get isGetter => identical(kind, SelectorKind.GETTER);
   bool get isSetter => identical(kind, SelectorKind.SETTER);
@@ -411,8 +339,7 @@ class Selector {
   /**
    * The member name for invocation mirrors created from this selector.
    */
-  String get invocationMirrorMemberName =>
-      isSetter ? '$name=' : name;
+  String get invocationMirrorMemberName => isSetter ? '$name=' : name;
 
   int get invocationMirrorKind {
     const int METHOD = 0;
@@ -440,9 +367,7 @@ class Selector {
     if (element.isSetter) return isSetter;
     if (element.isGetter) return isGetter || isCall;
     if (element.isField) {
-      return isSetter
-          ? !element.isFinal && !element.isConst
-          : isGetter || isCall;
+      return isSetter ? !element.isFinal && !element.isConst : isGetter || isCall;
     }
     if (isGetter) return true;
     if (isSetter) return false;
@@ -484,9 +409,7 @@ class Selector {
 
   bool sameNameHack(Element element, World world) {
     // TODO(ngeoffray): Remove workaround checks.
-    return element.isConstructor ||
-           name == element.name ||
-           name == 'assert' && world.isAssertMethod(element);
+    return element.isConstructor || name == element.name || name == 'assert' && world.isAssertMethod(element);
   }
 
   bool applies(Element element, World world) {
@@ -508,13 +431,7 @@ class Selector {
    *
    * Invariant: [element] must be the implementation element.
    */
-  /*<T>*/ bool addArgumentsToList(
-      Link<Node> arguments,
-      List/*<T>*/ list,
-      FunctionElement element,
-      /*T*/ compileArgument(Node argument),
-      /*T*/ compileDefaultValue(ParameterElement element),
-      World world) {
+  /*<T>*/ bool addArgumentsToList(Link<Node> arguments, List /*<T>*/ list, FunctionElement element, /*T*/ compileArgument(Node argument), /*T*/ compileDefaultValue(ParameterElement element), World world) {
     assert(invariant(element, element.isImplementation));
     if (!this.applies(element, world)) return false;
 
@@ -536,7 +453,7 @@ class Selector {
     } else {
       // Visit named arguments and add them into a temporary list.
       List compiledNamedArguments = [];
-      for (; !arguments.isEmpty; arguments = arguments.tail) {
+      for ( ; !arguments.isEmpty; arguments = arguments.tail) {
         NamedArgument namedArgument = arguments.head;
         compiledNamedArguments.add(compileArgument(namedArgument.expression));
       }
@@ -568,13 +485,7 @@ class Selector {
    * Returns [:true:] if the signature of the [caller] matches the
    * signature of the [callee], [:false:] otherwise.
    */
-  static bool addForwardingElementArgumentsToList(
-      FunctionElement caller,
-      List list,
-      FunctionElement callee,
-      compileArgument(Element element),
-      compileConstant(Element element),
-      World world) {
+  static bool addForwardingElementArgumentsToList(FunctionElement caller, List list, FunctionElement callee, compileArgument(Element element), compileConstant(Element element), World world) {
 
     FunctionSignature signature = caller.functionSignature;
     Map mapping = new Map();
@@ -613,20 +524,11 @@ class Selector {
     // TODO(ngeoffray): Should the resolver do it instead?
     List<String> namedParameters;
     if (signature.optionalParametersAreNamed) {
-      namedParameters =
-          signature.optionalParameters.mapToList((e) => e.name);
+      namedParameters = signature.optionalParameters.mapToList((e) => e.name);
     }
-    Selector selector = new Selector.call(callee.name,
-                                          caller.library,
-                                          signature.parameterCount,
-                                          namedParameters);
+    Selector selector = new Selector.call(callee.name, caller.library, signature.parameterCount, namedParameters);
 
-    return selector.addArgumentsToList(nodes,
-                                       list,
-                                       callee,
-                                       internalCompileArgument,
-                                       compileConstant,
-                                       world);
+    return selector.addArgumentsToList(nodes, list, callee, internalCompileArgument, compileConstant, world);
   }
 
   static bool sameNames(List<String> first, List<String> second) {
@@ -636,24 +538,11 @@ class Selector {
     return true;
   }
 
-  bool match(SelectorKind kind,
-             String name,
-             LibraryElement library,
-             int argumentCount,
-             List<String> namedArguments) {
-    return this.kind == kind
-        && this.name == name
-        && identical(this.library, library)
-        && this.argumentCount == argumentCount
-        && this.namedArguments.length == namedArguments.length
-        && sameNames(this.namedArguments, namedArguments);
+  bool match(SelectorKind kind, String name, LibraryElement library, int argumentCount, List<String> namedArguments) {
+    return this.kind == kind && this.name == name && identical(this.library, library) && this.argumentCount == argumentCount && this.namedArguments.length == namedArguments.length && sameNames(this.namedArguments, namedArguments);
   }
 
-  static int computeHashCode(SelectorKind kind,
-                             String name,
-                             LibraryElement library,
-                             int argumentCount,
-                             List<String> namedArguments) {
+  static int computeHashCode(SelectorKind kind, String name, LibraryElement library, int argumentCount, List<String> namedArguments) {
     // Add bits from name and kind.
     int hash = mixHashCodeBits(name.hashCode, kind.hashCode);
     // Add bits from the library.
@@ -714,13 +603,11 @@ class Selector {
     String type = '';
     if (namedArgumentCount > 0) named = ', named=${namedArgumentsToString()}';
     if (mask != null) type = ', mask=$mask';
-    return 'Selector($kind, $name, '
-           'arity=$argumentCount$named$type)';
+    return 'Selector($kind, $name, ' 'arity=$argumentCount$named$type)';
   }
 
   Selector extendIfReachesAll(Compiler compiler) {
-    return new TypedSelector(
-        compiler.typesTask.dynamicType, this, compiler.world);
+    return new TypedSelector(compiler.typesTask.dynamicType, this, compiler.world);
   }
 
   Selector toCallSelector() => new Selector.callClosureFrom(this);
@@ -732,27 +619,19 @@ class TypedSelector extends Selector {
 
   TypedSelector.internal(this.mask, Selector selector, int hashCode)
       : asUntyped = selector,
-        super.internal(selector.kind,
-                       selector.name,
-                       selector.library,
-                       selector.argumentCount,
-                       selector.namedArguments,
-                       selector._orderedNamedArguments,
-                       hashCode) {
+        super.internal(selector.kind, selector.name, selector.library, selector.argumentCount, selector.namedArguments, selector._orderedNamedArguments, hashCode) {
     assert(mask != null);
     assert(asUntyped.mask == null);
   }
 
-  static Map<Selector, Map<TypeMask, TypedSelector>> canonicalizedValues =
-      new Map<Selector, Map<TypeMask, TypedSelector>>();
+  static Map<Selector, Map<TypeMask, TypedSelector>> canonicalizedValues = new Map<Selector, Map<TypeMask, TypedSelector>>();
 
   factory TypedSelector(TypeMask mask, Selector selector, World world) {
     // TODO(johnniwinther): Allow more TypeSelector kinds during resoluton.
     assert(world.isClosed || mask.isExact);
     if (selector.mask == mask) return selector;
     Selector untyped = selector.asUntyped;
-    Map<TypeMask, TypedSelector> map = canonicalizedValues.putIfAbsent(untyped,
-        () => new Map<TypeMask, TypedSelector>());
+    Map<TypeMask, TypedSelector> map = canonicalizedValues.putIfAbsent(untyped, () => new Map<TypeMask, TypedSelector>());
     TypedSelector result = map[mask];
     if (result == null) {
       int hashCode = Selector.mixHashCodeBits(untyped.hashCode, mask.hashCode);
@@ -761,20 +640,11 @@ class TypedSelector extends Selector {
     return result;
   }
 
-  factory TypedSelector.exact(
-      ClassElement base, Selector selector, World world)
-          => new TypedSelector(new TypeMask.exact(base, world), selector,
-              world);
+  factory TypedSelector.exact(ClassElement base, Selector selector, World world) => new TypedSelector(new TypeMask.exact(base, world), selector, world);
 
-  factory TypedSelector.subclass(
-      ClassElement base, Selector selector, World world)
-          => new TypedSelector(new TypeMask.subclass(base, world),
-                               selector, world);
+  factory TypedSelector.subclass(ClassElement base, Selector selector, World world) => new TypedSelector(new TypeMask.subclass(base, world), selector, world);
 
-  factory TypedSelector.subtype(
-      ClassElement base, Selector selector, World world)
-          => new TypedSelector(new TypeMask.subtype(base, world),
-                               selector, world);
+  factory TypedSelector.subtype(ClassElement base, Selector selector, World world) => new TypedSelector(new TypeMask.subtype(base, world), selector, world);
 
   bool appliesUnnamed(Element element, World world) {
     assert(sameNameHack(element, world));
@@ -795,11 +665,7 @@ class TypedSelector extends Selector {
   }
 
   Selector extendIfReachesAll(Compiler compiler) {
-    bool canReachAll = compiler.enabledInvokeOn
-        && mask.needsNoSuchMethodHandling(this, compiler.world);
-    return canReachAll
-        ? new TypedSelector(
-            compiler.typesTask.dynamicType, this, compiler.world)
-        : this;
+    bool canReachAll = compiler.enabledInvokeOn && mask.needsNoSuchMethodHandling(this, compiler.world);
+    return canReachAll ? new TypedSelector(compiler.typesTask.dynamicType, this, compiler.world) : this;
   }
 }

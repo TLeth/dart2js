@@ -51,8 +51,7 @@ class ConstantEmitter {
  * Visitor for generating JavaScript expressions to refer to [ConstantValue]s.
  * Do not use directly, use methods from [ConstantEmitter].
  */
-class ConstantReferenceEmitter
-    implements ConstantValueVisitor<jsAst.Expression> {
+class ConstantReferenceEmitter implements ConstantValueVisitor<jsAst.Expression> {
   final Compiler compiler;
   final Namer namer;
 
@@ -70,12 +69,11 @@ class ConstantReferenceEmitter
 
   jsAst.Expression emitCanonicalVersion(ConstantValue constant) {
     String name = namer.constantName(constant);
-    return new jsAst.PropertyAccess.field(
-        new jsAst.VariableUse(namer.globalObjectForConstant(constant)), name);
+    return new jsAst.PropertyAccess.field(new jsAst.VariableUse(namer.globalObjectForConstant(constant)), name);
   }
 
   jsAst.Expression literal(ConstantValue constant) {
-      return constantEmitter.literal(constant);
+    return constantEmitter.literal(constant);
   }
 
   jsAst.Expression visitFunction(FunctionConstantValue constant) {
@@ -152,8 +150,7 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
 
   // Matches blank lines, comment lines and trailing comments that can't be part
   // of a string.
-  static final RegExp COMMENT_RE =
-      new RegExp(r'''^ *(//.*)?\n|  *//[^''"\n]*$''' , multiLine: true);
+  static final RegExp COMMENT_RE = new RegExp(r'''^ *(//.*)?\n|  *//[^''"\n]*$''', multiLine: true);
 
   final Compiler compiler;
   final Namer namer;
@@ -170,8 +167,7 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
   }
 
   jsAst.Expression visitFunction(FunctionConstantValue constant) {
-    compiler.internalError(NO_LOCATION_SPANNABLE,
-        "The function constant does not need specific JS code.");
+    compiler.internalError(NO_LOCATION_SPANNABLE, "The function constant does not need specific JS code.");
     return null;
   }
 
@@ -226,11 +222,7 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
   }
 
   jsAst.Expression visitList(ListConstantValue constant) {
-    jsAst.Expression value = new jsAst.Call(
-        new jsAst.PropertyAccess.field(
-            new jsAst.VariableUse(namer.isolateName),
-            namer.getMappedInstanceName('makeConstantList')),
-        [new jsAst.ArrayInitializer.from(_array(constant.entries))]);
+    jsAst.Expression value = new jsAst.Call(new jsAst.PropertyAccess.field(new jsAst.VariableUse(namer.isolateName), namer.getMappedInstanceName('makeConstantList')), [new jsAst.ArrayInitializer.from(_array(constant.entries))]);
     return maybeAddTypeArguments(constant.type, value);
   }
 
@@ -249,8 +241,7 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
 
         // Keys in literal maps must be emitted in place.
         jsAst.Literal keyExpression = _visit(key);
-        jsAst.Expression valueExpression =
-            constantEmitter.reference(constant.values[i]);
+        jsAst.Expression valueExpression = constantEmitter.reference(constant.values[i]);
         properties.add(new jsAst.Property(keyExpression, valueExpression));
       }
       return new jsAst.ObjectInitializer(properties);
@@ -259,10 +250,8 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
     jsAst.Expression jsGeneralMap() {
       List<jsAst.Expression> data = <jsAst.Expression>[];
       for (int i = 0; i < constant.keys.length; i++) {
-        jsAst.Expression keyExpression =
-            constantEmitter.reference(constant.keys[i]);
-        jsAst.Expression valueExpression =
-            constantEmitter.reference(constant.values[i]);
+        jsAst.Expression keyExpression = constantEmitter.reference(constant.keys[i]);
+        jsAst.Expression valueExpression = constantEmitter.reference(constant.values[i]);
         data.add(keyExpression);
         data.add(valueExpression);
       }
@@ -277,40 +266,28 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
     // The arguments of the JavaScript constructor for any given Dart class
     // are in the same order as the members of the class element.
     int emittedArgumentCount = 0;
-    classElement.implementation.forEachInstanceField(
-        (ClassElement enclosing, Element field) {
-          if (field.name == JavaScriptMapConstant.LENGTH_NAME) {
-            arguments.add(
-                new jsAst.LiteralNumber('${constant.keyList.entries.length}'));
-          } else if (field.name == JavaScriptMapConstant.JS_OBJECT_NAME) {
-            arguments.add(jsMap());
-          } else if (field.name == JavaScriptMapConstant.KEYS_NAME) {
-            arguments.add(constantEmitter.reference(constant.keyList));
-          } else if (field.name == JavaScriptMapConstant.PROTO_VALUE) {
-            assert(constant.protoValue != null);
-            arguments.add(constantEmitter.reference(constant.protoValue));
-          } else if (field.name == JavaScriptMapConstant.JS_DATA_NAME) {
-            arguments.add(jsGeneralMap());
-          } else {
-            compiler.internalError(field,
-                "Compiler has unexpected field ${field.name} for "
-                "${className}.");
-          }
-          emittedArgumentCount++;
-        },
-        includeSuperAndInjectedMembers: true);
-    if ((className == JavaScriptMapConstant.DART_STRING_CLASS &&
-         emittedArgumentCount != 3) ||
-        (className == JavaScriptMapConstant.DART_PROTO_CLASS &&
-         emittedArgumentCount != 4) ||
-        (className == JavaScriptMapConstant.DART_GENERAL_CLASS &&
-         emittedArgumentCount != 1)) {
-      compiler.internalError(classElement,
-          "Compiler and ${className} disagree on number of fields.");
+    classElement.implementation.forEachInstanceField((ClassElement enclosing, Element field) {
+      if (field.name == JavaScriptMapConstant.LENGTH_NAME) {
+        arguments.add(new jsAst.LiteralNumber('${constant.keyList.entries.length}'));
+      } else if (field.name == JavaScriptMapConstant.JS_OBJECT_NAME) {
+        arguments.add(jsMap());
+      } else if (field.name == JavaScriptMapConstant.KEYS_NAME) {
+        arguments.add(constantEmitter.reference(constant.keyList));
+      } else if (field.name == JavaScriptMapConstant.PROTO_VALUE) {
+        assert(constant.protoValue != null);
+        arguments.add(constantEmitter.reference(constant.protoValue));
+      } else if (field.name == JavaScriptMapConstant.JS_DATA_NAME) {
+        arguments.add(jsGeneralMap());
+      } else {
+        compiler.internalError(field, "Compiler has unexpected field ${field.name} for " "${className}.");
+      }
+      emittedArgumentCount++;
+    }, includeSuperAndInjectedMembers: true);
+    if ((className == JavaScriptMapConstant.DART_STRING_CLASS && emittedArgumentCount != 3) || (className == JavaScriptMapConstant.DART_PROTO_CLASS && emittedArgumentCount != 4) || (className == JavaScriptMapConstant.DART_GENERAL_CLASS && emittedArgumentCount != 1)) {
+      compiler.internalError(classElement, "Compiler and ${className} disagree on number of fields.");
     }
 
-    jsAst.Expression value =
-        new jsAst.New(getJsConstructor(classElement), arguments);
+    jsAst.Expression value = new jsAst.New(getJsConstructor(classElement), arguments);
     return maybeAddTypeArguments(constant.type, value);
   }
 
@@ -324,14 +301,11 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
     DartType type = constant.representedType;
     String name = namer.getRuntimeTypeName(type.element);
     jsAst.Expression typeName = new jsAst.LiteralString("'$name'");
-    return new jsAst.Call(getHelperProperty(backend.getCreateRuntimeType()),
-                          [typeName]);
+    return new jsAst.Call(getHelperProperty(backend.getCreateRuntimeType()), [typeName]);
   }
 
   jsAst.Expression visitInterceptor(InterceptorConstantValue constant) {
-    return new jsAst.PropertyAccess.field(
-        getJsConstructor(constant.dispatchedType.element),
-        'prototype');
+    return new jsAst.PropertyAccess.field(getJsConstructor(constant.dispatchedType.element), 'prototype');
   }
 
   jsAst.Expression visitDummy(DummyConstantValue constant) {
@@ -340,15 +314,12 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
 
   jsAst.Expression visitConstructed(ConstructedConstantValue constant) {
     Element element = constant.type.element;
-    if (element.isForeign(backend)
-        && element.name == 'JS_CONST') {
+    if (element.isForeign(backend) && element.name == 'JS_CONST') {
       StringConstantValue str = constant.fields[0];
       String value = str.primitiveValue.slowToString();
       return new jsAst.LiteralExpression(stripComments(value));
     }
-    jsAst.New instantiation = new jsAst.New(
-        getJsConstructor(constant.type.element),
-        _array(constant.fields));
+    jsAst.New instantiation = new jsAst.New(getJsConstructor(constant.type.element), _array(constant.fields));
     return maybeAddTypeArguments(constant.type, instantiation);
   }
 
@@ -364,20 +335,13 @@ class ConstantLiteralEmitter implements ConstantValueVisitor<jsAst.Expression> {
     return valueList;
   }
 
-  jsAst.Expression maybeAddTypeArguments(InterfaceType type,
-                                         jsAst.Expression value) {
-    if (type is InterfaceType &&
-        !type.treatAsRaw &&
-        backend.classNeedsRti(type.element)) {
+  jsAst.Expression maybeAddTypeArguments(InterfaceType type, jsAst.Expression value) {
+    if (type is InterfaceType && !type.treatAsRaw && backend.classNeedsRti(type.element)) {
       InterfaceType interface = type;
       RuntimeTypes rti = backend.rti;
-      Iterable<String> arguments = interface.typeArguments
-          .map((DartType type) =>
-              rti.getTypeRepresentationWithHashes(type, (_){}));
-      jsAst.Expression argumentList =
-          new jsAst.LiteralString('[${arguments.join(', ')}]');
-      return new jsAst.Call(getHelperProperty(backend.getSetRuntimeTypeInfo()),
-                            [value, argumentList]);
+      Iterable<String> arguments = interface.typeArguments.map((DartType type) => rti.getTypeRepresentationWithHashes(type, (_) {}));
+      jsAst.Expression argumentList = new jsAst.LiteralString('[${arguments.join(', ')}]');
+      return new jsAst.Call(getHelperProperty(backend.getSetRuntimeTypeInfo()), [value, argumentList]);
     }
     return value;
   }

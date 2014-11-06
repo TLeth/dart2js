@@ -16,10 +16,8 @@ abstract class DartString extends IterableBase<int> {
   // This is a convenience constructor. If you need a const literal DartString,
   // use [const LiteralDartString(string)] directly.
   factory DartString.literal(String string) => new LiteralDartString(string);
-  factory DartString.rawString(String source, int length) =>
-      new RawSourceDartString(source, length);
-  factory DartString.escapedString(String source, int length) =>
-      new EscapedSourceDartString(source, length);
+  factory DartString.rawString(String source, int length) => new RawSourceDartString(source, length);
+  factory DartString.escapedString(String source, int length) => new EscapedSourceDartString(source, length);
   factory DartString.concat(DartString first, DartString second) {
     if (first.isEmpty) return second;
     if (second.isEmpty) return first;
@@ -42,7 +40,7 @@ abstract class DartString extends IterableBase<int> {
   String slowToString();
 
   bool operator ==(var other) {
-    if (other is !DartString) return false;
+    if (other is! DartString) return false;
     DartString otherString = other;
     if (length != otherString.length) return false;
     Iterator it1 = iterator;
@@ -187,7 +185,7 @@ class ConsDartStringIterator implements Iterator<int> {
 /**
  *Iterator that returns the actual string contents of a string with escapes.
  */
-class StringEscapeIterator implements Iterator<int>{
+class StringEscapeIterator implements Iterator<int> {
   final Iterator<int> source;
   int _current = null;
 
@@ -208,12 +206,24 @@ class StringEscapeIterator implements Iterator<int>{
     source.moveNext();
     code = source.current;
     switch (code) {
-      case $n: _current = $LF; break;
-      case $r: _current = $CR; break;
-      case $t: _current = $TAB; break;
-      case $b: _current = $BS; break;
-      case $f: _current = $FF; break;
-      case $v: _current = $VTAB; break;
+      case $n:
+        _current = $LF;
+        break;
+      case $r:
+        _current = $CR;
+        break;
+      case $t:
+        _current = $TAB;
+        break;
+      case $b:
+        _current = $BS;
+        break;
+      case $f:
+        _current = $FF;
+        break;
+      case $v:
+        _current = $VTAB;
+        break;
       case $x:
         source.moveNext();
         int value = hexDigitValue(source.current);

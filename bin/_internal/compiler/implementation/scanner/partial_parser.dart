@@ -29,17 +29,10 @@ class PartialParser extends Parser {
     while (true) {
       final kind = token.kind;
       final value = token.stringValue;
-      if ((identical(kind, EOF_TOKEN)) ||
-          (identical(value, ';')) ||
-          (identical(value, ',')) ||
-          (identical(value, '}')) ||
-          (identical(value, ')')) ||
-          (identical(value, ']'))) {
+      if ((identical(kind, EOF_TOKEN)) || (identical(value, ';')) || (identical(value, ',')) || (identical(value, '}')) || (identical(value, ')')) || (identical(value, ']'))) {
         break;
       }
-      if (identical(value, '=') ||
-          identical(value, '?') ||
-          identical(value, ':')) {
+      if (identical(value, '=') || identical(value, '?') || identical(value, ':')) {
         var nextValue = token.next.stringValue;
         if (identical(nextValue, 'const')) {
           token = token.next;

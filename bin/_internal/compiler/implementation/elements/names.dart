@@ -69,8 +69,7 @@ class PublicName implements Name {
     return isSimilarTo(other);
   }
 
-  bool isSimilarTo(Name other) =>
-      text == other.text && isSetter == other.isSetter;
+  bool isSimilarTo(Name other) => text == other.text && isSetter == other.isSetter;
   int get similarHashCode => text.hashCode + 11 * isSetter.hashCode;
 
   String toString() => isSetter ? '$text=' : text;
@@ -96,7 +95,7 @@ class PrivateName extends PublicName {
 
   bool operator ==(other) {
     if (other is! PrivateName) return false;
-    return super==(other) && library == other.library;
+    return super == (other) && library == other.library;
   }
 
   String toString() => '${library.getLibraryName()}#${super.toString()}';

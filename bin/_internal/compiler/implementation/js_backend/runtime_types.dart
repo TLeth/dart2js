@@ -7,7 +7,7 @@ part of js_backend;
 /// For each class, stores the possible class subtype tests that could succeed.
 abstract class TypeChecks {
   /// Get the set of checks required for class [element].
-  Iterable<TypeCheck> operator[](ClassElement element);
+  Iterable<TypeCheck> operator [](ClassElement element);
   /// Get the iterator for all classes that need type checks.
   Iterator<ClassElement> get iterator;
 }
@@ -49,13 +49,11 @@ class RuntimeTypes {
   void registerRtiDependency(Element element, Element dependency) {
     // We're not dealing with typedef for now.
     if (!element.isClass || !dependency.isClass) return;
-    Set<ClassElement> classes =
-        rtiDependencies.putIfAbsent(element, () => new Set<ClassElement>());
+    Set<ClassElement> classes = rtiDependencies.putIfAbsent(element, () => new Set<ClassElement>());
     classes.add(dependency);
   }
 
-  void registerTypeVariableBoundsSubtypeCheck(DartType typeArgument,
-                                              DartType bound) {
+  void registerTypeVariableBoundsSubtypeCheck(DartType typeArgument, DartType bound) {
     checkedTypeArguments.add(typeArgument);
     checkedBounds.add(bound);
   }
@@ -71,8 +69,7 @@ class RuntimeTypes {
    * TODO(karlklose): move these computations into a function producing an
    * immutable datastructure.
    */
-  void addImplicitChecks(Universe universe,
-                         Iterable<ClassElement> classesUsingChecks) {
+  void addImplicitChecks(Universe universe, Iterable<ClassElement> classesUsingChecks) {
     // If there are no classes that use their variables in checks, there is
     // nothing to do.
     if (classesUsingChecks.isEmpty) return;
@@ -179,16 +176,13 @@ class RuntimeTypes {
           void analyzeMethod(TypedElement method) {
             DartType memberType = method.type;
             ClassElement contextClass = Types.getClassContext(memberType);
-            if (contextClass != null &&
-                compiler.types.isPotentialSubtype(memberType, type)) {
+            if (contextClass != null && compiler.types.isPotentialSubtype(memberType, type)) {
               potentiallyAddForRti(contextClass);
               methodsNeedingRti.add(method);
             }
           }
-          compiler.resolverWorld.closuresWithFreeTypeVariables.forEach(
-              analyzeMethod);
-          compiler.resolverWorld.callMethodsWithFreeTypeVariables.forEach(
-              analyzeMethod);
+          compiler.resolverWorld.closuresWithFreeTypeVariables.forEach(analyzeMethod);
+          compiler.resolverWorld.callMethodsWithFreeTypeVariables.forEach(analyzeMethod);
         }
       }
     });
@@ -201,10 +195,8 @@ class RuntimeTypes {
           methodsNeedingRti.add(method);
         }
       }
-      compiler.resolverWorld.closuresWithFreeTypeVariables.forEach(
-          analyzeMethod);
-      compiler.resolverWorld.callMethodsWithFreeTypeVariables.forEach(
-          analyzeMethod);
+      compiler.resolverWorld.closuresWithFreeTypeVariables.forEach(analyzeMethod);
+      compiler.resolverWorld.callMethodsWithFreeTypeVariables.forEach(analyzeMethod);
     }
     // Add the classes that need RTI because they use a type variable as
     // expression.
@@ -223,8 +215,7 @@ class RuntimeTypes {
 
   /// Compute the required type checkes and substitutions for the given
   /// instantitated and checked classes.
-  TypeChecks computeChecks(Set<ClassElement> instantiated,
-                           Set<ClassElement> checked) {
+  TypeChecks computeChecks(Set<ClassElement> instantiated, Set<ClassElement> checked) {
     // Run through the combination of instantiated and checked
     // arguments and record all combination where the element of a checked
     // argument is a superclass of the element of an instantiated type.
@@ -235,13 +226,11 @@ class RuntimeTypes {
       }
       // Find all supertypes of [element] in [checkedArguments] and add checks
       // and precompute the substitutions for them.
-      assert(invariant(element, element.allSupertypes != null,
-             message: 'Supertypes have not been computed for $element.'));
+      assert(invariant(element, element.allSupertypes != null, message: 'Supertypes have not been computed for $element.'));
       for (DartType supertype in element.allSupertypes) {
         ClassElement superelement = supertype.element;
         if (checked.contains(superelement)) {
-          Substitution substitution =
-              computeSubstitution(element, superelement);
+          Substitution substitution = computeSubstitution(element, superelement);
           result.add(element, superelement, substitution);
         }
       }
@@ -251,20 +240,15 @@ class RuntimeTypes {
 
   void computeRequiredChecks() {
     Set<DartType> isChecks = compiler.codegenWorld.isChecks;
-    bool hasFunctionTypeCheck =
-        isChecks.any((type) => identical(type.kind, TypeKind.FUNCTION));
-    Set<DartType> instantiatedTypesAndClosures = hasFunctionTypeCheck
-        ? computeInstantiatedTypesAndClosures(compiler.codegenWorld)
-        : compiler.codegenWorld.instantiatedTypes;
+    bool hasFunctionTypeCheck = isChecks.any((type) => identical(type.kind, TypeKind.FUNCTION));
+    Set<DartType> instantiatedTypesAndClosures = hasFunctionTypeCheck ? computeInstantiatedTypesAndClosures(compiler.codegenWorld) : compiler.codegenWorld.instantiatedTypes;
     computeInstantiatedArguments(instantiatedTypesAndClosures, isChecks);
     computeCheckedArguments(instantiatedTypesAndClosures, isChecks);
-    cachedRequiredChecks =
-        computeChecks(allInstantiatedArguments, checkedArguments);
+    cachedRequiredChecks = computeChecks(allInstantiatedArguments, checkedArguments);
   }
 
   Set<DartType> computeInstantiatedTypesAndClosures(Universe universe) {
-    Set<DartType> instantiatedTypes =
-        new Set<DartType>.from(universe.instantiatedTypes);
+    Set<DartType> instantiatedTypes = new Set<DartType>.from(universe.instantiatedTypes);
     for (DartType instantiatedType in universe.instantiatedTypes) {
       if (instantiatedType.isInterfaceType) {
         InterfaceType interface = instantiatedType;
@@ -294,12 +278,10 @@ class RuntimeTypes {
    * have a type check against this supertype that includes a check against
    * the type arguments.
    */
-  void computeInstantiatedArguments(Set<DartType> instantiatedTypes,
-                                    Set<DartType> isChecks) {
+  void computeInstantiatedArguments(Set<DartType> instantiatedTypes, Set<DartType> isChecks) {
     ArgumentCollector superCollector = new ArgumentCollector(backend);
     ArgumentCollector directCollector = new ArgumentCollector(backend);
-    FunctionArgumentCollector functionArgumentCollector =
-        new FunctionArgumentCollector(backend);
+    FunctionArgumentCollector functionArgumentCollector = new FunctionArgumentCollector(backend);
 
     // We need to add classes occuring in function type arguments, like for
     // instance 'I' for [: o is C<f> :] where f is [: typedef I f(); :].
@@ -311,8 +293,7 @@ class RuntimeTypes {
     collectFunctionTypeArguments(isChecks);
     collectFunctionTypeArguments(checkedBounds);
 
-    void collectTypeArguments(Iterable<DartType> types,
-                              {bool isTypeArgument: false}) {
+    void collectTypeArguments(Iterable<DartType> types, {bool isTypeArgument: false}) {
       for (DartType type in types) {
         directCollector.collect(type, isTypeArgument: isTypeArgument);
         if (type.isInterfaceType) {
@@ -332,18 +313,14 @@ class RuntimeTypes {
       }
     }
 
-    directlyInstantiatedArguments =
-        directCollector.classes..addAll(functionArgumentCollector.classes);
-    allInstantiatedArguments =
-        superCollector.classes..addAll(directlyInstantiatedArguments);
+    directlyInstantiatedArguments = directCollector.classes..addAll(functionArgumentCollector.classes);
+    allInstantiatedArguments = superCollector.classes..addAll(directlyInstantiatedArguments);
   }
 
   /// Collects all type arguments used in is-checks.
-  void computeCheckedArguments(Set<DartType> instantiatedTypes,
-                               Set<DartType> isChecks) {
+  void computeCheckedArguments(Set<DartType> instantiatedTypes, Set<DartType> isChecks) {
     ArgumentCollector collector = new ArgumentCollector(backend);
-    FunctionArgumentCollector functionArgumentCollector =
-        new FunctionArgumentCollector(backend);
+    FunctionArgumentCollector functionArgumentCollector = new FunctionArgumentCollector(backend);
 
     // We need to add types occuring in function type arguments, like for
     // instance 'J' for [: (J j) {} is f :] where f is
@@ -356,8 +333,7 @@ class RuntimeTypes {
     collectFunctionTypeArguments(instantiatedTypes);
     collectFunctionTypeArguments(checkedTypeArguments);
 
-    void collectTypeArguments(Iterable<DartType> types,
-                              {bool isTypeArgument: false}) {
+    void collectTypeArguments(Iterable<DartType> types, {bool isTypeArgument: false}) {
       for (DartType type in types) {
         collector.collect(type, isTypeArgument: isTypeArgument);
       }
@@ -365,12 +341,10 @@ class RuntimeTypes {
     collectTypeArguments(isChecks);
     collectTypeArguments(checkedBounds, isTypeArgument: true);
 
-    checkedArguments =
-        collector.classes..addAll(functionArgumentCollector.classes);
+    checkedArguments = collector.classes..addAll(functionArgumentCollector.classes);
   }
 
-  Set<ClassElement> getClassesUsedInSubstitutions(JavaScriptBackend backend,
-                                                  TypeChecks checks) {
+  Set<ClassElement> getClassesUsedInSubstitutions(JavaScriptBackend backend, TypeChecks checks) {
     Set<ClassElement> instantiated = new Set<ClassElement>();
     ArgumentCollector collector = new ArgumentCollector(backend);
     for (ClassElement target in checks) {
@@ -386,9 +360,7 @@ class RuntimeTypes {
   }
 
   Set<ClassElement> getRequiredArgumentClasses(JavaScriptBackend backend) {
-    Set<ClassElement> requiredArgumentClasses =
-        new Set<ClassElement>.from(
-            getClassesUsedInSubstitutions(backend, requiredChecks));
+    Set<ClassElement> requiredArgumentClasses = new Set<ClassElement>.from(getClassesUsedInSubstitutions(backend, requiredChecks));
     return requiredArgumentClasses
         ..addAll(directlyInstantiatedArguments)
         ..addAll(checkedArguments);
@@ -408,8 +380,7 @@ class RuntimeTypes {
     // names, it would result in more readable names if the final string was a
     // legal JavaScript identifer.
     if (variables.isEmpty) return name;
-    String arguments =
-        new List.filled(variables.length, 'dynamic').join(', ');
+    String arguments = new List.filled(variables.length, 'dynamic').join(', ');
     return '$name<$arguments>';
   }
 
@@ -462,10 +433,7 @@ class RuntimeTypes {
    *  3) A function mapping the type variables of the object to be checked to
    *     a list expression.
    */
-  jsAst.Expression getSupertypeSubstitution(
-       ClassElement cls,
-       ClassElement check,
-       {bool alwaysGenerateFunction: false}) {
+  jsAst.Expression getSupertypeSubstitution(ClassElement cls, ClassElement check, {bool alwaysGenerateFunction: false}) {
     Substitution substitution = getSubstitution(cls, check);
     if (substitution != null) {
       return substitution.getCode(this, alwaysGenerateFunction);
@@ -486,8 +454,7 @@ class RuntimeTypes {
     return computeSubstitution(cls, other);
   }
 
-  Substitution computeSubstitution(ClassElement cls, ClassElement check,
-                                   { bool alwaysGenerateFunction: false }) {
+  Substitution computeSubstitution(ClassElement cls, ClassElement check, {bool alwaysGenerateFunction: false}) {
     if (isTrivialSubstitution(cls, check)) return null;
 
     // Unnamed mixin application classes do not need substitutions, because they
@@ -503,9 +470,7 @@ class RuntimeTypes {
     }
   }
 
-  jsAst.Expression getSubstitutionRepresentation(
-      List<DartType> types,
-      OnVariableCallback onVariable) {
+  jsAst.Expression getSubstitutionRepresentation(List<DartType> types, OnVariableCallback onVariable) {
     List<jsAst.ArrayElement> elements = <jsAst.ArrayElement>[];
     int index = 0;
     for (DartType type in types) {
@@ -515,12 +480,12 @@ class RuntimeTypes {
     return new jsAst.ArrayInitializer(index, elements);
   }
 
-  jsAst.Expression getTypeEncoding(DartType type,
-                                   {bool alwaysGenerateFunction: false}) {
+  jsAst.Expression getTypeEncoding(DartType type, {bool alwaysGenerateFunction: false}) {
     ClassElement contextClass = Types.getClassContext(type);
     jsAst.Expression onVariable(TypeVariableType v) {
       return new jsAst.VariableUse(v.name);
-    };
+    }
+    ;
     jsAst.Expression encoding = getTypeRepresentation(type, onVariable);
     if (contextClass == null && !alwaysGenerateFunction) {
       return encoding;
@@ -528,7 +493,7 @@ class RuntimeTypes {
       List<String> parameters = const <String>[];
       if (contextClass != null) {
         parameters = contextClass.typeVariables.map((type) {
-            return type.toString();
+          return type.toString();
         }).toList();
       }
       return js('function(#) { return # }', [parameters, encoding]);
@@ -537,21 +502,17 @@ class RuntimeTypes {
 
   jsAst.Expression getSignatureEncoding(DartType type, jsAst.Expression this_) {
     ClassElement contextClass = Types.getClassContext(type);
-    jsAst.Expression encoding =
-        getTypeEncoding(type, alwaysGenerateFunction: true);
+    jsAst.Expression encoding = getTypeEncoding(type, alwaysGenerateFunction: true);
     if (contextClass != null) {
       JavaScriptBackend backend = compiler.backend;
       String contextName = backend.namer.getNameOfClass(contextClass);
-      return js('function () { return #(#, #, #); }',
-          [ backend.namer.elementAccess(backend.getComputeSignature()),
-              encoding, this_, js.string(contextName) ]);
+      return js('function () { return #(#, #, #); }', [backend.namer.elementAccess(backend.getComputeSignature()), encoding, this_, js.string(contextName)]);
     } else {
       return encoding;
     }
   }
 
-  String getTypeRepresentationWithHashes(DartType type,
-                                         OnVariableCallback onVariable) {
+  String getTypeRepresentationWithHashes(DartType type, OnVariableCallback onVariable) {
     // Create a type representation.  For type variables call the original
     // callback for side effects and return a template placeholder.
     jsAst.Expression representation = getTypeRepresentation(type, (variable) {
@@ -561,19 +522,15 @@ class RuntimeTypes {
     return jsAst.prettyPrint(representation, compiler).buffer.toString();
   }
 
-  jsAst.Expression getTypeRepresentation(
-      DartType type,
-      OnVariableCallback onVariable,
-      [ShouldEncodeTypedefCallback shouldEncodeTypedef]) {
-    return representationGenerator.getTypeRepresentation(
-        type, onVariable, shouldEncodeTypedef);
+  jsAst.Expression getTypeRepresentation(DartType type, OnVariableCallback onVariable, [ShouldEncodeTypedefCallback shouldEncodeTypedef]) {
+    return representationGenerator.getTypeRepresentation(type, onVariable, shouldEncodeTypedef);
   }
 
   bool isSimpleFunctionType(FunctionType type) {
     if (!type.returnType.isDynamic) return false;
     if (!type.optionalParameterTypes.isEmpty) return false;
     if (!type.namedParameterTypes.isEmpty) return false;
-    for (DartType parameter in type.parameterTypes ) {
+    for (DartType parameter in type.parameterTypes) {
       if (!parameter.isDynamic) return false;
     }
     return true;
@@ -593,15 +550,13 @@ class RuntimeTypes {
     for (int index = 0; index < variables.length; index++) {
       if (variables[index].element == variable) return index;
     }
-    throw invariant(variable, false,
-                    message: "Couldn't find type-variable index");
+    throw invariant(variable, false, message: "Couldn't find type-variable index");
   }
 
   /// Return all classes that are referenced in the type of the function, i.e.,
   /// in the return type or the argument types.
   Set<ClassElement> getReferencedClasses(FunctionType type) {
-    FunctionArgumentCollector collector =
-        new FunctionArgumentCollector(backend);
+    FunctionArgumentCollector collector = new FunctionArgumentCollector(backend);
     collector.collect(type);
     return collector.classes;
   }
@@ -621,13 +576,9 @@ class TypeRepresentationGenerator extends DartTypeVisitor {
    * Creates a type representation for [type]. [onVariable] is called to provide
    * the type representation for type variables.
    */
-  jsAst.Expression getTypeRepresentation(
-      DartType type,
-      OnVariableCallback onVariable,
-      ShouldEncodeTypedefCallback encodeTypedef) {
+  jsAst.Expression getTypeRepresentation(DartType type, OnVariableCallback onVariable, ShouldEncodeTypedefCallback encodeTypedef) {
     this.onVariable = onVariable;
-    this.shouldEncodeTypedef =
-        (encodeTypedef != null) ? encodeTypedef : (TypedefType type) => false;
+    this.shouldEncodeTypedef = (encodeTypedef != null) ? encodeTypedef : (TypedefType type) => false;
     jsAst.Expression representation = visit(type);
     this.onVariable = null;
     this.shouldEncodeTypedef = null;
@@ -683,12 +634,10 @@ class TypeRepresentationGenerator extends DartTypeVisitor {
       addProperty(namer.functionTypeReturnTypeTag(), visit(type.returnType));
     }
     if (!type.parameterTypes.isEmpty) {
-      addProperty(namer.functionTypeRequiredParametersTag(),
-                  visitList(type.parameterTypes));
+      addProperty(namer.functionTypeRequiredParametersTag(), visitList(type.parameterTypes));
     }
     if (!type.optionalParameterTypes.isEmpty) {
-      addProperty(namer.functionTypeOptionalParametersTag(),
-                  visitList(type.optionalParameterTypes));
+      addProperty(namer.functionTypeOptionalParametersTag(), visitList(type.optionalParameterTypes));
     }
     if (!type.namedParameterTypes.isEmpty) {
       List<jsAst.Property> namedArguments = <jsAst.Property>[];
@@ -699,8 +648,7 @@ class TypeRepresentationGenerator extends DartTypeVisitor {
         jsAst.Expression name = js.string(names[index]);
         namedArguments.add(new jsAst.Property(name, visit(types[index])));
       }
-      addProperty(namer.functionTypeNamedParametersTag(),
-                  new jsAst.ObjectInitializer(namedArguments));
+      addProperty(namer.functionTypeNamedParametersTag(), new jsAst.ObjectInitializer(namedArguments));
     }
     return new jsAst.ObjectInitializer(properties);
   }
@@ -722,8 +670,7 @@ class TypeRepresentationGenerator extends DartTypeVisitor {
       jsAst.ObjectInitializer initializer = unaliasedType.accept(this, null);
       // We have to encode the aliased type.
       jsAst.Expression name = getJavaScriptClassName(type.element);
-      jsAst.Expression encodedTypedef =
-          type.treatAsRaw ? name : visitList(type.typeArguments, head: name);
+      jsAst.Expression encodedTypedef = type.treatAsRaw ? name : visitList(type.typeArguments, head: name);
 
       // Add it to the function-type object.
       jsAst.LiteralString tag = js.string(namer.typedefTag());
@@ -735,17 +682,15 @@ class TypeRepresentationGenerator extends DartTypeVisitor {
   }
 
   visitType(DartType type, _) {
-    compiler.internalError(NO_LOCATION_SPANNABLE,
-        'Unexpected type: $type (${type.kind}).');
+    compiler.internalError(NO_LOCATION_SPANNABLE, 'Unexpected type: $type (${type.kind}).');
   }
 }
 
 
 class TypeCheckMapping implements TypeChecks {
-  final Map<ClassElement, Set<TypeCheck>> map =
-      new Map<ClassElement, Set<TypeCheck>>();
+  final Map<ClassElement, Set<TypeCheck>> map = new Map<ClassElement, Set<TypeCheck>>();
 
-  Iterable<TypeCheck> operator[](ClassElement element) {
+  Iterable<TypeCheck> operator [](ClassElement element) {
     Set<TypeCheck> result = map[element];
     return result != null ? result : const <TypeCheck>[];
   }
@@ -873,17 +818,14 @@ class Substitution {
 
   jsAst.Expression getCode(RuntimeTypes rti, bool ensureIsFunction) {
     jsAst.Expression declaration(TypeVariableType variable) {
-      return new jsAst.Parameter(
-          rti.backend.namer.safeVariableName(variable.name));
+      return new jsAst.Parameter(rti.backend.namer.safeVariableName(variable.name));
     }
 
     jsAst.Expression use(TypeVariableType variable) {
-      return new jsAst.VariableUse(
-          rti.backend.namer.safeVariableName(variable.name));
+      return new jsAst.VariableUse(rti.backend.namer.safeVariableName(variable.name));
     }
 
-    jsAst.Expression value =
-        rti.getSubstitutionRepresentation(arguments, use);
+    jsAst.Expression value = rti.getSubstitutionRepresentation(arguments, use);
     if (isFunction) {
       Iterable<jsAst.Expression> formals = parameters.map(declaration);
       return js('function(#) { return # }', [formals, value]);

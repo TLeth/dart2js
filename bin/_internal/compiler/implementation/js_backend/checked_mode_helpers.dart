@@ -14,8 +14,7 @@ class CheckedModeHelper {
     return backend.findHelper(name);
   }
 
-  jsAst.Expression generateCall(SsaCodeGenerator codegen,
-                                HTypeConversion node) {
+  jsAst.Expression generateCall(SsaCodeGenerator codegen, HTypeConversion node) {
     Element helperElement = getElement(codegen.compiler);
     codegen.registry.registerStaticUse(helperElement);
     List<jsAst.Expression> arguments = <jsAst.Expression>[];
@@ -26,55 +25,17 @@ class CheckedModeHelper {
     return new jsAst.Call(helper, arguments);
   }
 
-  void generateAdditionalArguments(SsaCodeGenerator codegen,
-                                   HTypeConversion node,
-                                   List<jsAst.Expression> arguments) {
+  void generateAdditionalArguments(SsaCodeGenerator codegen, HTypeConversion node, List<jsAst.Expression> arguments) {
     // No additional arguments needed.
   }
 
-  static const List<CheckedModeHelper> helpers = const <CheckedModeHelper> [
-      const MalformedCheckedModeHelper('checkMalformedType'),
-      const CheckedModeHelper('voidTypeCheck'),
-      const CheckedModeHelper('stringTypeCast'),
-      const CheckedModeHelper('stringTypeCheck'),
-      const CheckedModeHelper('doubleTypeCast'),
-      const CheckedModeHelper('doubleTypeCheck'),
-      const CheckedModeHelper('numTypeCast'),
-      const CheckedModeHelper('numTypeCheck'),
-      const CheckedModeHelper('boolTypeCast'),
-      const CheckedModeHelper('boolTypeCheck'),
-      const CheckedModeHelper('intTypeCast'),
-      const CheckedModeHelper('intTypeCheck'),
-      const PropertyCheckedModeHelper('numberOrStringSuperNativeTypeCast'),
-      const PropertyCheckedModeHelper('numberOrStringSuperNativeTypeCheck'),
-      const PropertyCheckedModeHelper('numberOrStringSuperTypeCast'),
-      const PropertyCheckedModeHelper('numberOrStringSuperTypeCheck'),
-      const PropertyCheckedModeHelper('stringSuperNativeTypeCast'),
-      const PropertyCheckedModeHelper('stringSuperNativeTypeCheck'),
-      const PropertyCheckedModeHelper('stringSuperTypeCast'),
-      const PropertyCheckedModeHelper('stringSuperTypeCheck'),
-      const CheckedModeHelper('listTypeCast'),
-      const CheckedModeHelper('listTypeCheck'),
-      const PropertyCheckedModeHelper('listSuperNativeTypeCast'),
-      const PropertyCheckedModeHelper('listSuperNativeTypeCheck'),
-      const PropertyCheckedModeHelper('listSuperTypeCast'),
-      const PropertyCheckedModeHelper('listSuperTypeCheck'),
-      const PropertyCheckedModeHelper('interceptedTypeCast'),
-      const PropertyCheckedModeHelper('interceptedTypeCheck'),
-      const SubtypeCheckedModeHelper('subtypeCast'),
-      const SubtypeCheckedModeHelper('assertSubtype'),
-      const TypeVariableCheckedModeHelper('subtypeOfRuntimeTypeCast'),
-      const TypeVariableCheckedModeHelper('assertSubtypeOfRuntimeType'),
-      const PropertyCheckedModeHelper('propertyTypeCast'),
-      const PropertyCheckedModeHelper('propertyTypeCheck')];
+  static const List<CheckedModeHelper> helpers = const <CheckedModeHelper>[const MalformedCheckedModeHelper('checkMalformedType'), const CheckedModeHelper('voidTypeCheck'), const CheckedModeHelper('stringTypeCast'), const CheckedModeHelper('stringTypeCheck'), const CheckedModeHelper('doubleTypeCast'), const CheckedModeHelper('doubleTypeCheck'), const CheckedModeHelper('numTypeCast'), const CheckedModeHelper('numTypeCheck'), const CheckedModeHelper('boolTypeCast'), const CheckedModeHelper('boolTypeCheck'), const CheckedModeHelper('intTypeCast'), const CheckedModeHelper('intTypeCheck'), const PropertyCheckedModeHelper('numberOrStringSuperNativeTypeCast'), const PropertyCheckedModeHelper('numberOrStringSuperNativeTypeCheck'), const PropertyCheckedModeHelper('numberOrStringSuperTypeCast'), const PropertyCheckedModeHelper('numberOrStringSuperTypeCheck'), const PropertyCheckedModeHelper('stringSuperNativeTypeCast'), const PropertyCheckedModeHelper('stringSuperNativeTypeCheck'), const PropertyCheckedModeHelper('stringSuperTypeCast'), const PropertyCheckedModeHelper('stringSuperTypeCheck'), const CheckedModeHelper('listTypeCast'), const CheckedModeHelper('listTypeCheck'), const PropertyCheckedModeHelper('listSuperNativeTypeCast'), const PropertyCheckedModeHelper('listSuperNativeTypeCheck'), const PropertyCheckedModeHelper('listSuperTypeCast'), const PropertyCheckedModeHelper('listSuperTypeCheck'), const PropertyCheckedModeHelper('interceptedTypeCast'), const PropertyCheckedModeHelper('interceptedTypeCheck'), const SubtypeCheckedModeHelper('subtypeCast'), const SubtypeCheckedModeHelper('assertSubtype'), const TypeVariableCheckedModeHelper('subtypeOfRuntimeTypeCast'), const TypeVariableCheckedModeHelper('assertSubtypeOfRuntimeType'), const PropertyCheckedModeHelper('propertyTypeCast'), const PropertyCheckedModeHelper('propertyTypeCheck')];
 }
 
 class MalformedCheckedModeHelper extends CheckedModeHelper {
   const MalformedCheckedModeHelper(String name) : super(name);
 
-  void generateAdditionalArguments(SsaCodeGenerator codegen,
-                                   HTypeConversion node,
-                                   List<jsAst.Expression> arguments) {
+  void generateAdditionalArguments(SsaCodeGenerator codegen, HTypeConversion node, List<jsAst.Expression> arguments) {
     ErroneousElement element = node.typeExpression.element;
     arguments.add(js.escapedString(element.message));
   }
@@ -83,9 +44,7 @@ class MalformedCheckedModeHelper extends CheckedModeHelper {
 class PropertyCheckedModeHelper extends CheckedModeHelper {
   const PropertyCheckedModeHelper(String name) : super(name);
 
-  void generateAdditionalArguments(SsaCodeGenerator codegen,
-                                   HTypeConversion node,
-                                   List<jsAst.Expression> arguments) {
+  void generateAdditionalArguments(SsaCodeGenerator codegen, HTypeConversion node, List<jsAst.Expression> arguments) {
     DartType type = node.typeExpression;
     String additionalArgument = codegen.backend.namer.operatorIsType(type);
     arguments.add(js.string(additionalArgument));
@@ -95,9 +54,7 @@ class PropertyCheckedModeHelper extends CheckedModeHelper {
 class TypeVariableCheckedModeHelper extends CheckedModeHelper {
   const TypeVariableCheckedModeHelper(String name) : super(name);
 
-  void generateAdditionalArguments(SsaCodeGenerator codegen,
-                                   HTypeConversion node,
-                                   List<jsAst.Expression> arguments) {
+  void generateAdditionalArguments(SsaCodeGenerator codegen, HTypeConversion node, List<jsAst.Expression> arguments) {
     assert(node.typeExpression.isTypeVariable);
     codegen.use(node.typeRepresentation);
     arguments.add(codegen.pop());
@@ -107,9 +64,7 @@ class TypeVariableCheckedModeHelper extends CheckedModeHelper {
 class SubtypeCheckedModeHelper extends CheckedModeHelper {
   const SubtypeCheckedModeHelper(String name) : super(name);
 
-  void generateAdditionalArguments(SsaCodeGenerator codegen,
-                                   HTypeConversion node,
-                                   List<jsAst.Expression> arguments) {
+  void generateAdditionalArguments(SsaCodeGenerator codegen, HTypeConversion node, List<jsAst.Expression> arguments) {
     DartType type = node.typeExpression;
     Element element = type.element;
     String isField = codegen.backend.namer.operatorIs(element);

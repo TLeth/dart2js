@@ -8,8 +8,7 @@ import '../dart2jslib.dart' show Script, Compiler;
 import '../tree/tree.dart';
 import '../scanner/scannerlib.dart' show Token;
 import '../elements/elements.dart';
-import '../dart_backend/dart_backend.dart' show DartBackend,
-                                                PlaceholderCollector;
+import '../dart_backend/dart_backend.dart' show DartBackend, PlaceholderCollector;
 
 part 'renamer.dart';
 
@@ -24,6 +23,5 @@ class MirrorRenamer {
 
   void registerStaticSend(Element currentElement, Element target, Node node) {}
 
-  void addRenames(Map<Node, String> renames, List<Node> topLevelNodes,
-                  PlaceholderCollector placeholderCollector) {}
+  void addRenames(Map<Node, String> renames, List<Node> topLevelNodes, PlaceholderCollector placeholderCollector) {}
 }

@@ -22,8 +22,7 @@ part of dart2js.ir_builder;
  * re-implemented to work directly on the IR.
  */
 class IrBuilderTask extends CompilerTask {
-  final Map<Element, ir.FunctionDefinition> nodes =
-      <Element, ir.FunctionDefinition>{};
+  final Map<Element, ir.FunctionDefinition> nodes = <Element, ir.FunctionDefinition>{};
 
   IrBuilderTask(Compiler compiler) : super(compiler);
 
@@ -43,8 +42,7 @@ class IrBuilderTask extends CompilerTask {
           element = element.implementation;
           compiler.withCurrentElement(element, () {
             SourceFile sourceFile = elementSourceFile(element);
-            IrBuilderVisitor builder =
-                new IrBuilderVisitor(elementsMapping, compiler, sourceFile);
+            IrBuilderVisitor builder = new IrBuilderVisitor(elementsMapping, compiler, sourceFile);
             ir.FunctionDefinition function;
             function = builder.buildFunction(element);
 
@@ -61,10 +59,7 @@ class IrBuilderTask extends CompilerTask {
 
   bool irEnabled({bool useNewBackend: false}) {
     // TODO(sigurdm,kmillikin): Support checked-mode checks.
-    return (useNewBackend || const bool.fromEnvironment('USE_NEW_BACKEND')) &&
-        compiler.backend is DartBackend &&
-        !compiler.enableTypeAssertions &&
-        !compiler.enableConcreteTypeInference;
+    return (useNewBackend || const bool.fromEnvironment('USE_NEW_BACKEND')) && compiler.backend is DartBackend && !compiler.enableTypeAssertions && !compiler.enableConcreteTypeInference;
   }
 
   bool canBuild(Element element) {
@@ -102,7 +97,7 @@ class _GetterElements {
   ir.Primitive index;
   ir.Primitive receiver;
 
-  _GetterElements({this.result, this.index, this.receiver}) ;
+  _GetterElements({this.result, this.index, this.receiver});
 }
 
 /**
@@ -110,8 +105,7 @@ class _GetterElements {
  * to the [builder] and return the last added statement for trees that represent
  * an expression.
  */
-class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
-    with IrBuilderMixin {
+class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive> with IrBuilderMixin {
   final Compiler compiler;
   final SourceFile sourceFile;
 
@@ -156,15 +150,10 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     DetectClosureVariables closureLocals = new DetectClosureVariables(elements);
     closureLocals.visit(function);
 
-    return withBuilder(
-        new IrBuilder(compiler.backend.constantSystem,
-                      element, closureLocals.usedFromClosure),
-        () {
+    return withBuilder(new IrBuilder(compiler.backend.constantSystem, element, closureLocals.usedFromClosure), () {
       FunctionSignature signature = element.functionSignature;
       signature.orderedForEachParameter((ParameterElement parameterElement) {
-        irBuilder.createParameter(
-            parameterElement,
-            isClosureVariable: isClosureVariable(parameterElement));
+        irBuilder.createParameter(parameterElement, isClosureVariable: isClosureVariable(parameterElement));
       });
 
       List<ConstantExpression> defaults = new List<ConstantExpression>();
@@ -224,17 +213,13 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
   ///
   /// Given the continuation and a list of uninitialized invocations, fill
   /// in each invocation with the continuation and appropriate arguments.
-  void invokeFullJoin(ir.Continuation join,
-                      JumpCollector jumps,
-                      {recursive: false}) {
+  void invokeFullJoin(ir.Continuation join, JumpCollector jumps, {recursive: false}) {
     join.isRecursive = recursive;
     for (int i = 0; i < jumps.length; ++i) {
       Environment currentEnvironment = jumps.environments[i];
       ir.InvokeContinuation invoke = jumps.invocations[i];
       invoke.continuation = new ir.Reference(join);
-      invoke.arguments = new List<ir.Reference>.generate(
-          join.parameters.length,
-          (i) => new ir.Reference(currentEnvironment[i]));
+      invoke.arguments = new List<ir.Reference>.generate(join.parameters.length, (i) => new ir.Reference(currentEnvironment[i]));
       invoke.isRecursive = recursive;
     }
   }
@@ -280,8 +265,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     ir.Primitive condition;
     if (node.condition == null) {
       // If the condition is empty then the body is entered unconditionally.
-      condition = irBuilder.makePrimConst(
-          irBuilder.state.constantSystem.createBool(true));
+      condition = irBuilder.makePrimConst(irBuilder.state.constantSystem.createBool(true));
       condBuilder.add(new ir.LetPrim(condition));
     } else {
       condition = withBuilder(condBuilder, () => visit(node.condition));
@@ -305,9 +289,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     // sites in the body.  However, that is difficult to compute here, so it
     // is instead placed just outside the body of the body continuation.
     bool hasContinues = !continueCollector.isEmpty;
-    IrBuilder updateBuilder = hasContinues
-        ? new IrBuilder.recursive(condBuilder)
-        : bodyBuilder;
+    IrBuilder updateBuilder = hasContinues ? new IrBuilder.recursive(condBuilder) : bodyBuilder;
     for (ast.Node n in node.update) {
       if (!updateBuilder.isOpen) break;
       withBuilder(updateBuilder, () => visit(n));
@@ -316,12 +298,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     // Create body entry and loop exit continuations and a branch to them.
     ir.Continuation bodyContinuation = new ir.Continuation([]);
     ir.Continuation exitContinuation = new ir.Continuation([]);
-    ir.LetCont branch =
-        new ir.LetCont(exitContinuation,
-            new ir.LetCont(bodyContinuation,
-                new ir.Branch(new ir.IsTrue(condition),
-                              bodyContinuation,
-                              exitContinuation)));
+    ir.LetCont branch = new ir.LetCont(exitContinuation, new ir.LetCont(bodyContinuation, new ir.Branch(new ir.IsTrue(condition), bodyContinuation, exitContinuation)));
     // If there are breaks in the body, then there must be a join-point
     // continuation for the normal exit and the breaks.
     bool hasBreaks = !breakCollector.isEmpty;
@@ -341,8 +318,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
       if (bodyBuilder.isOpen) continueCollector.addJump(bodyBuilder);
       invokeFullJoin(continueContinuation, continueCollector);
     }
-    ir.Continuation loopContinuation =
-        new ir.Continuation(condBuilder._parameters);
+    ir.Continuation loopContinuation = new ir.Continuation(condBuilder._parameters);
     if (updateBuilder.isOpen) {
       JumpCollector backEdges = new JumpCollector(null);
       backEdges.addJump(updateBuilder);
@@ -353,22 +329,18 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     // only after it is guaranteed that they are not empty.
     if (hasContinues) {
       continueContinuation.body = updateBuilder._root;
-      bodyContinuation.body =
-          new ir.LetCont(continueContinuation, bodyBuilder._root);
+      bodyContinuation.body = new ir.LetCont(continueContinuation, bodyBuilder._root);
     } else {
       bodyContinuation.body = bodyBuilder._root;
     }
 
     loopContinuation.body = condBuilder._root;
-    irBuilder.add(new ir.LetCont(loopContinuation,
-            new ir.InvokeContinuation(loopContinuation,
-                irBuilder.environment.index2value)));
+    irBuilder.add(new ir.LetCont(loopContinuation, new ir.InvokeContinuation(loopContinuation, irBuilder.environment.index2value)));
     if (hasBreaks) {
       irBuilder._current = branch;
       irBuilder.environment = condBuilder.environment;
       breakCollector.addJump(irBuilder);
-      letJoin.continuation =
-          irBuilder.createJoin(irBuilder.environment.length, breakCollector);
+      letJoin.continuation = irBuilder.createJoin(irBuilder.environment.length, breakCollector);
       irBuilder._current = letJoin;
     } else {
       irBuilder._current = condBuilder._current;
@@ -395,15 +367,11 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     //              if condition (then, else)
     ir.Continuation thenContinuation = new ir.Continuation([]);
     ir.Continuation elseContinuation = new ir.Continuation([]);
-    ir.Expression letElse =
-        new ir.LetCont(elseContinuation,
-          new ir.Branch(new ir.IsTrue(condition),
-                        thenContinuation,
-                        elseContinuation));
+    ir.Expression letElse = new ir.LetCont(elseContinuation, new ir.Branch(new ir.IsTrue(condition), thenContinuation, elseContinuation));
     ir.Expression letThen = new ir.LetCont(thenContinuation, letElse);
     ir.Expression result = letThen;
 
-    ir.Continuation joinContinuation;  // Null if there is no join.
+    ir.Continuation joinContinuation; // Null if there is no join.
     if (thenBuilder.isOpen && elseBuilder.isOpen) {
       // There is a join-point continuation.  Build the term
       // 'let cont join(x, ...) = [] in Result' and plug invocations of the
@@ -411,8 +379,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
       JumpCollector jumps = new JumpCollector(null);
       jumps.addJump(thenBuilder);
       jumps.addJump(elseBuilder);
-      joinContinuation =
-          irBuilder.createJoin(irBuilder.environment.length, jumps);
+      joinContinuation = irBuilder.createJoin(irBuilder.environment.length, jumps);
       result = new ir.LetCont(joinContinuation, result);
     }
 
@@ -430,12 +397,10 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     if (joinContinuation == null) {
       // At least one subexpression is closed.
       if (thenBuilder.isOpen) {
-        irBuilder._current =
-            (thenBuilder._root == null) ? letThen : thenBuilder._current;
+        irBuilder._current = (thenBuilder._root == null) ? letThen : thenBuilder._current;
         irBuilder.environment = thenBuilder.environment;
       } else if (elseBuilder.isOpen) {
-        irBuilder._current =
-            (elseBuilder._root == null) ? letElse : elseBuilder._current;
+        irBuilder._current = (elseBuilder._root == null) ? letElse : elseBuilder._current;
         irBuilder.environment = elseBuilder.environment;
       } else {
         irBuilder._current = null;
@@ -446,9 +411,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
 
   ir.Primitive visitLabeledStatement(ast.LabeledStatement node) {
     ast.Statement body = node.statement;
-    return body is ast.Loop
-        ? visit(body)
-        : giveup(node, 'labeled statement');
+    return body is ast.Loop ? visit(body) : giveup(node, 'labeled statement');
   }
 
   ir.Primitive visitWhile(ast.While node) {
@@ -471,8 +434,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
 
     // The condition and body are delimited.
     IrBuilder condBuilder = new IrBuilder.recursive(irBuilder);
-    ir.Primitive condition =
-        withBuilder(condBuilder, () => visit(node.condition));
+    ir.Primitive condition = withBuilder(condBuilder, () => visit(node.condition));
 
     JumpTarget target = elements.getTargetDefinition(node);
     JumpCollector breakCollector = new JumpCollector(target);
@@ -490,12 +452,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     // Create body entry and loop exit continuations and a branch to them.
     ir.Continuation bodyContinuation = new ir.Continuation([]);
     ir.Continuation exitContinuation = new ir.Continuation([]);
-    ir.LetCont branch =
-        new ir.LetCont(exitContinuation,
-            new ir.LetCont(bodyContinuation,
-                new ir.Branch(new ir.IsTrue(condition),
-                              bodyContinuation,
-                              exitContinuation)));
+    ir.LetCont branch = new ir.LetCont(exitContinuation, new ir.LetCont(bodyContinuation, new ir.Branch(new ir.IsTrue(condition), bodyContinuation, exitContinuation)));
     // If there are breaks in the body, then there must be a join-point
     // continuation for the normal exit and the breaks.
     bool hasBreaks = !breakCollector.isEmpty;
@@ -507,22 +464,18 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     } else {
       condBuilder.add(branch);
     }
-    ir.Continuation loopContinuation =
-        new ir.Continuation(condBuilder._parameters);
+    ir.Continuation loopContinuation = new ir.Continuation(condBuilder._parameters);
     if (bodyBuilder.isOpen) continueCollector.addJump(bodyBuilder);
     invokeFullJoin(loopContinuation, continueCollector, recursive: true);
     bodyContinuation.body = bodyBuilder._root;
 
     loopContinuation.body = condBuilder._root;
-    irBuilder.add(new ir.LetCont(loopContinuation,
-            new ir.InvokeContinuation(loopContinuation,
-                                      irBuilder.environment.index2value)));
+    irBuilder.add(new ir.LetCont(loopContinuation, new ir.InvokeContinuation(loopContinuation, irBuilder.environment.index2value)));
     if (hasBreaks) {
       irBuilder._current = branch;
       irBuilder.environment = condBuilder.environment;
       breakCollector.addJump(irBuilder);
-      letJoin.continuation =
-          irBuilder.createJoin(irBuilder.environment.length, breakCollector);
+      letJoin.continuation = irBuilder.createJoin(irBuilder.environment.length, breakCollector);
       irBuilder._current = letJoin;
     } else {
       irBuilder._current = condBuilder._current;
@@ -552,17 +505,11 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
 
     ir.Parameter iterator = new ir.Parameter(null);
     ir.Continuation iteratorInvoked = new ir.Continuation([iterator]);
-    irBuilder.add(new ir.LetCont(iteratorInvoked,
-        new ir.InvokeMethod(expressionReceiver,
-            new Selector.getter("iterator", null), iteratorInvoked,
-            emptyArguments)));
+    irBuilder.add(new ir.LetCont(iteratorInvoked, new ir.InvokeMethod(expressionReceiver, new Selector.getter("iterator", null), iteratorInvoked, emptyArguments)));
 
     ir.Parameter condition = new ir.Parameter(null);
     ir.Continuation moveNextInvoked = new ir.Continuation([condition]);
-    condBuilder.add(new ir.LetCont(moveNextInvoked,
-        new ir.InvokeMethod(iterator,
-            new Selector.call("moveNext", null, 0),
-            moveNextInvoked, emptyArguments)));
+    condBuilder.add(new ir.LetCont(moveNextInvoked, new ir.InvokeMethod(iterator, new Selector.call("moveNext", null, 0), moveNextInvoked, emptyArguments)));
 
     JumpTarget target = elements.getTargetDefinition(node);
     JumpCollector breakCollector = new JumpCollector(target);
@@ -586,19 +533,14 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
 
     ir.Parameter currentValue = new ir.Parameter(null);
     ir.Continuation currentInvoked = new ir.Continuation([currentValue]);
-    bodyBuilder.add(new ir.LetCont(currentInvoked,
-        new ir.InvokeMethod(iterator, new Selector.getter("current", null),
-            currentInvoked, emptyArguments)));
+    bodyBuilder.add(new ir.LetCont(currentInvoked, new ir.InvokeMethod(iterator, new Selector.getter("current", null), currentInvoked, emptyArguments)));
     if (Elements.isLocal(variableElement)) {
       withBuilder(bodyBuilder, () => setLocal(variableElement, currentValue));
     } else if (Elements.isStaticOrTopLevel(variableElement)) {
-      withBuilder(bodyBuilder,
-          () => setStatic(variableElement, selector, currentValue));
+      withBuilder(bodyBuilder, () => setStatic(variableElement, selector, currentValue));
     } else {
-      ir.Primitive receiver =
-          withBuilder(bodyBuilder, () => lookupThis());
-      withBuilder(bodyBuilder,
-          () => setDynamic(null, receiver, selector, currentValue));
+      ir.Primitive receiver = withBuilder(bodyBuilder, () => lookupThis());
+      withBuilder(bodyBuilder, () => setDynamic(null, receiver, selector, currentValue));
     }
 
     withBuilder(bodyBuilder, () => visit(node.body));
@@ -610,12 +552,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     // Create body entry and loop exit continuations and a branch to them.
     ir.Continuation bodyContinuation = new ir.Continuation([]);
     ir.Continuation exitContinuation = new ir.Continuation([]);
-    ir.LetCont branch =
-        new ir.LetCont(exitContinuation,
-            new ir.LetCont(bodyContinuation,
-                new ir.Branch(new ir.IsTrue(condition),
-                              bodyContinuation,
-                              exitContinuation)));
+    ir.LetCont branch = new ir.LetCont(exitContinuation, new ir.LetCont(bodyContinuation, new ir.Branch(new ir.IsTrue(condition), bodyContinuation, exitContinuation)));
     // If there are breaks in the body, then there must be a join-point
     // continuation for the normal exit and the breaks.
     bool hasBreaks = !breakCollector.isEmpty;
@@ -627,22 +564,18 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     } else {
       condBuilder.add(branch);
     }
-    ir.Continuation loopContinuation =
-        new ir.Continuation(condBuilder._parameters);
+    ir.Continuation loopContinuation = new ir.Continuation(condBuilder._parameters);
     if (bodyBuilder.isOpen) continueCollector.addJump(bodyBuilder);
     invokeFullJoin(loopContinuation, continueCollector, recursive: true);
     bodyContinuation.body = bodyBuilder._root;
 
     loopContinuation.body = condBuilder._root;
-    irBuilder.add(new ir.LetCont(loopContinuation,
-            new ir.InvokeContinuation(loopContinuation,
-                                      irBuilder.environment.index2value)));
+    irBuilder.add(new ir.LetCont(loopContinuation, new ir.InvokeContinuation(loopContinuation, irBuilder.environment.index2value)));
     if (hasBreaks) {
       irBuilder._current = branch;
       irBuilder.environment = condBuilder.environment;
       breakCollector.addJump(irBuilder);
-      letJoin.continuation =
-          irBuilder.createJoin(irBuilder.environment.length, breakCollector);
+      letJoin.continuation = irBuilder.createJoin(irBuilder.environment.length, breakCollector);
       irBuilder._current = letJoin;
     } else {
       irBuilder._current = condBuilder._current;
@@ -674,9 +607,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
         } else {
           assert(definition is ast.Identifier);
         }
-        irBuilder.declareLocalVariable(element,
-            initialValue: initialValue,
-            isClosureVariable: isClosureVariable(element));
+        irBuilder.declareLocalVariable(element, initialValue: initialValue, isClosureVariable: isClosureVariable(element));
       }
     }
     return null;
@@ -705,10 +636,8 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     // The then and else expressions are delimited.
     IrBuilder thenBuilder = new IrBuilder.delimited(irBuilder);
     IrBuilder elseBuilder = new IrBuilder.delimited(irBuilder);
-    ir.Primitive thenValue =
-        withBuilder(thenBuilder, () => visit(node.thenExpression));
-    ir.Primitive elseValue =
-        withBuilder(elseBuilder, () => visit(node.elseExpression));
+    ir.Primitive thenValue = withBuilder(thenBuilder, () => visit(node.thenExpression));
+    ir.Primitive elseValue = withBuilder(elseBuilder, () => visit(node.elseExpression));
 
     // Treat the values of the subexpressions as named values in the
     // environment, so they will be treated as arguments to the join-point
@@ -720,8 +649,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     JumpCollector jumps = new JumpCollector(null);
     jumps.addJump(thenBuilder);
     jumps.addJump(elseBuilder);
-    ir.Continuation joinContinuation =
-        irBuilder.createJoin(irBuilder.environment.length + 1, jumps);
+    ir.Continuation joinContinuation = irBuilder.createJoin(irBuilder.environment.length + 1, jumps);
 
     // Build the term
     //   let cont join(x, ..., result) = [] in
@@ -732,15 +660,8 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     ir.Continuation elseContinuation = new ir.Continuation([]);
     thenContinuation.body = thenBuilder._root;
     elseContinuation.body = elseBuilder._root;
-    irBuilder.add(new ir.LetCont(joinContinuation,
-            new ir.LetCont(thenContinuation,
-                new ir.LetCont(elseContinuation,
-                    new ir.Branch(new ir.IsTrue(condition),
-                                  thenContinuation,
-                                  elseContinuation)))));
-    return (thenValue == elseValue)
-        ? thenValue
-        : joinContinuation.parameters.last;
+    irBuilder.add(new ir.LetCont(joinContinuation, new ir.LetCont(thenContinuation, new ir.LetCont(elseContinuation, new ir.Branch(new ir.IsTrue(condition), thenContinuation, elseContinuation)))));
+    return (thenValue == elseValue) ? thenValue : joinContinuation.parameters.last;
   }
 
   // For all simple literals:
@@ -771,18 +692,14 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
   }
 
   ConstantExpression getConstantForNode(ast.Node node) {
-    ConstantExpression constant =
-        compiler.backend.constantCompilerTask.compileNode(node, elements);
-    assert(invariant(node, constant != null,
-        message: 'No constant computed for $node'));
+    ConstantExpression constant = compiler.backend.constantCompilerTask.compileNode(node, elements);
+    assert(invariant(node, constant != null, message: 'No constant computed for $node'));
     return constant;
   }
 
   ConstantExpression getConstantForVariable(VariableElement element) {
-    ConstantExpression constant =
-        compiler.backend.constants.getConstantForVariable(element);
-    assert(invariant(element, constant != null,
-            message: 'No constant computed for $element'));
+    ConstantExpression constant = compiler.backend.constants.getConstantForVariable(element);
+    assert(invariant(element, constant != null, message: 'No constant computed for $element'));
     return constant;
   }
 
@@ -827,8 +744,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     return lookupThis();
   }
 
-  ir.Primitive visitParenthesizedExpression(
-      ast.ParenthesizedExpression node) {
+  ir.Primitive visitParenthesizedExpression(ast.ParenthesizedExpression node) {
     assert(irBuilder.isOpen);
     return visit(node.expression);
   }
@@ -870,17 +786,10 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     return visit(node.expression);
   }
 
-  ir.Primitive translateClosureCall(ir.Primitive receiver,
-                                    Selector closureSelector,
-                                    ast.NodeList arguments) {
-    Selector namedCallSelector = new Selector(closureSelector.kind,
-                     "call",
-                     closureSelector.library,
-                     closureSelector.argumentCount,
-                     closureSelector.namedArguments);
-    List<ir.Primitive> args = arguments.nodes.mapToList(visit, growable:false);
-    return irBuilder.continueWithExpression(
-        (k) => new ir.InvokeMethod(receiver, namedCallSelector, k, args));
+  ir.Primitive translateClosureCall(ir.Primitive receiver, Selector closureSelector, ast.NodeList arguments) {
+    Selector namedCallSelector = new Selector(closureSelector.kind, "call", closureSelector.library, closureSelector.argumentCount, closureSelector.namedArguments);
+    List<ir.Primitive> args = arguments.nodes.mapToList(visit, growable: false);
+    return irBuilder.continueWithExpression((k) => new ir.InvokeMethod(receiver, namedCallSelector, k, args));
   }
 
   ir.Primitive visitClosureSend(ast.Send node) {
@@ -898,8 +807,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
       closureTarget = irBuilder.environment.lookup(element);
     }
     Selector closureSelector = elements.getSelector(node);
-    return translateClosureCall(closureTarget, closureSelector,
-        node.argumentsNode);
+    return translateClosureCall(closureTarget, closureSelector, node.argumentsNode);
   }
 
   /// If [node] is null, returns this.
@@ -913,14 +821,8 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
 
   /// Makes an [InvokeMethod] unless [node.receiver.isSuper()], in that case
   /// makes an [InvokeSuperMethod] ignoring [receiver].
-  ir.Expression createDynamicInvoke(ast.Send node,
-                                    Selector selector,
-                                    ir.Definition receiver,
-                                    ir.Continuation k,
-                                    List<ir.Definition> arguments) {
-    return node != null && node.receiver != null && node.receiver.isSuper()
-        ? new ir.InvokeSuperMethod(selector, k, arguments)
-        : new ir.InvokeMethod(receiver, selector, k, arguments);
+  ir.Expression createDynamicInvoke(ast.Send node, Selector selector, ir.Definition receiver, ir.Continuation k, List<ir.Definition> arguments) {
+    return node != null && node.receiver != null && node.receiver.isSuper() ? new ir.InvokeSuperMethod(selector, k, arguments) : new ir.InvokeMethod(receiver, selector, k, arguments);
   }
 
   ir.Primitive visitDynamicSend(ast.Send node) {
@@ -950,12 +852,8 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     } else if (Elements.isLocal(element)) {
       // Reference to local variable
       result = irBuilder.buildLocalGet(element);
-    } else if (element == null ||
-               Elements.isInstanceField(element) ||
-               Elements.isInstanceMethod(element) ||
-               selector.isIndex ||
-               // TODO(johnniwinther): clean up semantics of resolution.
-               node.isSuperCall) {
+    } else if (element == null || Elements.isInstanceField(element) || Elements.isInstanceMethod(element) || selector.isIndex || // TODO(johnniwinther): clean up semantics of resolution.
+    node.isSuperCall) {
       // Dynamic dispatch to a getter. Sometimes resolution will suggest a
       // target element, but in these cases we must still emit a dynamic
       // dispatch. The target element may be an instance method in case we are
@@ -968,18 +866,14 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
         arguments.add(index);
       }
 
-      assert(selector.kind == SelectorKind.GETTER ||
-             selector.kind == SelectorKind.INDEX);
-      result = irBuilder.continueWithExpression(
-          (k) => createDynamicInvoke(node, selector, receiver, k, arguments));
-    } else if (element.isField || element.isGetter || element.isErroneous ||
-               element.isSetter) {
+      assert(selector.kind == SelectorKind.GETTER || selector.kind == SelectorKind.INDEX);
+      result = irBuilder.continueWithExpression((k) => createDynamicInvoke(node, selector, receiver, k, arguments));
+    } else if (element.isField || element.isGetter || element.isErroneous || element.isSetter) {
       // TODO(johnniwinther): Change handling of setter selectors.
       // Access to a static field or getter (non-static case handled above).
       // Even if there is only a setter, we compile as if it was a getter,
       // so the vm can fail at runtime.
-      assert(selector.kind == SelectorKind.GETTER ||
-             selector.kind == SelectorKind.SETTER);
+      assert(selector.kind == SelectorKind.GETTER || selector.kind == SelectorKind.SETTER);
       result = irBuilder.buildStaticGet(element, selector);
     } else if (Elements.isStaticOrTopLevelFunction(element)) {
       // Convert a top-level or static function to a function object.
@@ -987,8 +881,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     } else {
       throw "Unexpected SendSet getter: $node, $element";
     }
-    return new _GetterElements(
-        result: result,index: index, receiver: receiver);
+    return new _GetterElements(result: result, index: index, receiver: receiver);
   }
 
   ir.Primitive visitGetterSend(ast.Send node) {
@@ -997,17 +890,14 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
 
   }
 
-  ir.Primitive translateLogicalOperator(ast.Operator op,
-                                        ast.Expression left,
-                                        ast.Expression right) {
+  ir.Primitive translateLogicalOperator(ast.Operator op, ast.Expression left, ast.Expression right) {
     ir.Primitive leftValue = visit(left);
 
     ir.Primitive buildRightValue(IrBuilder rightBuilder) {
       return withBuilder(rightBuilder, () => visit(right));
     }
 
-    return irBuilder.buildLogicalOperator(
-        leftValue, buildRightValue, isLazyOr: op.source == '||');
+    return irBuilder.buildLogicalOperator(leftValue, buildRightValue, isLazyOr: op.source == '||');
   }
 
   ir.Primitive visitOperatorSend(ast.Send node) {
@@ -1033,12 +923,10 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
       assert(node.arguments.tail.isEmpty);
       return irBuilder.buildNegation(visitDynamicSend(node));
     }
-    assert(invariant(node, op.source == "is" || op.source == "as",
-           message: "unexpected operator $op"));
+    assert(invariant(node, op.source == "is" || op.source == "as", message: "unexpected operator $op"));
     DartType type = elements.getType(node.typeAnnotationFromIsCheckOrCast);
     ir.Primitive receiver = visit(node.receiver);
-    ir.Primitive check = irBuilder.continueWithExpression(
-        (k) => new ir.TypeOperator(op.source, receiver, type, k));
+    ir.Primitive check = irBuilder.continueWithExpression((k) => new ir.TypeOperator(op.source, receiver, type, k));
     return node.isIsNotCheck ? irBuilder.buildNegation(check) : check;
   }
 
@@ -1056,8 +944,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     Selector selector = elements.getSelector(node);
 
     // TODO(lry): support default arguments, need support for locals.
-    List<ir.Definition> arguments = node.arguments.mapToList(visit,
-                                                             growable:false);
+    List<ir.Definition> arguments = node.arguments.mapToList(visit, growable: false);
     return irBuilder.buildStaticInvocation(element, selector, arguments);
   }
 
@@ -1118,30 +1005,19 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     }
   }
 
-  void setStatic(Element element,
-                 Selector selector,
-                 ir.Primitive valueToStore) {
+  void setStatic(Element element, Selector selector, ir.Primitive valueToStore) {
     assert(element.isErroneous || element.isField || element.isSetter);
-    irBuilder.continueWithExpression(
-        (k) => new ir.InvokeStatic(element, selector, k, [valueToStore]));
+    irBuilder.continueWithExpression((k) => new ir.InvokeStatic(element, selector, k, [valueToStore]));
   }
 
-  void setDynamic(ast.Node node,
-                  ir.Primitive receiver, Selector selector,
-                  ir.Primitive valueToStore) {
+  void setDynamic(ast.Node node, ir.Primitive receiver, Selector selector, ir.Primitive valueToStore) {
     List<ir.Definition> arguments = [valueToStore];
-    irBuilder.continueWithExpression(
-        (k) => createDynamicInvoke(node, selector, receiver, k, arguments));
+    irBuilder.continueWithExpression((k) => createDynamicInvoke(node, selector, receiver, k, arguments));
   }
 
-  void setIndex(ast.Node node,
-                ir.Primitive receiver,
-                Selector selector,
-                ir.Primitive index,
-                ir.Primitive valueToStore) {
+  void setIndex(ast.Node node, ir.Primitive receiver, Selector selector, ir.Primitive index, ir.Primitive valueToStore) {
     List<ir.Definition> arguments = [index, valueToStore];
-    irBuilder.continueWithExpression(
-        (k) => createDynamicInvoke(node, selector, receiver, k, arguments));
+    irBuilder.continueWithExpression((k) => createDynamicInvoke(node, selector, receiver, k, arguments));
   }
 
   ir.Primitive visitSendSet(ast.SendSet node) {
@@ -1156,23 +1032,15 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     // This is what gets assigned.
     ir.Primitive valueToStore;
     Selector selector = elements.getSelector(node);
-    Selector operatorSelector =
-        elements.getOperatorSelectorInComplexSendSet(node);
-    Selector getterSelector =
-        elements.getGetterSelectorInComplexSendSet(node);
-    assert(
-        // Indexing send-sets have an argument for the index.
-        (selector.isIndexSet ? 1 : 0) +
-        // Non-increment send-sets have one more argument.
-        (ast.Operator.INCREMENT_OPERATORS.contains(op.source) ? 0 : 1)
-            == node.argumentCount());
+    Selector operatorSelector = elements.getOperatorSelectorInComplexSendSet(node);
+    Selector getterSelector = elements.getGetterSelectorInComplexSendSet(node);
+    assert(// Indexing send-sets have an argument for the index.
+    (selector.isIndexSet ? 1 : 0) + // Non-increment send-sets have one more argument.
+    (ast.Operator.INCREMENT_OPERATORS.contains(op.source) ? 0 : 1) == node.argumentCount());
 
     ast.Node getAssignArgument() {
-      assert(invariant(node, !node.arguments.isEmpty,
-                       message: "argument expected"));
-      return selector.isIndexSet
-          ? node.arguments.tail.head
-          : node.arguments.head;
+      assert(invariant(node, !node.arguments.isEmpty, message: "argument expected"));
+      return selector.isIndexSet ? node.arguments.tail.head : node.arguments.head;
     }
 
     // Get the value into valueToStore
@@ -1196,29 +1064,25 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
       // Do the modification of the value in getter.
       ir.Primitive arg;
       if (ast.Operator.INCREMENT_OPERATORS.contains(op.source)) {
-        arg = irBuilder.makePrimConst(
-            irBuilder.state.constantSystem.createInt(1));
+        arg = irBuilder.makePrimConst(irBuilder.state.constantSystem.createInt(1));
         irBuilder.add(new ir.LetPrim(arg));
       } else {
         arg = visit(getAssignArgument());
       }
       valueToStore = new ir.Parameter(null);
       ir.Continuation k = new ir.Continuation([valueToStore]);
-      ir.Expression invoke =
-          new ir.InvokeMethod(originalValue, operatorSelector, k, [arg]);
+      ir.Expression invoke = new ir.InvokeMethod(originalValue, operatorSelector, k, [arg]);
       irBuilder.add(new ir.LetCont(k, invoke));
     }
 
     if (Elements.isLocal(element)) {
       setLocal(element, valueToStore);
-    } else if ((!node.isSuperCall && Elements.isErroneousElement(element)) ||
-                Elements.isStaticOrTopLevel(element)) {
+    } else if ((!node.isSuperCall && Elements.isErroneousElement(element)) || Elements.isStaticOrTopLevel(element)) {
       setStatic(element, elements.getSelector(node), valueToStore);
     } else {
       // Setter or index-setter invocation
       Selector selector = elements.getSelector(node);
-      assert(selector.kind == SelectorKind.SETTER ||
-          selector.kind == SelectorKind.INDEX);
+      assert(selector.kind == SelectorKind.SETTER || selector.kind == SelectorKind.INDEX);
       if (selector.isIndexSet) {
         setIndex(node, receiver, selector, index, valueToStore);
       } else {
@@ -1243,18 +1107,15 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
     Selector selector = elements.getSelector(node.send);
     ast.Node selectorNode = node.send.selector;
     DartType type = elements.getType(node);
-    List<ir.Primitive> args =
-        node.send.arguments.mapToList(visit, growable:false);
-    return irBuilder.continueWithExpression(
-        (k) => new ir.InvokeConstructor(type, element,selector, k, args));
+    List<ir.Primitive> args = node.send.arguments.mapToList(visit, growable: false);
+    return irBuilder.continueWithExpression((k) => new ir.InvokeConstructor(type, element, selector, k, args));
   }
 
   ir.Primitive visitStringJuxtaposition(ast.StringJuxtaposition node) {
     assert(irBuilder.isOpen);
     ir.Primitive first = visit(node.first);
     ir.Primitive second = visit(node.second);
-    return irBuilder.continueWithExpression(
-        (k) => new ir.ConcatenateStrings(k, [first, second]));
+    return irBuilder.continueWithExpression((k) => new ir.ConcatenateStrings(k, [first, second]));
   }
 
   ir.Primitive visitStringInterpolation(ast.StringInterpolation node) {
@@ -1267,8 +1128,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
       arguments.add(visit(part.expression));
       arguments.add(visitLiteralString(part.string));
     }
-    return irBuilder.continueWithExpression(
-        (k) => new ir.ConcatenateStrings(k, arguments));
+    return irBuilder.continueWithExpression((k) => new ir.ConcatenateStrings(k, arguments));
   }
 
   ir.Primitive translateConstant(ast.Node node, [ConstantExpression constant]) {
@@ -1283,8 +1143,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
 
   ir.FunctionDefinition makeSubFunction(ast.FunctionExpression node) {
     // TODO(johnniwinther): Share the visitor.
-    return new IrBuilderVisitor(elements, compiler, sourceFile)
-           .buildFunctionInternal(elements[node]);
+    return new IrBuilderVisitor(elements, compiler, sourceFile).buildFunctionInternal(elements[node]);
   }
 
   ir.Primitive visitFunctionExpression(ast.FunctionExpression node) {
@@ -1318,7 +1177,7 @@ class IrBuilderVisitor extends ResolvedVisitor<ir.Primitive>
   ir.FunctionDefinition nullIfGiveup(ir.FunctionDefinition action()) {
     try {
       return action();
-    } catch(e, tr) {
+    } catch (e, tr) {
       if (e == ABORT_IRNODE_BUILDER) {
         return null;
       }
@@ -1356,9 +1215,7 @@ class DetectClosureVariables extends ast.Visitor {
 
   visitSend(ast.Send node) {
     Element element = elements[node];
-    if (Elements.isLocal(element) &&
-        !element.isConst &&
-        element.enclosingElement != currentFunction) {
+    if (Elements.isLocal(element) && !element.isConst && element.enclosingElement != currentFunction) {
       LocalElement local = element;
       markAsClosureVariable(local);
     }

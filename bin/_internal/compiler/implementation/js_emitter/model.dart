@@ -41,10 +41,7 @@ abstract class Output {
   /// Output file name without extension.
   final String outputFileName;
 
-  Output(this.outputFileName,
-         this.libraries,
-         this.staticNonFinalFields,
-         this.constants);
+  Output(this.outputFileName, this.libraries, this.staticNonFinalFields, this.constants);
 }
 
 /**
@@ -57,12 +54,7 @@ class MainOutput extends Output {
   final js.Expression main;
   final List<Holder> holders;
 
-  MainOutput(String outputFileName,
-             this.main,
-             List<Library> libraries,
-             List<StaticField> staticNonFinalFields,
-             List<Constant> constants,
-             this.holders)
+  MainOutput(String outputFileName, this.main, List<Library> libraries, List<StaticField> staticNonFinalFields, List<Constant> constants, this.holders)
       : super(outputFileName, libraries, staticNonFinalFields, constants);
 
   MainOutput get mainOutput => this;
@@ -77,12 +69,7 @@ class DeferredOutput extends Output {
 
   List<Holder> get holders => mainOutput.holders;
 
-  DeferredOutput(String outputFileName,
-                 this.name,
-                 this.mainOutput,
-                 List<Library> libraries,
-                 List<StaticField> staticNonFinalFields,
-                 List<Constant> constants)
+  DeferredOutput(String outputFileName, this.name, this.mainOutput, List<Library> libraries, List<StaticField> staticNonFinalFields, List<Constant> constants)
       : super(outputFileName, libraries, staticNonFinalFields, constants);
 }
 
@@ -110,8 +97,7 @@ class StaticField {
   final bool isFinal;
   final bool isLazy;
 
-  StaticField(this.name, this.holder, this.code,
-              this.isFinal, this.isLazy);
+  StaticField(this.name, this.holder, this.code, this.isFinal, this.isLazy);
 }
 
 class Class {
@@ -125,10 +111,8 @@ class Class {
     this.superclass = superclass;
   }
 
-  String get superclassName
-      => (superclass == null) ? "" : superclass.name;
-  int get superclassHolderIndex
-      => (superclass == null) ? 0 : superclass.holder.index;
+  String get superclassName => (superclass == null) ? "" : superclass.name;
+  int get superclassHolderIndex => (superclass == null) ? 0 : superclass.holder.index;
 }
 
 class Method {

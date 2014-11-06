@@ -11,41 +11,28 @@ class TypeMaskFactory {
     return mask;
   }
 
-  static TypeMask inferredReturnTypeForElement(
-      Element element, Compiler compiler) {
-    return fromInferredType(
-        compiler.typesTask.getGuaranteedReturnTypeOfElement(element),
-        compiler);
+  static TypeMask inferredReturnTypeForElement(Element element, Compiler compiler) {
+    return fromInferredType(compiler.typesTask.getGuaranteedReturnTypeOfElement(element), compiler);
   }
 
   static TypeMask inferredTypeForElement(Element element, Compiler compiler) {
-    return fromInferredType(
-        compiler.typesTask.getGuaranteedTypeOfElement(element),
-        compiler);
+    return fromInferredType(compiler.typesTask.getGuaranteedTypeOfElement(element), compiler);
   }
 
   static TypeMask inferredTypeForSelector(Selector selector, Compiler compiler) {
-    return fromInferredType(
-        compiler.typesTask.getGuaranteedTypeOfSelector(selector),
-        compiler);
+    return fromInferredType(compiler.typesTask.getGuaranteedTypeOfSelector(selector), compiler);
   }
 
-  static TypeMask inferredForNode(Element owner, ast.Node node,
-                                  Compiler compiler) {
-    return fromInferredType(
-        compiler.typesTask.getGuaranteedTypeOfNode(owner, node),
-        compiler);
+  static TypeMask inferredForNode(Element owner, ast.Node node, Compiler compiler) {
+    return fromInferredType(compiler.typesTask.getGuaranteedTypeOfNode(owner, node), compiler);
   }
 
-  static TypeMask fromNativeBehavior(native.NativeBehavior nativeBehavior,
-                                     Compiler compiler) {
+  static TypeMask fromNativeBehavior(native.NativeBehavior nativeBehavior, Compiler compiler) {
     ClassWorld classWorld = compiler.world;
     JavaScriptBackend backend = compiler.backend;
     if (nativeBehavior.typesReturned.isEmpty) return backend.dynamicType;
 
-    TypeMask result = nativeBehavior.typesReturned
-        .map((type) => fromNativeType(type, compiler))
-        .reduce((t1, t2) => t1.union(t2, classWorld));
+    TypeMask result = nativeBehavior.typesReturned.map((type) => fromNativeType(type, compiler)).reduce((t1, t2) => t1.union(t2, classWorld));
     assert(!(result.isEmpty && !result.isNullable));
     return result;
   }

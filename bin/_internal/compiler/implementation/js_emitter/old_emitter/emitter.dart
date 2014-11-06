@@ -37,20 +37,16 @@ class OldEmitter implements Emitter {
   String isolateProperties;
   String classesCollector;
   Set<ClassElement> get neededClasses => task.neededClasses;
-  Map<OutputUnit, List<ClassElement>> get outputClassLists
-      => task.outputClassLists;
-  Map<OutputUnit, List<ConstantValue>> get outputConstantLists
-      => task.outputConstantLists;
+  Map<OutputUnit, List<ClassElement>> get outputClassLists => task.outputClassLists;
+  Map<OutputUnit, List<ConstantValue>> get outputConstantLists => task.outputConstantLists;
   List<ClassElement> get nativeClasses => task.nativeClasses;
   final Map<String, String> mangledFieldNames = <String, String>{};
   final Map<String, String> mangledGlobalFieldNames = <String, String>{};
   final Set<String> recordedMangledNames = new Set<String>();
 
-  final Map<ClassElement, Map<String, jsAst.Expression>> additionalProperties =
-      new Map<ClassElement, Map<String, jsAst.Expression>>();
+  final Map<ClassElement, Map<String, jsAst.Expression>> additionalProperties = new Map<ClassElement, Map<String, jsAst.Expression>>();
 
-  List<TypedefElement> get typedefsNeededForReflection =>
-      task.typedefsNeededForReflection;
+  List<TypedefElement> get typedefsNeededForReflection => task.typedefsNeededForReflection;
 
   JavaScriptBackend get backend => compiler.backend;
   TypeVariableHandler get typeVariableHandler => backend.typeVariableHandler;
@@ -77,11 +73,9 @@ class OldEmitter implements Emitter {
    * negatively. So dart2js will emit these functions to a separate file that
    * can be optionally included to support CSP mode or for faster startup.
    */
-  Map<OutputUnit, List<jsAst.Node>> _cspPrecompiledFunctions =
-      new Map<OutputUnit, List<jsAst.Node>>();
+  Map<OutputUnit, List<jsAst.Node>> _cspPrecompiledFunctions = new Map<OutputUnit, List<jsAst.Node>>();
 
-  Map<OutputUnit, List<jsAst.Expression>> _cspPrecompiledConstructorNames =
-      new Map<OutputUnit, List<jsAst.Expression>>();
+  Map<OutputUnit, List<jsAst.Expression>> _cspPrecompiledConstructorNames = new Map<OutputUnit, List<jsAst.Expression>>();
 
   /**
    * Accumulate properties for classes and libraries, describing their
@@ -92,8 +86,7 @@ class OldEmitter implements Emitter {
    */
   // TODO(ahe): Generate statics with their class, and store only libraries in
   // this map.
-  final Map<Element, ClassBuilder> elementDescriptors =
-      new Map<Element, ClassBuilder>();
+  final Map<Element, ClassBuilder> elementDescriptors = new Map<Element, ClassBuilder>();
 
   final bool generateSourceMap;
 
@@ -112,16 +105,11 @@ class OldEmitter implements Emitter {
   }
 
   List<jsAst.Node> cspPrecompiledFunctionFor(OutputUnit outputUnit) {
-    return _cspPrecompiledFunctions.putIfAbsent(
-        outputUnit,
-        () => new List<jsAst.Node>());
+    return _cspPrecompiledFunctions.putIfAbsent(outputUnit, () => new List<jsAst.Node>());
   }
 
-  List<jsAst.Expression> cspPrecompiledConstructorNamesFor(
-      OutputUnit outputUnit) {
-    return _cspPrecompiledConstructorNames.putIfAbsent(
-        outputUnit,
-        () => new List<jsAst.Expression>());
+  List<jsAst.Expression> cspPrecompiledConstructorNamesFor(OutputUnit outputUnit) {
+    return _cspPrecompiledConstructorNames.putIfAbsent(outputUnit, () => new List<jsAst.Expression>());
   }
 
   /// Erases the precompiled information for csp mode for all output units.
@@ -145,23 +133,15 @@ class OldEmitter implements Emitter {
 
   String get name => 'CodeEmitter';
 
-  String get currentGenerateAccessorName
-      => '${namer.currentIsolate}.\$generateAccessor';
-  String get generateAccessorHolder
-      => '$isolatePropertiesName.\$generateAccessor';
-  String get finishClassesProperty
-      => r'$finishClasses';
-  String get finishClassesName
-      => '${namer.isolateName}.$finishClassesProperty';
-  String get finishIsolateConstructorName
-      => '${namer.isolateName}.\$finishIsolateConstructor';
-  String get isolatePropertiesName
-      => '${namer.isolateName}.${namer.isolatePropertiesName}';
-  String get lazyInitializerName
-      => '${namer.isolateName}.\$lazy';
+  String get currentGenerateAccessorName => '${namer.currentIsolate}.\$generateAccessor';
+  String get generateAccessorHolder => '$isolatePropertiesName.\$generateAccessor';
+  String get finishClassesProperty => r'$finishClasses';
+  String get finishClassesName => '${namer.isolateName}.$finishClassesProperty';
+  String get finishIsolateConstructorName => '${namer.isolateName}.\$finishIsolateConstructor';
+  String get isolatePropertiesName => '${namer.isolateName}.${namer.isolatePropertiesName}';
+  String get lazyInitializerName => '${namer.isolateName}.\$lazy';
   String get initName => 'init';
-  String get makeConstListProperty
-      => namer.getMappedInstanceName('makeConstantList');
+  String get makeConstListProperty => namer.getMappedInstanceName('makeConstantList');
 
   /// For deferred loading we communicate the initializers via this global var.
   final String deferredInitializers = r"$dart_deferred_initializers";
@@ -181,10 +161,9 @@ class OldEmitter implements Emitter {
   jsAst.FunctionDeclaration get generateAccessorFunction {
     const RANGE1_SIZE = RANGE1_LAST - RANGE1_FIRST + 1;
     const RANGE2_SIZE = RANGE2_LAST - RANGE2_FIRST + 1;
-    const RANGE1_ADJUST = - (FIRST_FIELD_CODE - RANGE1_FIRST);
-    const RANGE2_ADJUST = - (FIRST_FIELD_CODE + RANGE1_SIZE - RANGE2_FIRST);
-    const RANGE3_ADJUST =
-        - (FIRST_FIELD_CODE + RANGE1_SIZE + RANGE2_SIZE - RANGE3_FIRST);
+    const RANGE1_ADJUST = -(FIRST_FIELD_CODE - RANGE1_FIRST);
+    const RANGE2_ADJUST = -(FIRST_FIELD_CODE + RANGE1_SIZE - RANGE2_FIRST);
+    const RANGE3_ADJUST = -(FIRST_FIELD_CODE + RANGE1_SIZE + RANGE2_SIZE - RANGE3_FIRST);
 
     String receiverParamName = compiler.enableMinification ? "r" : "receiver";
     String valueParamName = compiler.enableMinification ? "v" : "value";
@@ -294,11 +273,7 @@ class OldEmitter implements Emitter {
     }''');
     // Declare a function called "generateAccessor".  This is used in
     // defineClassFunction (it's a local declaration in init()).
-    return [
-        generateAccessorFunction,
-        js('$generateAccessorHolder = generateAccessor'),
-        new jsAst.FunctionDeclaration(
-            new jsAst.VariableDeclaration('defineClass'), defineClass) ];
+    return [generateAccessorFunction, js('$generateAccessorHolder = generateAccessor'), new jsAst.FunctionDeclaration(new jsAst.VariableDeclaration('defineClass'), defineClass)];
   }
 
   /** Needs defineClass to be defined. */
@@ -337,14 +312,10 @@ class OldEmitter implements Emitter {
     // object and copy over the members.
 
     String reflectableField = namer.reflectableField;
-    jsAst.Expression allClassesAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.ALL_CLASSES);
-    jsAst.Expression metadataAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.METADATA);
-    jsAst.Expression interceptorsByTagAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.INTERCEPTORS_BY_TAG);
-    jsAst.Expression leafTagsAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.LEAF_TAGS);
+    jsAst.Expression allClassesAccess = generateEmbeddedGlobalAccess(embeddedNames.ALL_CLASSES);
+    jsAst.Expression metadataAccess = generateEmbeddedGlobalAccess(embeddedNames.METADATA);
+    jsAst.Expression interceptorsByTagAccess = generateEmbeddedGlobalAccess(embeddedNames.INTERCEPTORS_BY_TAG);
+    jsAst.Expression leafTagsAccess = generateEmbeddedGlobalAccess(embeddedNames.LEAF_TAGS);
 
     return js('''
       function(collectedClasses, isolateProperties, existingIsolateProperties) {
@@ -463,18 +434,7 @@ class OldEmitter implements Emitter {
         #;  // buildTrivialNsmHandlers()
 
         for (var cls in pendingClasses) finishClass(cls);
-      }''', [
-          allClassesAccess, allClassesAccess,
-          allClassesAccess,
-          DEBUG_FAST_OBJECTS,
-          backend.hasRetainedMetadata,
-          metadataAccess,
-          needsMixinSupport,
-          backend.isTreeShakingDisabled,
-          interceptorsByTagAccess,
-          leafTagsAccess,
-          buildFinishClass(),
-          nsmEmitter.buildTrivialNsmHandlers()]);
+      }''', [allClassesAccess, allClassesAccess, allClassesAccess, DEBUG_FAST_OBJECTS, backend.hasRetainedMetadata, metadataAccess, needsMixinSupport, backend.isTreeShakingDisabled, interceptorsByTagAccess, leafTagsAccess, buildFinishClass(), nsmEmitter.buildTrivialNsmHandlers()]);
   }
 
   jsAst.Node optional(bool condition, jsAst.Node node) {
@@ -482,12 +442,10 @@ class OldEmitter implements Emitter {
   }
 
   jsAst.FunctionDeclaration buildFinishClass() {
-    String specProperty = '"${namer.nativeSpecProperty}"';  // "%"
+    String specProperty = '"${namer.nativeSpecProperty}"'; // "%"
 
-    jsAst.Expression interceptorsByTagAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.INTERCEPTORS_BY_TAG);
-    jsAst.Expression leafTagsAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.LEAF_TAGS);
+    jsAst.Expression interceptorsByTagAccess = generateEmbeddedGlobalAccess(embeddedNames.INTERCEPTORS_BY_TAG);
+    jsAst.Expression leafTagsAccess = generateEmbeddedGlobalAccess(embeddedNames.LEAF_TAGS);
 
     return js.statement('''
       function finishClass(cls) {
@@ -560,12 +518,7 @@ class OldEmitter implements Emitter {
             }
           }
         }
-      }''', [!nativeClasses.isEmpty,
-             interceptorsByTagAccess,
-             leafTagsAccess,
-             true,
-             interceptorsByTagAccess,
-             leafTagsAccess]);
+      }''', [!nativeClasses.isEmpty, interceptorsByTagAccess, leafTagsAccess, true, interceptorsByTagAccess, leafTagsAccess]);
   }
 
   jsAst.Fun get finishIsolateConstructorFunction {
@@ -614,19 +567,13 @@ class OldEmitter implements Emitter {
         if (#)  // outputContainsConstantList
           Isolate.# = oldIsolate.#; // makeConstListProperty * 2
         return Isolate;
-      }''',
-        [namer.isolatePropertiesName, namer.isolatePropertiesName,
-         needsDefineClass, finishClassesProperty, finishClassesProperty,
-         task.outputContainsConstantList,
-         makeConstListProperty, makeConstListProperty ]);
+      }''', [namer.isolatePropertiesName, namer.isolatePropertiesName, needsDefineClass, finishClassesProperty, finishClassesProperty, task.outputContainsConstantList, makeConstListProperty, makeConstListProperty]);
   }
 
   jsAst.Fun get lazyInitializerFunction {
     String isolate = namer.currentIsolate;
-    jsAst.Expression cyclicThrow =
-        namer.elementAccess(backend.getCyclicThrowHelper());
-    jsAst.Expression laziesAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.LAZIES);
+    jsAst.Expression cyclicThrow = namer.elementAccess(backend.getCyclicThrowHelper());
+    jsAst.Expression laziesAccess = generateEmbeddedGlobalAccess(embeddedNames.LAZIES);
 
     return js('''
       function (prototype, staticName, fieldName, getterName, lazyValue) {
@@ -662,18 +609,14 @@ class OldEmitter implements Emitter {
           }
         }
       }
-    ''', [laziesAccess, laziesAccess,
-          laziesAccess,
-          cyclicThrow]);
+    ''', [laziesAccess, laziesAccess, laziesAccess, cyclicThrow]);
   }
 
   List buildDefineClassAndFinishClassFunctionsIfNecessary() {
     if (!needsDefineClass) return [];
     return defineClassFunction
-    ..addAll(buildInheritFrom())
-    ..addAll([
-      js('$finishClassesName = #', finishClassesFunction)
-    ]);
+        ..addAll(buildInheritFrom())
+        ..addAll([js('$finishClassesName = #', finishClassesFunction)]);
   }
 
   List buildLazyInitializerFunctionIfNecessary() {
@@ -683,9 +626,7 @@ class OldEmitter implements Emitter {
   }
 
   List buildFinishIsolateConstructor() {
-    return [
-      js('$finishIsolateConstructorName = #', finishIsolateConstructorFunction)
-    ];
+    return [js('$finishIsolateConstructorName = #', finishIsolateConstructorFunction)];
   }
 
   void emitFinishIsolateConstructorInvocation(CodeBuffer buffer) {
@@ -696,13 +637,7 @@ class OldEmitter implements Emitter {
   /// In minified mode we want to keep the name for the most common core types.
   bool _isNativeTypeNeedingReflectionName(Element element) {
     if (!element.isClass) return false;
-    return (element == compiler.intClass ||
-            element == compiler.doubleClass ||
-            element == compiler.numClass ||
-            element == compiler.stringClass ||
-            element == compiler.boolClass ||
-            element == compiler.nullClass ||
-            element == compiler.listClass);
+    return (element == compiler.intClass || element == compiler.doubleClass || element == compiler.numClass || element == compiler.stringClass || element == compiler.boolClass || element == compiler.nullClass || element == compiler.listClass);
   }
 
   /// Returns the "reflection name" of an [Element] or [Selector].
@@ -718,13 +653,9 @@ class OldEmitter implements Emitter {
   /// This is used by js_mirrors.dart.
   String getReflectionName(elementOrSelector, String mangledName) {
     String name = elementOrSelector.name;
-    if (backend.shouldRetainName(name) ||
-        elementOrSelector is Element &&
-        // Make sure to retain names of unnamed constructors, and
-        // for common native types.
-        ((name == '' &&
-          backend.isAccessibleByReflection(elementOrSelector)) ||
-         _isNativeTypeNeedingReflectionName(elementOrSelector))) {
+    if (backend.shouldRetainName(name) || elementOrSelector is Element && // Make sure to retain names of unnamed constructors, and
+    // for common native types.
+    ((name == '' && backend.isAccessibleByReflection(elementOrSelector)) || _isNativeTypeNeedingReflectionName(elementOrSelector))) {
 
       // TODO(ahe): Enable the next line when I can tell the difference between
       // an instance method and a global.  They may have the same mangled name.
@@ -736,8 +667,7 @@ class OldEmitter implements Emitter {
   }
 
   String getReflectionNameInternal(elementOrSelector, String mangledName) {
-    String name =
-        namer.privateName(elementOrSelector.library, elementOrSelector.name);
+    String name = namer.privateName(elementOrSelector.library, elementOrSelector.name);
     if (elementOrSelector.isGetter) return name;
     if (elementOrSelector.isSetter) {
       if (!mangledName.startsWith(namer.setterPrefix)) return '$name=';
@@ -757,9 +687,7 @@ class OldEmitter implements Emitter {
       // with each other.
       return " $mangledName";
     }
-    if (elementOrSelector is Selector
-        || elementOrSelector.isFunction
-        || elementOrSelector.isConstructor) {
+    if (elementOrSelector is Selector || elementOrSelector.isFunction || elementOrSelector.isConstructor) {
       int requiredParameterCount;
       int optionalParameterCount;
       String namedArguments = '';
@@ -783,11 +711,7 @@ class OldEmitter implements Emitter {
           for (Element e in signature.optionalParameters) {
             names.add(e.name);
           }
-          Selector selector = new Selector.call(
-              function.name,
-              function.library,
-              requiredParameterCount,
-              names);
+          Selector selector = new Selector.call(function.name, function.library, requiredParameterCount, names);
           namedArguments = namedParametersAsReflectionNames(selector);
         } else {
           // Named parameters are handled differently by mirrors.  For unnamed
@@ -799,11 +723,9 @@ class OldEmitter implements Emitter {
           optionalParameterCount = 0;
         }
       }
-      String suffix =
-          // TODO(ahe): We probably don't need optionalParameterCount in the
-          // reflection name.
-          '$name:$requiredParameterCount:$optionalParameterCount'
-          '$namedArguments';
+      String suffix = // TODO(ahe): We probably don't need optionalParameterCount in the
+      // reflection name.
+      '$name:$requiredParameterCount:$optionalParameterCount' '$namedArguments';
       return (isConstructor) ? 'new $suffix' : suffix;
     }
     Element element = elementOrSelector;
@@ -816,8 +738,7 @@ class OldEmitter implements Emitter {
     } else if (element.isTypedef) {
       return element.name;
     }
-    throw compiler.internalError(element,
-        'Do not know how to reflect on this $element.');
+    throw compiler.internalError(element, 'Do not know how to reflect on this $element.');
   }
 
   String namedParametersAsReflectionNames(Selector selector) {
@@ -826,47 +747,38 @@ class OldEmitter implements Emitter {
     return ':$names';
   }
 
-  jsAst.FunctionDeclaration buildCspPrecompiledFunctionFor(
-      OutputUnit outputUnit) {
+  jsAst.FunctionDeclaration buildCspPrecompiledFunctionFor(OutputUnit outputUnit) {
     // TODO(ahe): Compute a hash code.
     return js.statement('''
       function dart_precompiled(\$collectedClasses) {
         var \$desc;
         #;
         return #;
-      }''',
-        [cspPrecompiledFunctionFor(outputUnit),
-         new jsAst.ArrayInitializer.from(
-             cspPrecompiledConstructorNamesFor(outputUnit))]);
+      }''', [cspPrecompiledFunctionFor(outputUnit), new jsAst.ArrayInitializer.from(cspPrecompiledConstructorNamesFor(outputUnit))]);
   }
 
   void generateClass(ClassElement classElement, ClassBuilder properties) {
     compiler.withCurrentElement(classElement, () {
       if (compiler.hasIncrementalSupport) {
-        ClassBuilder builder =
-            cachedClassBuilders.putIfAbsent(classElement, () {
-              ClassBuilder builder = new ClassBuilder(classElement, namer);
-              classEmitter.generateClass(
-                  classElement, builder, additionalProperties[classElement]);
-              return builder;
-            });
+        ClassBuilder builder = cachedClassBuilders.putIfAbsent(classElement, () {
+          ClassBuilder builder = new ClassBuilder(classElement, namer);
+          classEmitter.generateClass(classElement, builder, additionalProperties[classElement]);
+          return builder;
+        });
         invariant(classElement, builder.fields.isEmpty);
         invariant(classElement, builder.superName == null);
         invariant(classElement, builder.functionType == null);
         invariant(classElement, builder.fieldMetadata == null);
         properties.properties.addAll(builder.properties);
       } else {
-        classEmitter.generateClass(
-            classElement, properties, additionalProperties[classElement]);
+        classEmitter.generateClass(classElement, properties, additionalProperties[classElement]);
       }
     });
   }
 
   void emitFinishClassesInvocationIfNecessary(CodeBuffer buffer) {
     if (needsDefineClass) {
-      buffer.write('$finishClassesName($classesCollector,'
-                   '$_$isolateProperties,'
-                   '${_}null)$N');
+      buffer.write('$finishClassesName($classesCollector,' '$_$isolateProperties,' '${_}null)$N');
 
       // Reset the map.
       buffer.write("$classesCollector$_=${_}null$N$n");
@@ -883,8 +795,7 @@ class OldEmitter implements Emitter {
 
   void emitStaticNonFinalFieldInitializations(CodeBuffer buffer) {
     JavaScriptConstantCompiler handler = backend.constants;
-    Iterable<VariableElement> staticNonFinalFields =
-        handler.getStaticNonFinalFieldsForEmission();
+    Iterable<VariableElement> staticNonFinalFields = handler.getStaticNonFinalFieldsForEmission();
     for (Element element in Elements.sortedByPosition(staticNonFinalFields)) {
       // [:interceptedNames:] is handled in [emitInterceptedNames].
       if (element == backend.interceptedNames) continue;
@@ -892,12 +803,8 @@ class OldEmitter implements Emitter {
       if (element == backend.mapTypeToInterceptor) continue;
       compiler.withCurrentElement(element, () {
         ConstantValue initialValue = handler.getInitialValueFor(element).value;
-        jsAst.Expression init =
-          js('$isolateProperties.# = #',
-              [namer.getNameOfGlobalField(element),
-               constantEmitter.referenceInInitializationContext(initialValue)]);
-        buffer.write(jsAst.prettyPrint(init, compiler,
-                                       monitor: compiler.dumpInfoTask));
+        jsAst.Expression init = js('$isolateProperties.# = #', [namer.getNameOfGlobalField(element), constantEmitter.referenceInInitializationContext(initialValue)]);
+        buffer.write(jsAst.prettyPrint(init, compiler, monitor: compiler.dumpInfoTask));
         buffer.write('$N');
       });
     }
@@ -905,8 +812,7 @@ class OldEmitter implements Emitter {
 
   void emitLazilyInitializedStaticFields(CodeBuffer buffer) {
     JavaScriptConstantCompiler handler = backend.constants;
-    List<VariableElement> lazyFields =
-        handler.getLazilyInitializedFieldsForEmission();
+    List<VariableElement> lazyFields = handler.getLazilyInitializedFieldsForEmission();
     if (!lazyFields.isEmpty) {
       needsLazyInitializer = true;
       for (VariableElement element in Elements.sortedByPosition(lazyFields)) {
@@ -921,16 +827,8 @@ class OldEmitter implements Emitter {
         // The name is used for error reporting. The 'initial' must be a
         // closure that constructs the initial value.
         jsAst.Expression getter = buildLazyInitializedGetter(element);
-        jsAst.Expression init = js('#(#,#,#,#,#,#)',
-            [js(lazyInitializerName),
-                js(isolateProperties),
-                js.string(element.name),
-                js.string(namer.getNameX(element)),
-                js.string(namer.getLazyInitializerName(element)),
-                code,
-                getter == null ? [] : [getter]]);
-        buffer.write(jsAst.prettyPrint(init, compiler,
-                                       monitor: compiler.dumpInfoTask));
+        jsAst.Expression init = js('#(#,#,#,#,#,#)', [js(lazyInitializerName), js(isolateProperties), js.string(element.name), js.string(namer.getNameX(element)), js.string(namer.getLazyInitializerName(element)), code, getter == null ? [] : [getter]]);
+        buffer.write(jsAst.prettyPrint(init, compiler, monitor: compiler.dumpInfoTask));
         buffer.write("$N");
       }
     }
@@ -942,9 +840,9 @@ class OldEmitter implements Emitter {
   }
 
   bool isConstantInlinedOrAlreadyEmitted(ConstantValue constant) {
-    if (constant.isFunction) return true;    // Already emitted.
-    if (constant.isPrimitive) return true;   // Inlined.
-    if (constant.isDummy) return true;       // Inlined.
+    if (constant.isFunction) return true; // Already emitted.
+    if (constant.isPrimitive) return true; // Inlined.
+    if (constant.isDummy) return true; // Inlined.
     // The name is null when the constant is already a JS constant.
     // TODO(floitsch): every constant should be registered, so that we can
     // share the ones that take up too much space (like some strings).
@@ -987,11 +885,8 @@ class OldEmitter implements Emitter {
         cachedEmittedConstants.add(constant);
       }
       String name = namer.constantName(constant);
-      jsAst.Expression init = js('#.# = #',
-          [namer.globalObjectForConstant(constant), name,
-           constantInitializerExpression(constant)]);
-      buffer.write(jsAst.prettyPrint(init, compiler,
-                                     monitor: compiler.dumpInfoTask));
+      jsAst.Expression init = js('#.# = #', [namer.globalObjectForConstant(constant), name, constantInitializerExpression(constant)]);
+      buffer.write(jsAst.prettyPrint(init, compiler, monitor: compiler.dumpInfoTask));
       buffer.write('$N');
     }
     if (compiler.hasIncrementalSupport && isMainBuffer) {
@@ -1000,38 +895,29 @@ class OldEmitter implements Emitter {
   }
 
   void emitMakeConstantList(CodeBuffer buffer) {
-    buffer.write(
-        jsAst.prettyPrint(
-            js.statement(r'''#.# = function(list) {
+    buffer.write(jsAst.prettyPrint(js.statement(r'''#.# = function(list) {
                                      list.immutable$list = #;
                                      list.fixed$length = #;
                                      return list;
-                                   }''',
-                         [namer.isolateName, makeConstListProperty, initName,
-                          initName]),
-            compiler, monitor: compiler.dumpInfoTask));
+                                   }''', [namer.isolateName, makeConstListProperty, initName, initName]), compiler, monitor: compiler.dumpInfoTask));
     buffer.write(N);
   }
 
   /// Returns the code equivalent to:
   ///   `function(args) { $.startRootIsolate(X.main$closure(), args); }`
-  jsAst.Expression buildIsolateSetupClosure(Element appMain,
-                                            Element isolateMain) {
+  jsAst.Expression buildIsolateSetupClosure(Element appMain, Element isolateMain) {
     jsAst.Expression mainAccess = namer.isolateStaticClosureAccess(appMain);
     // Since we pass the closurized version of the main method to
     // the isolate method, we must make sure that it exists.
-    return js('function(a){ #(#, a); }',
-        [namer.elementAccess(isolateMain), mainAccess]);
+    return js('function(a){ #(#, a); }', [namer.elementAccess(isolateMain), mainAccess]);
   }
 
   /**
    * Emits code that sets the `isolateTag embedded global to a unique string.
    */
   jsAst.Expression generateIsolateAffinityTagInitialization() {
-    jsAst.Expression getIsolateTagAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.GET_ISOLATE_TAG);
-    jsAst.Expression isolateTagAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.ISOLATE_TAG);
+    jsAst.Expression getIsolateTagAccess = generateEmbeddedGlobalAccess(embeddedNames.GET_ISOLATE_TAG);
+    jsAst.Expression isolateTagAccess = generateEmbeddedGlobalAccess(embeddedNames.ISOLATE_TAG);
 
     return js('''
       !function() {
@@ -1064,19 +950,13 @@ class OldEmitter implements Emitter {
           }
         }
       }()
-    ''', [getIsolateTagAccess,
-          isolateTagAccess,
-          isolateTagAccess]);
+    ''', [getIsolateTagAccess, isolateTagAccess, isolateTagAccess]);
   }
 
   jsAst.Expression generateDispatchPropertyNameInitialization() {
-    jsAst.Expression dispatchPropertyNameAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.DISPATCH_PROPERTY_NAME);
-    jsAst.Expression getIsolateTagAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.GET_ISOLATE_TAG);
-    return js('# = #("dispatch_record")',
-        [dispatchPropertyNameAccess,
-         getIsolateTagAccess]);
+    jsAst.Expression dispatchPropertyNameAccess = generateEmbeddedGlobalAccess(embeddedNames.DISPATCH_PROPERTY_NAME);
+    jsAst.Expression getIsolateTagAccess = generateEmbeddedGlobalAccess(embeddedNames.GET_ISOLATE_TAG);
+    return js('# = #("dispatch_record")', [dispatchPropertyNameAccess, getIsolateTagAccess]);
   }
 
   String generateIsolateTagRoot() {
@@ -1089,32 +969,25 @@ class OldEmitter implements Emitter {
     Element main = compiler.mainFunction;
     jsAst.Expression mainCallClosure = null;
     if (compiler.hasIsolateSupport) {
-      Element isolateMain =
-        backend.isolateHelperLibrary.find(JavaScriptBackend.START_ROOT_ISOLATE);
+      Element isolateMain = backend.isolateHelperLibrary.find(JavaScriptBackend.START_ROOT_ISOLATE);
       mainCallClosure = buildIsolateSetupClosure(main, isolateMain);
     } else if (compiler.hasIncrementalSupport) {
-      mainCallClosure =
-          js('function() { return #(); }', namer.elementAccess(main));
+      mainCallClosure = js('function() { return #(); }', namer.elementAccess(main));
     } else {
       mainCallClosure = namer.elementAccess(main);
     }
 
     if (backend.needToInitializeIsolateAffinityTag) {
-      buffer.write(
-          jsAst.prettyPrint(generateIsolateAffinityTagInitialization(),
-                            compiler, monitor: compiler.dumpInfoTask));
+      buffer.write(jsAst.prettyPrint(generateIsolateAffinityTagInitialization(), compiler, monitor: compiler.dumpInfoTask));
       buffer.write(N);
     }
     if (backend.needToInitializeDispatchProperty) {
       assert(backend.needToInitializeIsolateAffinityTag);
-      buffer.write(
-          jsAst.prettyPrint(generateDispatchPropertyNameInitialization(),
-              compiler, monitor: compiler.dumpInfoTask));
+      buffer.write(jsAst.prettyPrint(generateDispatchPropertyNameInitialization(), compiler, monitor: compiler.dumpInfoTask));
       buffer.write(N);
     }
 
-    jsAst.Expression currentScriptAccess =
-        generateEmbeddedGlobalAccess(embeddedNames.CURRENT_SCRIPT);
+    jsAst.Expression currentScriptAccess = generateEmbeddedGlobalAccess(embeddedNames.CURRENT_SCRIPT);
 
     addComment('BEGIN invoke [main].', buffer);
     // This code finds the currently executing script by listening to the
@@ -1150,13 +1023,10 @@ class OldEmitter implements Emitter {
   } else {
     #([]);  // mainCallClosure.
   }
-})$N''', [currentScriptAccess,
-          mainCallClosure,
-          mainCallClosure]);
+})$N''', [currentScriptAccess, mainCallClosure, mainCallClosure]);
 
     buffer.write(';');
-    buffer.write(jsAst.prettyPrint(invokeMain,
-                 compiler, monitor: compiler.dumpInfoTask));
+    buffer.write(jsAst.prettyPrint(invokeMain, compiler, monitor: compiler.dumpInfoTask));
     buffer.write(N);
     addComment('END invoke [main].', buffer);
   }
@@ -1166,13 +1036,9 @@ class OldEmitter implements Emitter {
       function init() {
         $isolateProperties = Object.create(null);
         #; #; #;
-      }''', [
-          buildDefineClassAndFinishClassFunctionsIfNecessary(),
-          buildLazyInitializerFunctionIfNecessary(),
-          buildFinishIsolateConstructor()]);
+      }''', [buildDefineClassAndFinishClassFunctionsIfNecessary(), buildLazyInitializerFunctionIfNecessary(), buildFinishIsolateConstructor()]);
 
-    buffer.write(jsAst.prettyPrint(decl,
-                 compiler, monitor: compiler.dumpInfoTask).getText());
+    buffer.write(jsAst.prettyPrint(decl, compiler, monitor: compiler.dumpInfoTask).getText());
     if (compiler.enableMinification) buffer.write('\n');
   }
 
@@ -1224,10 +1090,7 @@ class OldEmitter implements Emitter {
       return;
     }
 
-    String libraryName =
-        (!compiler.enableMinification || backend.mustRetainLibraryNames) ?
-        library.getLibraryName() :
-        "";
+    String libraryName = (!compiler.enableMinification || backend.mustRetainLibraryNames) ? library.getLibraryName() : "";
 
     jsAst.Fun metadata = metadataEmitter.buildMetadataFunction(library);
 
@@ -1238,50 +1101,32 @@ class OldEmitter implements Emitter {
     buffer
         ..write('["$libraryName",$_')
         ..write('"${uri}",$_')
-        ..write(metadata == null ? "" : jsAst.prettyPrint(metadata,
-                                              compiler,
-                                              monitor: compiler.dumpInfoTask))
+        ..write(metadata == null ? "" : jsAst.prettyPrint(metadata, compiler, monitor: compiler.dumpInfoTask))
         ..write(',$_')
         ..write(namer.globalObjectFor(library))
         ..write(',$_')
-        ..write(jsAst.prettyPrint(initializers,
-                                  compiler,
-                                  monitor: compiler.dumpInfoTask))
+        ..write(jsAst.prettyPrint(initializers, compiler, monitor: compiler.dumpInfoTask))
         ..write(library == compiler.mainApp ? ',${n}1' : "")
         ..write('],$n');
   }
 
-  void emitPrecompiledConstructor(OutputUnit outputUnit,
-                                  String constructorName,
-                                  jsAst.Expression constructorAst) {
-    cspPrecompiledFunctionFor(outputUnit).add(
-        new jsAst.FunctionDeclaration(
-            new jsAst.VariableDeclaration(constructorName), constructorAst));
-    cspPrecompiledFunctionFor(outputUnit).add(
-    js.statement(r'''{
+  void emitPrecompiledConstructor(OutputUnit outputUnit, String constructorName, jsAst.Expression constructorAst) {
+    cspPrecompiledFunctionFor(outputUnit).add(new jsAst.FunctionDeclaration(new jsAst.VariableDeclaration(constructorName), constructorAst));
+    cspPrecompiledFunctionFor(outputUnit).add(js.statement(r'''{
           #.builtin$cls = #;
           if (!"name" in #)
               #.name = #;
           $desc=$collectedClasses.#;
           if ($desc instanceof Array) $desc = $desc[1];
           #.prototype = $desc;
-        }''',
-        [   constructorName, js.string(constructorName),
-            constructorName,
-            constructorName, js.string(constructorName),
-            constructorName,
-            constructorName
-         ]));
+        }''', [constructorName, js.string(constructorName), constructorName, constructorName, js.string(constructorName), constructorName, constructorName]));
 
     cspPrecompiledConstructorNamesFor(outputUnit).add(js('#', constructorName));
   }
 
   /// Extracts the output name of the compiler's outputUri.
-  String deferredPartFileName(OutputUnit outputUnit,
-                              {bool addExtension: true}) {
-    String outPath = compiler.outputUri != null
-        ? compiler.outputUri.path
-        : "out";
+  String deferredPartFileName(OutputUnit outputUnit, {bool addExtension: true}) {
+    String outPath = compiler.outputUri != null ? compiler.outputUri.path : "out";
     String outName = outPath.substring(outPath.lastIndexOf('/') + 1);
     String extension = addExtension ? ".part.js" : "";
     if (outputUnit == compiler.deferredLoadTask.mainOutputUnit) {
@@ -1320,11 +1165,8 @@ class OldEmitter implements Emitter {
       // TODO(karlklose): add a TypedefBuilder and move this code there.
       DartType type = typedef.alias;
       int typeIndex = metadataEmitter.reifyType(type);
-      String typeReference =
-          encoding.encodeTypedefFieldDescriptor(typeIndex);
-      jsAst.Property descriptor = new jsAst.Property(
-          js.string(namer.classDescriptorProperty),
-          js.string(typeReference));
+      String typeReference = encoding.encodeTypedefFieldDescriptor(typeIndex);
+      jsAst.Property descriptor = new jsAst.Property(js.string(namer.classDescriptorProperty), js.string(typeReference));
       jsAst.Node declaration = new jsAst.ObjectInitializer([descriptor]);
       String mangledName = namer.getNameX(typedef);
       String reflectionName = getReflectionName(typedef, mangledName);
@@ -1334,9 +1176,7 @@ class OldEmitter implements Emitter {
       // Also emit a trivial constructor for CSP mode.
       String constructorName = mangledName;
       jsAst.Expression constructorAst = js('function() {}');
-      emitPrecompiledConstructor(mainOutputUnit,
-                                 constructorName,
-                                 constructorAst);
+      emitPrecompiledConstructor(mainOutputUnit, constructorName, constructorAst);
     }
   }
 
@@ -1350,14 +1190,9 @@ class OldEmitter implements Emitter {
         properties.add(new jsAst.Property(js.string(key), value));
       }
 
-      jsAst.Expression mangledNamesAccess =
-          generateEmbeddedGlobalAccess(embeddedNames.MANGLED_NAMES);
+      jsAst.Expression mangledNamesAccess = generateEmbeddedGlobalAccess(embeddedNames.MANGLED_NAMES);
       var map = new jsAst.ObjectInitializer(properties);
-      mainBuffer.write(
-          jsAst.prettyPrint(
-              js.statement('# = #', [mangledNamesAccess, map]),
-              compiler,
-              monitor: compiler.dumpInfoTask));
+      mainBuffer.write(jsAst.prettyPrint(js.statement('# = #', [mangledNamesAccess, map]), compiler, monitor: compiler.dumpInfoTask));
       if (compiler.enableMinification) {
         mainBuffer.write(';');
       }
@@ -1370,14 +1205,9 @@ class OldEmitter implements Emitter {
         var value = js.string('${mangledGlobalFieldNames[key]}');
         properties.add(new jsAst.Property(js.string(key), value));
       }
-      jsAst.Expression mangledGlobalNamesAccess =
-          generateEmbeddedGlobalAccess(embeddedNames.MANGLED_GLOBAL_NAMES);
+      jsAst.Expression mangledGlobalNamesAccess = generateEmbeddedGlobalAccess(embeddedNames.MANGLED_GLOBAL_NAMES);
       var map = new jsAst.ObjectInitializer(properties);
-      mainBuffer.write(
-          jsAst.prettyPrint(
-              js.statement('# = #', [mangledGlobalNamesAccess, map]),
-              compiler,
-              monitor: compiler.dumpInfoTask));
+      mainBuffer.write(jsAst.prettyPrint(js.statement('# = #', [mangledGlobalNamesAccess, map]), compiler, monitor: compiler.dumpInfoTask));
       if (compiler.enableMinification) {
         mainBuffer.write(';');
       }
@@ -1387,22 +1217,19 @@ class OldEmitter implements Emitter {
   void checkEverythingEmitted(Iterable<Element> elements) {
     List<Element> pendingStatics;
     if (!compiler.hasIncrementalSupport) {
-      pendingStatics =
-          Elements.sortedByPosition(elements.where((e) => !e.isLibrary));
+      pendingStatics = Elements.sortedByPosition(elements.where((e) => !e.isLibrary));
 
-      pendingStatics.forEach((element) =>
-          compiler.reportInfo(
-              element, MessageKind.GENERIC, {'text': 'Pending statics.'}));
+      pendingStatics.forEach((element) => compiler.reportInfo(element, MessageKind.GENERIC, {
+        'text': 'Pending statics.'
+      }));
     }
 
     if (pendingStatics != null && !pendingStatics.isEmpty) {
-      compiler.internalError(pendingStatics.first,
-          'Pending statics (see above).');
+      compiler.internalError(pendingStatics.first, 'Pending statics (see above).');
     }
   }
 
-  void emitMainOutputUnit(Map<OutputUnit, String> deferredLoadHashes,
-                          CodeBuffer nativeBuffer) {
+  void emitMainOutputUnit(Map<OutputUnit, String> deferredLoadHashes, CodeBuffer nativeBuffer) {
     bool isProgramSplit = compiler.deferredLoadTask.isProgramSplit;
     OutputUnit mainOutputUnit = compiler.deferredLoadTask.mainOutputUnit;
 
@@ -1414,29 +1241,21 @@ class OldEmitter implements Emitter {
       /// variable. The deferred hunks will add their initialization to this.
       /// The semicolon is important in minified mode, without it the
       /// following parenthesis looks like a call to the object literal.
-      mainBuffer..add(
-          'self.${deferredInitializers} = self.${deferredInitializers} || '
-          'Object.create(null);$n');
+      mainBuffer..add('self.${deferredInitializers} = self.${deferredInitializers} || ' 'Object.create(null);$n');
     }
 
     // Using a named function here produces easier to read stack traces in
     // Chrome/V8.
     mainBuffer.add('(function(${namer.currentIsolate})$_{\n');
     if (compiler.hasIncrementalSupport) {
-      mainBuffer.add(
-          '(this.\$dart_unsafe_eval ='
-          ' this.\$dart_unsafe_eval || Object.create(null))'
-          '.patch = function(a) { eval(a) }$N');
+      mainBuffer.add('(this.\$dart_unsafe_eval =' ' this.\$dart_unsafe_eval || Object.create(null))' '.patch = function(a) { eval(a) }$N');
     }
     if (isProgramSplit) {
       /// We collect all the global state of the, so it can be passed to the
       /// initializer of deferred files.
       mainBuffer.add('var ${globalsHolder}$_=${_}Object.create(null)$N');
     }
-    mainBuffer.add('function dart()$_{$n'
-        '${_}${_}this.x$_=${_}0$N'
-        '${_}${_}delete this.x$N'
-        '}$n');
+    mainBuffer.add('function dart()$_{$n' '${_}${_}this.x$_=${_}0$N' '${_}${_}delete this.x$N' '}$n');
     for (String globalObject in Namer.reservedGlobalObjectNames) {
       // The global objects start as so-called "slow objects". For V8, this
       // means that it won't try to make map transitions as we add properties
@@ -1444,7 +1263,7 @@ class OldEmitter implements Emitter {
       // fast objects by calling "convertToFastObject" (see
       // [emitConvertToFastObjectFunction]).
       mainBuffer.write('var ${globalObject}$_=${_}');
-      if(isProgramSplit) {
+      if (isProgramSplit) {
         mainBuffer.add('${globalsHolder}.$globalObject$_=${_}');
       }
       mainBuffer.write('new dart$N');
@@ -1452,10 +1271,7 @@ class OldEmitter implements Emitter {
 
     mainBuffer.add('function ${namer.isolateName}()$_{}\n');
     if (isProgramSplit) {
-      mainBuffer
-        .write('${globalsHolder}.${namer.isolateName}$_=$_'
-               '${namer.isolateName}$N'
-               '${globalsHolder}.$initName$_=${_}$initName$N');
+      mainBuffer.write('${globalsHolder}.${namer.isolateName}$_=$_' '${namer.isolateName}$N' '${globalsHolder}.$initName$_=${_}$initName$N');
     }
     mainBuffer.add('init()$N$n');
     mainBuffer.add('$isolateProperties$_=$_$isolatePropertiesName$N');
@@ -1463,10 +1279,7 @@ class OldEmitter implements Emitter {
     emitStaticFunctions(task.outputStaticLists[mainOutputUnit]);
 
     // Only output the classesCollector if we actually have any classes.
-    if (!(nativeClasses.isEmpty &&
-          compiler.codegenWorld.staticFunctionsNeedingGetter.isEmpty &&
-          outputClassLists.values.every((classList) => classList.isEmpty) &&
-          typedefsNeededForReflection.isEmpty)) {
+    if (!(nativeClasses.isEmpty && compiler.codegenWorld.staticFunctionsNeedingGetter.isEmpty && outputClassLists.values.every((classList) => classList.isEmpty) && typedefsNeededForReflection.isEmpty)) {
       // Shorten the code by using "$$" as temporary.
       classesCollector = r"$$";
       mainBuffer.add('var $classesCollector$_=${_}Object.create(null)$N$n');
@@ -1488,8 +1301,7 @@ class OldEmitter implements Emitter {
     }
 
     if (elementDescriptors.isNotEmpty) {
-      Iterable<LibraryElement> libraries =
-          task.outputLibraryLists[mainOutputUnit];
+      Iterable<LibraryElement> libraries = task.outputLibraryLists[mainOutputUnit];
       if (libraries == null) libraries = [];
       emitLibraries(libraries);
       emitTypedefs();
@@ -1505,10 +1317,7 @@ class OldEmitter implements Emitter {
 
       mainBuffer
           ..write('(')
-          ..write(
-              jsAst.prettyPrint(
-                  getReflectionDataParser(classesCollector, backend),
-                  compiler))
+          ..write(jsAst.prettyPrint(getReflectionDataParser(classesCollector, backend), compiler))
           ..write(')')
           ..write('([$n')
           ..add(libraryBuffer)
@@ -1551,8 +1360,7 @@ class OldEmitter implements Emitter {
     mainBuffer.add('${namer.currentIsolate}$_=${_}null$N');
 
     emitFinishIsolateConstructorInvocation(mainBuffer);
-    mainBuffer.add(
-        '${namer.currentIsolate}$_=${_}new ${namer.isolateName}()$N');
+    mainBuffer.add('${namer.currentIsolate}$_=${_}new ${namer.isolateName}()$N');
 
     emitConvertToFastObjectFunction();
     for (String globalObject in Namer.reservedGlobalObjectNames) {
@@ -1588,7 +1396,7 @@ class OldEmitter implements Emitter {
          }
 ''');
       for (String object in Namer.userGlobalObjects) {
-      mainBuffer.add('''
+        mainBuffer.add('''
         if (typeof print === "function") {
            print("Size of $object: "
                  + String(Object.getOwnPropertyNames($object).length)
@@ -1598,27 +1406,19 @@ class OldEmitter implements Emitter {
       }
     }
 
-    jsAst.FunctionDeclaration precompiledFunctionAst =
-        buildCspPrecompiledFunctionFor(mainOutputUnit);
+    jsAst.FunctionDeclaration precompiledFunctionAst = buildCspPrecompiledFunctionFor(mainOutputUnit);
     emitInitFunction(mainBuffer);
     emitMain(mainBuffer);
     mainBuffer.add('})()\n');
 
     if (compiler.useContentSecurityPolicy) {
-      mainBuffer.write(
-          jsAst.prettyPrint(
-              precompiledFunctionAst,
-              compiler,
-              monitor: compiler.dumpInfoTask,
-              allowVariableMinification: false).getText());
+      mainBuffer.write(jsAst.prettyPrint(precompiledFunctionAst, compiler, monitor: compiler.dumpInfoTask, allowVariableMinification: false).getText());
     }
 
     String assembledCode = mainBuffer.getText();
     if (generateSourceMap) {
-      outputSourceMap(assembledCode, mainBuffer, '',
-          compiler.sourceMapUri, compiler.outputUri);
-      mainBuffer.add(
-          generateSourceMapTag(compiler.sourceMapUri, compiler.outputUri));
+      outputSourceMap(assembledCode, mainBuffer, '', compiler.sourceMapUri, compiler.outputUri);
+      mainBuffer.add(generateSourceMapTag(compiler.sourceMapUri, compiler.outputUri));
       assembledCode = mainBuffer.getText();
     }
 
@@ -1645,10 +1445,7 @@ class OldEmitter implements Emitter {
   }
 }\n""");
 
-      cspBuffer.write(
-          jsAst.prettyPrint(
-              precompiledFunctionAst, compiler,
-              allowVariableMinification: false).getText());
+      cspBuffer.write(jsAst.prettyPrint(precompiledFunctionAst, compiler, allowVariableMinification: false).getText());
 
       compiler.outputProvider('', 'precompiled.js')
           ..add(cspBuffer.getText())
@@ -1663,8 +1460,7 @@ class OldEmitter implements Emitter {
   Map<OutputUnit, String> emitDeferredOutputUnits() {
     if (!compiler.deferredLoadTask.isProgramSplit) return const {};
 
-    Map<OutputUnit, CodeBuffer> outputBuffers =
-        new Map<OutputUnit, CodeBuffer>();
+    Map<OutputUnit, CodeBuffer> outputBuffers = new Map<OutputUnit, CodeBuffer>();
 
     for (OutputUnit outputUnit in compiler.deferredLoadTask.allOutputUnits) {
       if (outputUnit == compiler.deferredLoadTask.mainOutputUnit) continue;
@@ -1682,8 +1478,7 @@ class OldEmitter implements Emitter {
       }
 
       if (elementDescriptors.isNotEmpty) {
-        Iterable<LibraryElement> libraries =
-            task.outputLibraryLists[outputUnit];
+        Iterable<LibraryElement> libraries = task.outputLibraryLists[outputUnit];
         if (libraries == null) libraries = [];
         emitLibraries(libraries);
 
@@ -1708,8 +1503,7 @@ class OldEmitter implements Emitter {
 
     addComment('Native classes', nativeBuffer);
 
-    nativeEmitter.generateNativeClasses(nativeClasses, mainBuffer,
-        additionalProperties);
+    nativeEmitter.generateNativeClasses(nativeClasses, mainBuffer, additionalProperties);
 
     nativeEmitter.finishGenerateNativeClasses();
     nativeEmitter.assembleCode(nativeBuffer);
@@ -1732,8 +1526,7 @@ class OldEmitter implements Emitter {
     CodeBuffer nativeBuffer = buildNativesBuffer();
     emitMainOutputUnit(deferredLoadHashes, nativeBuffer);
 
-    if (backend.requiresPreamble &&
-        !backend.htmlLibraryIsLoaded) {
+    if (backend.requiresPreamble && !backend.htmlLibraryIsLoaded) {
       compiler.reportHint(NO_LOCATION_SPANNABLE, MessageKind.PREAMBLE);
     }
   }
@@ -1755,51 +1548,32 @@ class OldEmitter implements Emitter {
       // For static (not top level) elements, record their code in a buffer
       // specific to the class. For now, not supported for native classes and
       // native elements.
-      ClassElement cls =
-          element.enclosingClassOrCompilationUnit.declaration;
-      if (compiler.codegenWorld.directlyInstantiatedClasses.contains(cls)
-          && !cls.isNative) {
+      ClassElement cls = element.enclosingClassOrCompilationUnit.declaration;
+      if (compiler.codegenWorld.directlyInstantiatedClasses.contains(cls) && !cls.isNative) {
         owner = cls;
       }
     }
     if (owner == null) {
       compiler.internalError(element, 'Owner is null.');
     }
-    return elementDescriptors.putIfAbsent(
-        owner,
-        () => new ClassBuilder(owner, namer));
+    return elementDescriptors.putIfAbsent(owner, () => new ClassBuilder(owner, namer));
   }
 
   /// Emits support-code for deferred loading into [buffer].
-  void emitDeferredBoilerPlate(CodeBuffer buffer,
-                               Map<OutputUnit, String> deferredLoadHashes) {
+  void emitDeferredBoilerPlate(CodeBuffer buffer, Map<OutputUnit, String> deferredLoadHashes) {
     // Function for checking if a hunk is loaded given its hash.
-    buffer.write(jsAst.prettyPrint(
-        js('# = function(hunkHash) {'
-           '  return !!$deferredInitializers[hunkHash];'
-           '}', generateEmbeddedGlobalAccess(embeddedNames.IS_HUNK_LOADED)),
-        compiler, monitor: compiler.dumpInfoTask));
+    buffer.write(jsAst.prettyPrint(js('# = function(hunkHash) {' '  return !!$deferredInitializers[hunkHash];' '}', generateEmbeddedGlobalAccess(embeddedNames.IS_HUNK_LOADED)), compiler, monitor: compiler.dumpInfoTask));
     buffer.write('$N');
     // Function for initializing a loaded hunk, given its hash.
-    buffer.write(jsAst.prettyPrint(
-        js('# = function(hunkHash) {'
-           '  $deferredInitializers[hunkHash]('
-                '$globalsHolder, ${namer.currentIsolate})'
-           '}',
-           generateEmbeddedGlobalAccess(
-               embeddedNames.INITIALIZE_LOADED_HUNK)),
-        compiler, monitor: compiler.dumpInfoTask));
+    buffer.write(jsAst.prettyPrint(js('# = function(hunkHash) {' '  $deferredInitializers[hunkHash](' '$globalsHolder, ${namer.currentIsolate})' '}', generateEmbeddedGlobalAccess(embeddedNames.INITIALIZE_LOADED_HUNK)), compiler, monitor: compiler.dumpInfoTask));
     buffer.write('$N');
     // Write a javascript mapping from Deferred import load ids (derrived
     // from the import prefix.) to a list of lists of uris of hunks to load,
     // and a corresponding mapping to a list of hashes used by
     // INITIALIZE_LOADED_HUNK and IS_HUNK_LOADED.
-    Map<String, List<String>> deferredLibraryUris =
-        new Map<String, List<String>>();
-    Map<String, List<String>> deferredLibraryHashes =
-        new Map<String, List<String>>();
-    compiler.deferredLoadTask.hunksToLoad.forEach(
-                  (String loadId, List<OutputUnit>outputUnits) {
+    Map<String, List<String>> deferredLibraryUris = new Map<String, List<String>>();
+    Map<String, List<String>> deferredLibraryHashes = new Map<String, List<String>>();
+    compiler.deferredLoadTask.hunksToLoad.forEach((String loadId, List<OutputUnit> outputUnits) {
       List<String> uris = new List<String>();
       List<String> hashes = new List<String>();
       deferredLibraryHashes[loadId] = new List<String>();
@@ -1815,31 +1589,24 @@ class OldEmitter implements Emitter {
     void emitMapping(String name, Map<String, List<String>> mapping) {
       List<jsAst.Property> properties = new List<jsAst.Property>();
       mapping.forEach((String key, List<String> values) {
-        properties.add(new jsAst.Property(js.escapedString(key),
-            new jsAst.ArrayInitializer.from(
-                values.map(js.escapedString))));
+        properties.add(new jsAst.Property(js.escapedString(key), new jsAst.ArrayInitializer.from(values.map(js.escapedString))));
       });
-      jsAst.Node initializer =
-          new jsAst.ObjectInitializer(properties, isOneLiner: true);
+      jsAst.Node initializer = new jsAst.ObjectInitializer(properties, isOneLiner: true);
 
       jsAst.Node globalName = generateEmbeddedGlobalAccess(name);
-      buffer.write(jsAst.prettyPrint(
-          js("# = #", [globalName, initializer]),
-          compiler, monitor: compiler.dumpInfoTask));
+      buffer.write(jsAst.prettyPrint(js("# = #", [globalName, initializer]), compiler, monitor: compiler.dumpInfoTask));
       buffer.write('$N');
 
     }
 
     emitMapping(embeddedNames.DEFERRED_LIBRARY_URIS, deferredLibraryUris);
-    emitMapping(embeddedNames.DEFERRED_LIBRARY_HASHES,
-                deferredLibraryHashes);
+    emitMapping(embeddedNames.DEFERRED_LIBRARY_HASHES, deferredLibraryHashes);
   }
 
   /// Emits code for all output units except the main.
   /// Returns a mapping from outputUnit to a hash of the corresponding hunk that
   /// can be used for calling the initializer.
-  Map<OutputUnit, String> emitDeferredCode(
-      Map<OutputUnit, CodeBuffer> deferredBuffers) {
+  Map<OutputUnit, String> emitDeferredCode(Map<OutputUnit, CodeBuffer> deferredBuffers) {
 
     Map<OutputUnit, String> hunkHashes = new Map<OutputUnit, String>();
 
@@ -1850,41 +1617,33 @@ class OldEmitter implements Emitter {
 
       CodeBuffer outputBuffer = new CodeBuffer();
 
-      outputBuffer..write(buildGeneratedBy())
-        ..write('${deferredInitializers}.current$_=$_'
-                'function$_(${globalsHolder}) {$N');
+      outputBuffer
+          ..write(buildGeneratedBy())
+          ..write('${deferredInitializers}.current$_=$_' 'function$_(${globalsHolder}) {$N');
       for (String globalObject in Namer.reservedGlobalObjectNames) {
-        outputBuffer
-            .write('var $globalObject$_=$_'
-                   '${globalsHolder}.$globalObject$N');
+        outputBuffer.write('var $globalObject$_=$_' '${globalsHolder}.$globalObject$N');
       }
       outputBuffer
           ..write('var init$_=$_${globalsHolder}.init$N')
-          ..write('var ${namer.isolateName}$_=$_'
-                    '${globalsHolder}.${namer.isolateName}$N');
+          ..write('var ${namer.isolateName}$_=$_' '${globalsHolder}.${namer.isolateName}$N');
       if (libraryDescriptorBuffer != null) {
-      // TODO(ahe): This defines a lot of properties on the
-      // Isolate.prototype object.  We know this will turn it into a
-      // slow object in V8, so instead we should do something similar
-      // to Isolate.$finishIsolateConstructor.
-         outputBuffer
-           ..write('var ${namer.currentIsolate}$_=$_$isolatePropertiesName$N')
-           // The classesCollector object ($$).
-           ..write('$classesCollector$_=${_}Object.create(null);$n')
-           ..write('(')
-           ..write(
-               jsAst.prettyPrint(
-                   getReflectionDataParser(classesCollector, backend),
-                   compiler, monitor: compiler.dumpInfoTask))
-           ..write(')')
-           ..write('([$n')
-           ..addBuffer(libraryDescriptorBuffer)
-           ..write('])$N');
+        // TODO(ahe): This defines a lot of properties on the
+        // Isolate.prototype object.  We know this will turn it into a
+        // slow object in V8, so instead we should do something similar
+        // to Isolate.$finishIsolateConstructor.
+        outputBuffer
+            ..write('var ${namer.currentIsolate}$_=$_$isolatePropertiesName$N')
+            // The classesCollector object ($$).
+            ..write('$classesCollector$_=${_}Object.create(null);$n')
+            ..write('(')
+            ..write(jsAst.prettyPrint(getReflectionDataParser(classesCollector, backend), compiler, monitor: compiler.dumpInfoTask))
+            ..write(')')
+            ..write('([$n')
+            ..addBuffer(libraryDescriptorBuffer)
+            ..write('])$N');
 
         if (outputClassLists.containsKey(outputUnit)) {
-          outputBuffer.write(
-              '$finishClassesName($classesCollector,$_${namer.currentIsolate},'
-              '$_$isolatePropertiesName)$N');
+          outputBuffer.write('$finishClassesName($classesCollector,$_${namer.currentIsolate},' '$_$isolatePropertiesName)$N');
         }
 
       }
@@ -1905,14 +1664,9 @@ class OldEmitter implements Emitter {
       outputBuffer.write('}$N');
 
       if (compiler.useContentSecurityPolicy) {
-        jsAst.FunctionDeclaration precompiledFunctionAst =
-            buildCspPrecompiledFunctionFor(outputUnit);
+        jsAst.FunctionDeclaration precompiledFunctionAst = buildCspPrecompiledFunctionFor(outputUnit);
 
-        outputBuffer.write(
-            jsAst.prettyPrint(
-                precompiledFunctionAst, compiler,
-                monitor: compiler.dumpInfoTask,
-                allowVariableMinification: false).getText());
+        outputBuffer.write(jsAst.prettyPrint(precompiledFunctionAst, compiler, monitor: compiler.dumpInfoTask, allowVariableMinification: false).getText());
       }
 
       // Make a unique hash of the code (before the sourcemaps are added)
@@ -1920,12 +1674,12 @@ class OldEmitter implements Emitter {
       // variable.
       String hash = hashOfString(outputBuffer.getText());
 
-      outputBuffer.add('${deferredInitializers}["$hash"]$_=$_'
-                       '${deferredInitializers}.current$N');
+      outputBuffer.add('${deferredInitializers}["$hash"]$_=$_' '${deferredInitializers}.current$N');
 
       String partPrefix = deferredPartFileName(outputUnit, addExtension: false);
       if (generateSourceMap) {
-        Uri mapUri, partUri;
+        Uri mapUri;
+        Uri partUri;
         Uri sourceMapUri = compiler.sourceMapUri;
         Uri outputUri = compiler.outputUri;
 
@@ -1945,15 +1699,14 @@ class OldEmitter implements Emitter {
           partUri = compiler.outputUri.replace(pathSegments: partSegments);
         }
 
-        outputSourceMap(outputBuffer.getText(), outputBuffer, partName,
-            mapUri, partUri);
+        outputSourceMap(outputBuffer.getText(), outputBuffer, partName, mapUri, partUri);
         outputBuffer.add(generateSourceMapTag(mapUri, partUri));
       }
 
       outputBuffers[outputUnit] = outputBuffer;
       compiler.outputProvider(partPrefix, 'part.js')
-        ..add(outputBuffer.getText())
-        ..close();
+          ..add(outputBuffer.getText())
+          ..close();
 
       hunkHashes[outputUnit] = hash;
     }
@@ -1966,14 +1719,12 @@ class OldEmitter implements Emitter {
     return '// Generated by dart2js, the Dart to JavaScript compiler$suffix.\n';
   }
 
-  void outputSourceMap(String code, CodeBuffer buffer, String name,
-                       [Uri sourceMapUri, Uri fileUri]) {
+  void outputSourceMap(String code, CodeBuffer buffer, String name, [Uri sourceMapUri, Uri fileUri]) {
     if (!generateSourceMap) return;
     // Create a source file for the compilation output. This allows using
     // [:getLine:] to transform offsets to line numbers in [SourceMapBuilder].
     SourceFile compiledFile = new StringSourceFile(null, code);
-    SourceMapBuilder sourceMapBuilder =
-            new SourceMapBuilder(sourceMapUri, fileUri, compiledFile);
+    SourceMapBuilder sourceMapBuilder = new SourceMapBuilder(sourceMapUri, fileUri, compiledFile);
     buffer.forEachSourceLocation(sourceMapBuilder.addMapping);
     String sourceMap = sourceMapBuilder.build();
     compiler.outputProvider(name, 'js.map')

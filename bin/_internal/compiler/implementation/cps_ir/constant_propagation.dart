@@ -33,16 +33,14 @@ class ConstantPropagator implements Pass {
     // Analyze. In this phase, the entire term is analyzed for reachability
     // and the constant status of each expression.
 
-    _ConstPropagationVisitor analyzer =
-        new _ConstPropagationVisitor(_compiler, _constantSystem);
+    _ConstPropagationVisitor analyzer = new _ConstPropagationVisitor(_compiler, _constantSystem);
     analyzer.analyze(root);
 
     // Transform. Uses the data acquired in the previous analysis phase to
     // replace branches with fixed targets and side-effect-free expressions
     // with constant results.
 
-    _TransformingVisitor transformer = new _TransformingVisitor(
-        analyzer.reachableNodes, analyzer.node2value);
+    _TransformingVisitor transformer = new _TransformingVisitor(analyzer.reachableNodes, analyzer.node2value);
     transformer.transform(root);
   }
 }
@@ -65,9 +63,7 @@ class _TransformingVisitor extends RecursiveVisitor {
   /// Given an expression with a known constant result and a continuation,
   /// replaces the expression by a new LetPrim / InvokeContinuation construct.
   /// `unlink` is a closure responsible for unlinking all removed references.
-  LetPrim constifyExpression(Expression node,
-                             Continuation continuation,
-                             void unlink()) {
+  LetPrim constifyExpression(Expression node, Continuation continuation, void unlink()) {
     _ConstnessLattice cell = node2value[node];
     if (cell == null || !cell.isConstant) {
       return null;
@@ -78,12 +74,10 @@ class _TransformingVisitor extends RecursiveVisitor {
     // Set up the replacement structure.
 
     PrimitiveConstantValue primitiveConstant = cell.constant;
-    ConstantExpression constExp =
-        new PrimitiveConstantExpression(primitiveConstant);
+    ConstantExpression constExp = new PrimitiveConstantExpression(primitiveConstant);
     Constant constant = new Constant(constExp);
     LetPrim letPrim = new LetPrim(constant);
-    InvokeContinuation invoke =
-        new InvokeContinuation(continuation, <Definition>[constant]);
+    InvokeContinuation invoke = new InvokeContinuation(continuation, <Definition>[constant]);
 
     invoke.parent = constant.parent = letPrim;
     letPrim.body = invoke;
@@ -106,10 +100,10 @@ class _TransformingVisitor extends RecursiveVisitor {
   //
   // (Branch (IsTrue true) k0 k1) -> (InvokeContinuation k0)
   void visitBranch(Branch node) {
-    bool trueReachable  = reachable.contains(node.trueContinuation.definition);
+    bool trueReachable = reachable.contains(node.trueContinuation.definition);
     bool falseReachable = reachable.contains(node.falseContinuation.definition);
-    bool bothReachable  = (trueReachable && falseReachable);
-    bool noneReachable  = !(trueReachable || falseReachable);
+    bool bothReachable = (trueReachable && falseReachable);
+    bool noneReachable = !(trueReachable || falseReachable);
 
     if (bothReachable || noneReachable) {
       // Nothing to do, shrinking reductions take care of the unreachable case.
@@ -117,14 +111,12 @@ class _TransformingVisitor extends RecursiveVisitor {
       return;
     }
 
-    Continuation successor = (trueReachable) ?
-        node.trueContinuation.definition : node.falseContinuation.definition;
+    Continuation successor = (trueReachable) ? node.trueContinuation.definition : node.falseContinuation.definition;
 
     // Replace the branch by a continuation invocation.
 
     assert(successor.parameters.isEmpty);
-    InvokeContinuation invoke =
-        new InvokeContinuation(successor, <Definition>[]);
+    InvokeContinuation invoke = new InvokeContinuation(successor, <Definition>[]);
 
     InteriorNode parent = node.parent;
     invoke.parent = parent;
@@ -251,7 +243,7 @@ class _ConstPropagationVisitor extends Visitor {
           visit(ref.parent);
         }
       } else {
-        break;  // Both worklists empty.
+        break; // Both worklists empty.
       }
     }
   }
@@ -295,8 +287,7 @@ class _ConstPropagationVisitor extends Visitor {
   // -------------------------- Visitor overrides ------------------------------
 
   void visitNode(Node node) {
-    compiler.internalError(NO_LOCATION_SPANNABLE,
-        "_ConstPropagationVisitor is stale, add missing visit overrides");
+    compiler.internalError(NO_LOCATION_SPANNABLE, "_ConstPropagationVisitor is stale, add missing visit overrides");
   }
 
   void visitFunctionDefinition(FunctionDefinition node) {
@@ -358,7 +349,7 @@ class _ConstPropagationVisitor extends Visitor {
       // and thus evaluation to `true` would not be correct.
       // TODO(jgruber): Handle such cases while ensuring that new Foo() and
       // a type-check (in checked mode) are still executed.
-      return;  // And come back later.
+      return; // And come back later.
     } else if (lhs.isNonConst) {
       setValues(_ConstnessLattice.NonConst);
       return;
@@ -399,9 +390,8 @@ class _ConstPropagationVisitor extends Visitor {
     // Update value of the continuation parameter. Again, this is effectively
     // a phi.
 
-    setValues((result == null) ?
-        _ConstnessLattice.NonConst : new _ConstnessLattice(result));
-   }
+    setValues((result == null) ? _ConstnessLattice.NonConst : new _ConstnessLattice(result));
+  }
 
   void visitInvokeSuperMethod(InvokeSuperMethod node) {
     Continuation cont = node.continuation.definition;
@@ -462,23 +452,20 @@ class _ConstPropagationVisitor extends Visitor {
     _ConstnessLattice conditionCell = getValue(isTrue.value.definition);
 
     if (conditionCell.isUnknown) {
-      return;  // And come back later.
+      return; // And come back later.
     } else if (conditionCell.isNonConst) {
       setReachable(node.trueContinuation.definition);
       setReachable(node.falseContinuation.definition);
-    } else if (conditionCell.isConstant &&
-        !(conditionCell.constant.isBool)) {
+    } else if (conditionCell.isConstant && !(conditionCell.constant.isBool)) {
       // Treat non-bool constants in condition as non-const since they result
       // in type errors in checked mode.
       // TODO(jgruber): Default to false in unchecked mode.
       setReachable(node.trueContinuation.definition);
       setReachable(node.falseContinuation.definition);
       setValue(isTrue.value.definition, _ConstnessLattice.NonConst);
-    } else if (conditionCell.isConstant &&
-        conditionCell.constant.isBool) {
+    } else if (conditionCell.isConstant && conditionCell.constant.isBool) {
       BoolConstantValue boolConstant = conditionCell.constant;
-      setReachable((boolConstant.isTrue) ?
-          node.trueContinuation.definition : node.falseContinuation.definition);
+      setReachable((boolConstant.isTrue) ? node.trueContinuation.definition : node.falseContinuation.definition);
     }
   }
 
@@ -499,7 +486,7 @@ class _ConstPropagationVisitor extends Visitor {
 
     _ConstnessLattice cell = getValue(node.receiver.definition);
     if (cell.isUnknown) {
-      return;  // And come back later.
+      return; // And come back later.
     } else if (cell.isNonConst) {
       setValues(_ConstnessLattice.NonConst);
     } else if (node.type.kind == types.TypeKind.INTERFACE) {
@@ -510,17 +497,12 @@ class _ConstPropagationVisitor extends Visitor {
       types.DartType constantType = constant.computeType(compiler);
 
       _ConstnessLattice result = _ConstnessLattice.NonConst;
-      if (constant.isNull &&
-          checkedType.element != compiler.nullClass &&
-          checkedType.element != compiler.objectClass) {
+      if (constant.isNull && checkedType.element != compiler.nullClass && checkedType.element != compiler.objectClass) {
         // `(null is Type)` is true iff Type is in { Null, Object }.
         result = new _ConstnessLattice(new FalseConstantValue());
       } else {
         // Otherwise, perform a standard subtype check.
-        result = new _ConstnessLattice(
-            constantSystem.isSubtype(compiler, constantType, checkedType)
-            ? new TrueConstantValue()
-            : new FalseConstantValue());
+        result = new _ConstnessLattice(constantSystem.isSubtype(compiler, constantType, checkedType) ? new TrueConstantValue() : new FalseConstantValue());
       }
 
       setValues(result);
@@ -563,8 +545,7 @@ class _ConstPropagationVisitor extends Visitor {
 
   void visitCreateFunction(CreateFunction node) {
     setReachable(node.definition);
-    ConstantValue constant =
-        new FunctionConstantValue(node.definition.element);
+    ConstantValue constant = new FunctionConstantValue(node.definition.element);
     setValue(node, new _ConstnessLattice(constant));
   }
 
@@ -610,37 +591,38 @@ class _ConstPropagationVisitor extends Visitor {
 /// CONSTANT: is a constant as stored in the local field.
 /// NONCONST: not a constant.
 class _ConstnessLattice {
-  static const int UNKNOWN  = 0;
+  static const int UNKNOWN = 0;
   static const int CONSTANT = 1;
   static const int NONCONST = 2;
 
   final int kind;
   final ConstantValue constant;
 
-  static final _ConstnessLattice Unknown =
-      new _ConstnessLattice._internal(UNKNOWN, null);
-  static final _ConstnessLattice NonConst =
-      new _ConstnessLattice._internal(NONCONST, null);
+  static final _ConstnessLattice Unknown = new _ConstnessLattice._internal(UNKNOWN, null);
+  static final _ConstnessLattice NonConst = new _ConstnessLattice._internal(NONCONST, null);
 
   _ConstnessLattice._internal(this.kind, this.constant);
   _ConstnessLattice(this.constant) : kind = CONSTANT {
     assert(this.constant != null);
   }
 
-  bool get isUnknown  => (kind == UNKNOWN);
+  bool get isUnknown => (kind == UNKNOWN);
   bool get isConstant => (kind == CONSTANT);
   bool get isNonConst => (kind == NONCONST);
 
   int get hashCode => kind | (constant.hashCode << 2);
-  bool operator==(_ConstnessLattice that) =>
-      (that.kind == this.kind && that.constant == this.constant);
+  bool operator ==(_ConstnessLattice that) => (that.kind == this.kind && that.constant == this.constant);
 
   String toString() {
     switch (kind) {
-      case UNKNOWN: return "Unknown";
-      case CONSTANT: return "Constant: $constant";
-      case NONCONST: return "Non-constant";
-      default: assert(false);
+      case UNKNOWN:
+        return "Unknown";
+      case CONSTANT:
+        return "Constant: $constant";
+      case NONCONST:
+        return "Non-constant";
+      default:
+        assert(false);
     }
     return null;
   }
